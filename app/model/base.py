@@ -16,14 +16,13 @@ class Base:
 
 
 class UserSystemRole(str, Enum):
+    SUPPER_ADMIN = "SUPPER_ADMIN"
     ADMIN = "ADMIN"
-    MANAGER = "MANAGER"
+    FARMER = "FARMER"
+    SEEDLING_COMPANY = "SEEDLING_COMPANY"
+    MANUFACTURER = "MANUFACTURER"
     MEMBER = "MEMBER"
 
-
-class CourseType(str, Enum):
-    FREE = "FREE"
-    PRO = "PRO"
 
 
 class CourseRole(str, Enum):

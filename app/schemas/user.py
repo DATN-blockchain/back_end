@@ -16,6 +16,8 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
     birthday: Optional[date] = None
     phone: Optional[str] = None
+    address_wallet: Optional[str] = None
+    address_real: Optional[str] = None
     is_active: Union[bool, None] = None
     system_role: Optional[str] = None
 
