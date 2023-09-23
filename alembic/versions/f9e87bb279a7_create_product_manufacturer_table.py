@@ -21,9 +21,9 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.create_table('product_manufacturer',
                     sa.Column('id', sa.String(length=255), nullable=False),
-                    sa.Column('user_id', sa.String(length=255), nullable=False),
+                    sa.Column('product_id', sa.String(length=255), nullable=False),
                     sa.Column('transaction_fm_id', sa.String(length=255), nullable=False),
-                    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+                    sa.ForeignKeyConstraint(['product_id'], ['product.id'], ondelete='CASCADE'),
                     sa.ForeignKeyConstraint(['transaction_fm_id'], ['transaction_fm.id'], ondelete='CASCADE'),
                     sa.PrimaryKeyConstraint('id')
                     )

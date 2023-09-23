@@ -26,8 +26,7 @@ class User(Base):
     updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"),
                         onupdate=func.current_timestamp())
 
-    # comments = relationship("Comment", back_populates="user", passive_deletes=True)
-    # courses = relationship("Course", back_populates="user", passive_deletes=True)
-    # user_courses = relationship("UserCourse", back_populates="user", passive_deletes=True)
-    # reply_comments = relationship("ReplyComment", back_populates="user", passive_deletes=True)
-    # notifications = relationship("Notification", back_populates="user", passive_deletes=True)
+    products = relationship("Product", back_populates="user", passive_deletes=True)
+    transactions_fm = relationship("TransactionFM", back_populates="user", passive_deletes=True)
+    transactions_sf = relationship("TransactionSF", back_populates="user", passive_deletes=True)
+    marketplace = relationship("Marketplace", back_populates="user", passive_deletes=True)
