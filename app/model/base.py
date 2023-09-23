@@ -24,8 +24,19 @@ class UserSystemRole(str, Enum):
     MEMBER = "MEMBER"
 
 
+class ProductStatus(str, Enum):
+    PUBLISH = "PUBLISH"
+    PRIVATE = "PRIVATE"
+    CLOSE = "CLOSE"
 
-class CourseRole(str, Enum):
+
+class ProductType(str, Enum):
+    FARMER = "FARMER"
+    SEEDLING_COMPANY = "SEEDLING_COMPANY"
+    MANUFACTURER = "MANUFACTURER"
+
+
+class ProductRole(str, Enum):
     OWNER = "OWNER"
     MEMBER = "MEMBER"
 
