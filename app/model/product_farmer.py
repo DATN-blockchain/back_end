@@ -2,6 +2,9 @@ from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.model.base import Base
+from app.model.product import Product
+from app.model.transaction_sf import TransactionSF
+
 
 
 class ProductFarmer(Base):
@@ -10,6 +13,6 @@ class ProductFarmer(Base):
     id = Column(String(255), primary_key=True, nullable=False)
     product_id = Column(String(255), ForeignKey('product.id', ondelete='CASCADE'), nullable=False)
     transaction_sf_id = Column(String(255), ForeignKey('transaction_sf.id', ondelete='CASCADE'), nullable=False)
-
-    product = relationship('Product', backref='products_farmers')
-    transaction_sf = relationship('TransactionSF', backref='products_farmer')
+    #
+    # product = relationship('Product', back_populates='products_farmers')
+    # transaction_sf = relationship('TransactionSF', back_populates='products_farmer')

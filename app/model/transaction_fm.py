@@ -17,6 +17,6 @@ class TransactionFM(Base):
     product_id = Column(String(255), ForeignKey('product.id', ondelete='CASCADE'), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
-    user = relationship('User', backref='transactions_fm')
-    product = relationship('Product', backref='transactions_fm', passive_deletes=True)
-    product_manufacturer = relationship('ProductManufacturer', backref='transactions_fm', passive_deletes=True)
+    # user = relationship('User', back_populates='transactions_fm')
+    # product = relationship('Product', back_populates='transactions_fm', passive_deletes=True)
+    # product_manufacturer = relationship('ProductManufacturer', back_populates='transactions_fm', passive_deletes=True)

@@ -2,7 +2,7 @@ from sqlalchemy import (Boolean, Column, Date, String, text, JSON, Integer, func
 from sqlalchemy.orm import relationship
 
 from app.model.base import Base, UserSystemRole
-
+from app.model.product import Product
 
 class User(Base):
     __tablename__ = "user"
@@ -27,6 +27,6 @@ class User(Base):
                         onupdate=func.current_timestamp())
 
     products = relationship("Product", back_populates="user", passive_deletes=True)
-    transactions_fm = relationship("TransactionFM", back_populates="user", passive_deletes=True)
-    transactions_sf = relationship("TransactionSF", back_populates="user", passive_deletes=True)
-    marketplace = relationship("Marketplace", back_populates="user", passive_deletes=True)
+    # transactions_fm = relationship("TransactionFM", back_populates="user", passive_deletes=True)
+    # transactions_sf = relationship("TransactionSF", back_populates="user", passive_deletes=True)
+    # marketplace = relationship("Marketplace", back_populates="user", passive_deletes=True)

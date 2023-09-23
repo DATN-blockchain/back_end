@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.model.base import Base
-
+from app.model.transaction_fm import TransactionFM
 
 class Product(Base):
     __tablename__ = 'product'
@@ -17,13 +17,13 @@ class Product(Base):
     hashed_data = Column(String(255), nullable=True)
     product_status = Column(String(255), nullable=False)
     product_type = Column(String(255), nullable=False)
-    created_by = Column(String(255), ForeignKey('user.id', ondelete='CASCADE'), nullable=True)
+    created_by = Column(String(255), ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=True)
 
-    user = relationship('User', backref='products')
-    transactions_fm = relationship('TransactionFM', backref='product', passive_deletes=True)
-    transactions_sf = relationship('TransactionSF', backref='product', passive_deletes=True)
-    product_manufacturers = relationship('ProductManufacturer', backref='product', passive_deletes=True)
-    product_farmers = relationship('ProductFarmer', backref='product', passive_deletes=True)
-    marketplace = relationship('Marketplace', backref='product', passive_deletes=True)
+    user = relationship('User', back_populates='products')
+    # transactions_fm = relationship('TransactionFM', back_populates='product', passive_deletes=True)
+    # transactions_sf = relationship('TransactionSF', back_populates='product', passive_deletes=True)
+    # product_manufacturers = relationship('ProductManufacturer', back_populates='product', passive_deletes=True)
+    # product_farmers = relationship('ProductFarmer', back_populates='product', passive_deletes=True)
+    # marketplace = relationship('Marketplace', back_populates='product', passive_deletes=True)

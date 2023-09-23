@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.model.base import Base
+from app.model.base import Base
 
 
 class Marketplace(Base):
@@ -16,5 +17,5 @@ class Marketplace(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=True)
 
-    product = relationship('Product', backref='marketplace')
-    user = relationship('User', backref='marketplace')
+    # product = relationship('Product', back_populates='marketplace')
+    # user = relationship('User', back_populates='marketplace')

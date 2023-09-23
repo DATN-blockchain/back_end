@@ -17,6 +17,6 @@ class TransactionSF(Base):
     product_id = Column(String(255), ForeignKey('product.id', ondelete='CASCADE'), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
-    user = relationship('User', backref='transaction_sf')
-    product = relationship('Product', backref='transaction_sf', passive_deletes=True)
-    product_farmer = relationship('ProductFarmer', backref='transactions_sf', passive_deletes=True)
+    user = relationship('User', back_populates='transaction_sf')
+    product = relationship('Product', back_populates='transaction_sf', passive_deletes=True)
+    product_farmer = relationship('ProductFarmer', back_populates='transactions_sf', passive_deletes=True)
