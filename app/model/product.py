@@ -23,7 +23,7 @@ class Product(Base):
 
     user = relationship('User', back_populates='products')
     # transactions_fm = relationship('TransactionFM', back_populates='product', passive_deletes=True)
-    # transactions_sf = relationship('TransactionSF', back_populates='product', passive_deletes=True)
+    transaction_sf = relationship('TransactionSF', back_populates='product', passive_deletes=True)
     # product_manufacturers = relationship('ProductManufacturer', back_populates='product', passive_deletes=True)
     # product_farmers = relationship('ProductFarmer', back_populates='product', passive_deletes=True)
     marketplace = relationship('Marketplace', back_populates='product', passive_deletes=True)

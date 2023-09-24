@@ -28,7 +28,7 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
 
     @staticmethod
     def list_product(db: Session, skip: int, limit: int):
-        db_query = db.query(Product).options(joinedload(Product.user))
+        db_query = db.query(Product).filter(Product.product_status == ProductStatus.PUBLISH)
         total_product = db_query.count()
         list_product = db_query.order_by(desc(Product.created_at)).offset(skip).limit(limit).all()
         return total_product, list_product

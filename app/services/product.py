@@ -7,8 +7,8 @@ from app.core.exceptions import error_exception_handler
 import cloudinary
 from cloudinary.uploader import upload
 
-from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse
-from ..crud import crud_product, crud_user
+from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate
+from ..crud import crud_product, crud_user, crud_transaction_sf
 from ..model.base import ProductRole, ProductStatus, UserSystemRole
 
 
@@ -84,6 +84,43 @@ class ProductService:
 
         result = crud_product.update_product_status(db=self.db, current_product=current_product,
                                                     product_status=product_status)
+        return result
+
+    @staticmethod
+    def update_quantity_product(product_quantity: int, purchase_quantity: int):
+        result = product_quantity - purchase_quantity
+        return result
+
+    @staticmethod
+    def check_positive_value(value, error_message):
+        if value <= 0:
+            raise error_exception_handler(error=Exception(), app_status=error_message)
+
+    async def purchase_product(self, user_id: str, product_id: str, price: int, quantity: int):
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        if current_product is None:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+        if current_product.created_by == user_id:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
+        if current_product.quantity < quantity:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
+
+        self.check_positive_value(price, AppStatus.ERROR_INVALID_PRICE)
+        self.check_positive_value(quantity, AppStatus.ERROR_INVALID_QUANTITY)
+
+        create_transaction_sf = TransactionSFCreate(
+            id=str(uuid.uuid4()),
+            user_id=user_id,
+            product_id=product_id,
+            price=price,
+            quantity=quantity
+        )
+        update_quantity = self.update_quantity_product(product_quantity=current_product.quantity,
+                                                       purchase_quantity=quantity)
+        obj_in = dict(quantity=update_quantity)
+        crud_product.update(db=self.db, db_obj=current_product, obj_in=obj_in)
+        result = crud_transaction_sf.create(db=self.db, obj_in=create_transaction_sf)
+
         return result
 
     async def delete_product(self, product_id: str):
