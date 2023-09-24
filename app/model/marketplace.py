@@ -17,5 +17,5 @@ class Marketplace(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=True)
 
-    # product = relationship('Product', back_populates='marketplace')
+    product = relationship('Product', back_populates='marketplace')
     # user = relationship('User', back_populates='marketplace')

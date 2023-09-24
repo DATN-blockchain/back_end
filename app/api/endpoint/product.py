@@ -1,4 +1,4 @@
-import uuid
+import logging
 from fastapi import APIRouter
 from fastapi import Depends, UploadFile, File
 from sqlalchemy.orm import Session
@@ -7,12 +7,14 @@ from app.api.depend import oauth2
 from app.utils.response import make_response_object
 import cloudinary.uploader
 from app.core.settings import settings
-from ...constant.template import NotificationTemplate
+from app.constant.template import NotificationTemplate
 
-from ...schemas.product import ProductCreateParams, ProductUpdate
-from ...model.base import ProductType, ProductRole, NotificationType
-from ...model import User, Product
-from ...services import ProductService
+from app.schemas.product import ProductCreateParams, ProductUpdate
+from app.model.base import ProductType, ProductRole, NotificationType, ProductStatus
+from app.model import User, Product
+from app.services import ProductService
+
+# logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -95,6 +97,20 @@ async def update_product(product_id: str,
                                                             product_update=product_update,
                                                             banner=banner)
 
+    return make_response_object(product_response)
+
+
+@router.put("/product/{product_id}/status")
+async def update_product_status(product_id: str,
+                                product_status: ProductStatus,
+                                user: User = Depends(oauth2.get_current_user),
+                                db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    # authorization
+    await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
+
+    product_response = await product_service.update_product_status(product_id=product_id, product_status=product_status)
     return make_response_object(product_response)
 
 
