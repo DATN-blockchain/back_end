@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc
 from .base import CRUDBase
 from ..model import Product
+from ..model.base import ProductStatus
 
 from ..schemas import ProductCreate, ProductUpdate
 
@@ -31,6 +32,13 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         total_product = db_query.count()
         list_product = db_query.order_by(desc(Product.created_at)).offset(skip).limit(limit).all()
         return total_product, list_product
+
+    @staticmethod
+    def update_product_status(db: Session, current_product: Product, product_status: ProductStatus):
+        current_product.product_status = product_status
+        db.commit()
+        db.refresh(current_product)
+        return current_product
 
 
 crud_product = CRUDProduct(Product)

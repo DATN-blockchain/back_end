@@ -79,6 +79,13 @@ class ProductService:
         result = crud_product.update(db=self.db, db_obj=current_product, obj_in=product_update)
         return result
 
+    async def update_product_status(self, product_id: str, product_status: ProductStatus):
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+
+        result = crud_product.update_product_status(db=self.db, current_product=current_product,
+                                                    product_status=product_status)
+        return result
+
     async def delete_product(self, product_id: str):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
         if not current_product:
