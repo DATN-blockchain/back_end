@@ -114,6 +114,21 @@ async def update_product_status(product_id: str,
     return make_response_object(product_response)
 
 
+@router.put("/product/{product_id}/purchase")
+async def purchase_product(product_id: str,
+                           price: int,
+                           quantity: int,
+                           user: User = Depends(oauth2.get_current_user),
+                           db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    product_response = await product_service.purchase_product(user_id=user.id,
+                                                              product_id=product_id,
+                                                              price=price,
+                                                              quantity=quantity)
+    return make_response_object(product_response)
+
+
 @router.delete("/product/{product_id}/delete")
 async def delete_product(product_id: str,
                          user: User = Depends(oauth2.get_current_user),
