@@ -7,7 +7,9 @@ from app.core.exceptions import error_exception_handler
 import cloudinary
 from cloudinary.uploader import upload
 
-from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate
+from ..crud.product_farmer import crud_product_farmer
+from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
+    ProductFarmerCreate
 from ..crud import crud_product, crud_user, crud_transaction_sf
 from ..model.base import ProductRole, ProductStatus, UserSystemRole
 
@@ -36,7 +38,7 @@ class ProductService:
         result = dict(total_product=total_product, list_product=list_product)
         return result
 
-    async def create_product(self, user_id: str,
+    async def create_product(self, user_id: str, transaction_id: str,
                              product_create: ProductCreate, banner: UploadFile = File(...)):
 
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
@@ -56,8 +58,30 @@ class ProductService:
             quantity=product_create.quantity,
             product_status=ProductStatus.PRIVATE,
             created_by=user_id)
-
         result = crud_product.create(db=self.db, obj_in=product_create)
+
+        if current_user.system_role == UserSystemRole.FARMER:
+            if transaction_id is None:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_TRANSACTION_ID)
+
+            current_transaction = crud_transaction_sf.get_transaction_sf_by_id(db=self.db,
+                                                                               transaction_sf_id=transaction_id)
+
+            if current_transaction is None:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_NOT_FOUND)
+
+            project_me = crud_product.get_transaction_in_product(db=self.db, user_id=user_id,
+                                                                 transaction_id=transaction_id)
+            if project_me:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_CONFLICT)
+
+            if current_transaction.user_id != user_id:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
+            product_farmer = ProductFarmerCreate(id=str(uuid.uuid4()),
+                                                 product_id=product_create.id,
+                                                 transaction_sf_id=transaction_id)
+            crud_product_farmer.create(db=self.db, obj_in=product_farmer)
+        self.db.refresh(result)
         return result
 
     async def has_product_permissions(self, user_id: str, product_id: str):
