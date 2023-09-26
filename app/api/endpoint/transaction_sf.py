@@ -23,6 +23,7 @@ async def list_transaction_sf(
     transaction_sf_service = TransactionSFService(db=db)
 
     transaction_sf_response = await transaction_sf_service.list_transaction_sf(product_id=product_id,
+                                                                               user_id=user.id,
                                                                                skip=skip, limit=limit)
     return make_response_object(transaction_sf_response)
 

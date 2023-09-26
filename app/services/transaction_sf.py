@@ -22,8 +22,9 @@ class TransactionSFService:
 
         return current_transaction_sf
 
-    async def list_transaction_sf(self, product_id: str, skip: int, limit: int):
+    async def list_transaction_sf(self, product_id: str, user_id, skip: int, limit: int):
         total_transaction_sf, list_transaction_sf = crud_transaction_sf.list_transaction_sf(db=self.db,
+                                                                                            user_id=user_id,
                                                                                             product_id=product_id,
                                                                                             skip=skip,
                                                                                             limit=limit)

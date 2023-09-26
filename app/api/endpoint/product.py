@@ -62,6 +62,7 @@ async def create_product(name: str,
                          price: int = None,
                          quantity: int = None,
                          description: str = None,
+                         transaction_id: str = None,
                          banner: UploadFile = File(...),
                          user: User = Depends(oauth2.get_current_user),
                          db: Session = Depends(get_db)):
@@ -70,6 +71,7 @@ async def create_product(name: str,
     product_create = ProductCreateParams(name=name, description=description, price=price, quantity=quantity)
 
     product_response = await product_service.create_product(user_id=user.id,
+                                                            transaction_id=transaction_id,
                                                             product_create=product_create,
                                                             banner=banner)
 

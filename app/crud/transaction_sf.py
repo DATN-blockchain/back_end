@@ -25,7 +25,7 @@ class CRUDTransactionSF(CRUDBase[TransactionSF, TransactionSFCreate, Transaction
             db_query = db_query.filter(TransactionSF.product_id == product_id)
 
         total_transaction_sf = db_query.count()
-        list_transaction_sf = db_query.product_by(desc(TransactionSF.created_at)).offset(skip).limit(limit).all()
+        list_transaction_sf = db_query.order_by(desc(TransactionSF.created_at)).offset(skip).limit(limit).all()
         return total_transaction_sf, list_transaction_sf
 
 
