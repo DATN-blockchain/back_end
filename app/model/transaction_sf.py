@@ -19,4 +19,4 @@ class TransactionSF(Base):
 
     # user = relationship('User', back_populates='transaction_sf')
     product = relationship('Product', back_populates='transaction_sf', passive_deletes=True)
-    # product_farmer = relationship('ProductFarmer', back_populates='transactions_sf', passive_deletes=True)
+    product_farmer = relationship('ProductFarmer', back_populates='transactions_sf', passive_deletes=True)

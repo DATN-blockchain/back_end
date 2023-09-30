@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from app.schemas.product import ProductResponse
 
 
-class TransactionSFBase(BaseModel):
+class TransactionFMBase(BaseModel):
     id: Optional[str] = None
     product_id: Optional[str] = None
     user_id: Optional[str] = None
@@ -16,16 +16,16 @@ class TransactionSFBase(BaseModel):
     status: Optional[int] = None
 
 
-class TransactionSFCreate(TransactionSFBase):
+class TransactionFMCreate(TransactionFMBase):
     pass
 
 
-class TransactionSFUpdate(BaseModel):
+class TransactionFMUpdate(BaseModel):
     hashed_data: Optional[int] = None
     status: Optional[int] = None
 
 
-class TransactionSFResponse(BaseModel):
+class TransactionFMResponse(BaseModel):
     id: Optional[str] = None
     product_id: Optional[str] = None
     user_id: Optional[str] = None

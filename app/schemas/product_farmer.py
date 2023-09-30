@@ -1,11 +1,9 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
 
-from . import ProductResponse
-from ..model.base import ProductType
-from app.schemas.user import UserInfo
+from app.schemas import ProductResponse
+from app.schemas.transaction_sf import TransactionSFResponse
 
 
 class ProductFarmerBase(BaseModel):
@@ -21,11 +19,12 @@ class ProductFarmerCreate(ProductFarmerBase):
 class ProductFarmerUpdate(BaseModel):
     pass
 
-# class ProductFarmerResponse(ProductFarmerBase):
-#     created_at: Optional[datetime] = None
-#
-#     class Config:
-#         orm_mode = True
-#         arbitrary_types_allowed = True
-#
-#     product: Optional[ProductResponse] = None
+
+class ProductFarmerHistoryResponse(ProductFarmerBase):
+    product: Optional[ProductResponse] = None
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+    transactions_sf: Optional[TransactionSFResponse] = None
