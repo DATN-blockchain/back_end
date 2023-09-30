@@ -19,5 +19,10 @@ class CRUDProductFarmer(CRUDBase[ProductFarmer, ProductFarmerCreate, ProductFarm
         current_product_farmer = db.query(ProductFarmer).get(product_farmer_id)
         return current_product_farmer
 
+    @staticmethod
+    def get_product_farmer_by_product_id(db: Session, product_id: str) -> Optional[ProductFarmer]:
+        current_product_farmer = db.query(ProductFarmer).filter(ProductFarmer.product_id == product_id).first()
+        return current_product_farmer
+
 
 crud_product_farmer = CRUDProductFarmer(ProductFarmer)

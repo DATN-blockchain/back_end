@@ -6,7 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.core.settings import settings
 from app.route import route
 
-app = FastAPI(title="Course", version="1.1.1")
+app = FastAPI(title="Supply Chain", version="1.1.1")
 
 app.include_router(route, prefix="")
 

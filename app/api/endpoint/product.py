@@ -57,6 +57,36 @@ async def get_product_by_id(product_id: str,
     return make_response_object(product_response)
 
 
+@router.get("/product/{product_id}/seedling_company_history")
+async def get_product_seedling_company_history(product_id: str,
+                                               user: User = Depends(oauth2.get_current_user),
+                                               db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    product_response = await product_service.get_product_seedling_company_history(product_id=product_id)
+    return make_response_object(product_response)
+
+
+@router.get("/product/{product_id}/farmer_history")
+async def get_product_farmer_history(product_id: str,
+                                     user: User = Depends(oauth2.get_current_user),
+                                     db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    product_response = await product_service.get_product_farmer_history(product_id=product_id)
+    return make_response_object(product_response)
+
+
+@router.get("/product/{product_id}/history")
+async def get_product_history(product_id: str,
+                              user: User = Depends(oauth2.get_current_user),
+                              db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    product_response = await product_service.get_product_history(product_id=product_id)
+    return make_response_object(product_response)
+
+
 @router.post("/product/create")
 async def create_product(name: str,
                          price: int = None,
@@ -70,10 +100,10 @@ async def create_product(name: str,
 
     product_create = ProductCreateParams(name=name, description=description, price=price, quantity=quantity)
 
-    product_response = await product_service.create_product(user_id=user.id,
-                                                            transaction_id=transaction_id,
-                                                            product_create=product_create,
-                                                            banner=banner)
+    product_response = await product_service.create_product_entity(user_id=user.id,
+                                                                   transaction_id=transaction_id,
+                                                                   product_create=product_create,
+                                                                   banner=banner)
 
     return make_response_object(product_response)
 
