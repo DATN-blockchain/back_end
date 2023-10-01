@@ -6,3 +6,4 @@ from .transaction_sf import TransactionSF
 from .product_farmer import ProductFarmer
 from .transaction_fm import TransactionFM
 from .product_manufacturer import ProductManufacturer
+from .grow_up import GrowUp
