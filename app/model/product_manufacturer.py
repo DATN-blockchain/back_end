@@ -13,5 +13,5 @@ class ProductManufacturer(Base):
     product_id = Column(String(255), ForeignKey('product.id', ondelete='CASCADE'), nullable=False)
     transaction_fm_id = Column(String(255), ForeignKey('transaction_fm.id', ondelete='CASCADE'), nullable=False)
 
-    # product = relationship('Product', back_populates='product_manufacturers')
-    # transaction_fm = relationship('TransactionFM', back_populates='product_manufacturer')
+    product = relationship('Product', back_populates='product_manufacturers')
+    transactions_fm = relationship('TransactionFM', back_populates='product_manufacturer')

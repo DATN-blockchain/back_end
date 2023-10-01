@@ -10,8 +10,10 @@ from cloudinary.uploader import upload
 from ..crud.product_farmer import crud_product_farmer
 from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
-    ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse
-from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer
+    ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
+    ProductManufacturerHistoryResponse
+from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
+    crud_product_manufacturer
 from ..model.base import ProductRole, ProductStatus, UserSystemRole
 
 
@@ -57,8 +59,16 @@ class ProductService:
                 raise error_exception_handler(error=Exception(),
                                               app_status=AppStatus.ERROR_FARMER_PRODUCT_NOT_FOUND)
             result = ProductFarmerHistoryResponse.from_orm(current_product_farmer)
+        elif current_product.product_type == ProductType.MANUFACTURER:
+            current_product_manufacturer = crud_product_manufacturer.get_product_manufacturer_by_product_id(db=self.db,
+                                                                                                            product_id=product_id)
+            if not current_product_manufacturer:
+                raise error_exception_handler(error=Exception(),
+                                              app_status=AppStatus.ERROR_MANUFACTURER_PRODUCT_NOT_FOUND)
+            result = ProductManufacturerHistoryResponse.from_orm(current_product_manufacturer)
+            # result = current_product_manufacturer
         else:
-            result = None
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         return result
 
     async def get_product_by_me(self, user_id: str, skip: int, limit: int):
@@ -101,7 +111,7 @@ class ProductService:
             product_create = await self.create_product(current_user=current_user, product_create=product_create,
                                                        banner=banner)
 
-        if current_user.system_role == UserSystemRole.FARMER:
+        elif current_user.system_role == UserSystemRole.FARMER:
             if transaction_id is None:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_TRANSACTION_ID)
 
@@ -109,15 +119,15 @@ class ProductService:
                                                                                transaction_sf_id=transaction_id)
 
             if current_transaction is None:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_NOT_FOUND)
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_SF_NOT_FOUND)
 
             if current_transaction.user_id != user_id:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
 
-            project_me = crud_product.get_transaction_in_product(db=self.db, user_id=user_id,
-                                                                 transaction_id=transaction_id)
+            project_me = crud_product.get_transaction_sf_in_product(db=self.db, user_id=user_id,
+                                                                    transaction_id=transaction_id)
             if project_me:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_CONFLICT)
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_SF_CONFLICT)
 
             product_create = await self.create_product(current_user=current_user,
                                                        product_create=product_create, banner=banner)
@@ -125,6 +135,29 @@ class ProductService:
                                                  product_id=product_create.id,
                                                  transaction_sf_id=transaction_id)
             crud_product_farmer.create(db=self.db, obj_in=product_farmer)
+        elif current_user.system_role == UserSystemRole.MANUFACTURER:
+            if transaction_id is None:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_TRANSACTION_ID)
+            current_transaction = crud_transaction_fm.get_transaction_fm_by_id(db=self.db,
+                                                                               transaction_fm_id=transaction_id)
+            if current_transaction is None:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_FM_NOT_FOUND)
+
+            if current_transaction.user_id != user_id:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
+
+            project_me = crud_product.get_transaction_fm_in_product(db=self.db, user_id=user_id,
+                                                                    transaction_id=transaction_id)
+            if project_me:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_FM_CONFLICT)
+
+            product_create = await self.create_product(current_user=current_user,
+                                                       product_create=product_create, banner=banner)
+            product_manufacturer = ProductManufacturerCreate(id=str(uuid.uuid4()),
+                                                             product_id=product_create.id,
+                                                             transaction_fm_id=transaction_id)
+            crud_product_manufacturer.create(db=self.db, obj_in=product_manufacturer)
+
         self.db.refresh(product_create)
         return product_create
 
