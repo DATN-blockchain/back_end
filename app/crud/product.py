@@ -5,7 +5,7 @@ from typing import Dict, Optional
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc
 from .base import CRUDBase
-from ..model import Product, TransactionSF, ProductFarmer
+from ..model import Product, TransactionSF, ProductFarmer, ProductManufacturer
 from ..model.base import ProductStatus
 
 from ..schemas import ProductCreate, ProductUpdate
@@ -30,9 +30,15 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return total_product, list_product
 
     @staticmethod
-    def get_transaction_in_product(db: Session, user_id: str, transaction_id: str):
+    def get_transaction_sf_in_product(db: Session, user_id: str, transaction_id: str):
         db_query = (db.query(Product).join(ProductFarmer, ProductFarmer.product_id == Product.id).filter(
             Product.created_by == user_id)).filter(ProductFarmer.transaction_sf_id == transaction_id).first()
+        return db_query
+
+    @staticmethod
+    def get_transaction_fm_in_product(db: Session, user_id: str, transaction_id: str):
+        db_query = (db.query(Product).join(ProductManufacturer, ProductManufacturer.product_id == Product.id).filter(
+            Product.created_by == user_id)).filter(ProductManufacturer.transaction_fm_id == transaction_id).first()
         return db_query
 
     @staticmethod
