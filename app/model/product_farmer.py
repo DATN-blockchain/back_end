@@ -16,3 +16,4 @@ class ProductFarmer(Base):
     #
     product = relationship('Product', back_populates='product_farmers')
     transactions_sf = relationship('TransactionSF', back_populates='product_farmer')
+    grow_ups = relationship('GrowUp', back_populates='product_farmer', passive_deletes=True)

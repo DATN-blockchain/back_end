@@ -4,6 +4,7 @@ from fastapi import Depends, UploadFile, File
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.api.depend import oauth2
+from app.schemas import GrowUpUpdate
 from app.utils.response import make_response_object
 import cloudinary.uploader
 from app.core.settings import settings
@@ -87,6 +88,18 @@ async def get_product_history(product_id: str,
     return make_response_object(product_response)
 
 
+@router.get("/product/{product_id}/grow_up")
+async def get_product_grow_up(product_id: str,
+                              skip: int = 0,
+                              limit: int = 10,
+                              user: User = Depends(oauth2.get_current_user),
+                              db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    product_response = await product_service.get_product_grow_up(product_id=product_id, skip=skip, limit=limit)
+    return make_response_object(product_response)
+
+
 @router.post("/product/create")
 async def create_product(name: str,
                          price: int = None,
@@ -104,6 +117,41 @@ async def create_product(name: str,
                                                                    transaction_id=transaction_id,
                                                                    product_create=product_create,
                                                                    banner=banner)
+
+    return make_response_object(product_response)
+
+
+@router.post("/product/grow_up")
+async def create_grow_up(product_id: str,
+                         description: str = None,
+                         image: UploadFile = File(None),
+                         video: UploadFile = File(None),
+                         user: User = Depends(oauth2.get_current_user),
+                         db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    # authorization
+    await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
+
+    product_response = await product_service.create_grow_up(product_id=product_id,
+                                                            description=description,
+                                                            image=image,
+                                                            video=video)
+
+    return make_response_object(product_response)
+
+
+@router.put("/product/update/{product_id}/grow_up")
+async def update_product(product_id: str,
+                         grow_up_update: GrowUpUpdate,
+                         user: User = Depends(oauth2.get_current_user),
+                         db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    # authorization
+    await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
+
+    product_response = await product_service.update_grow_up(product_id=product_id, grow_up_update=grow_up_update)
 
     return make_response_object(product_response)
 
