@@ -19,11 +19,12 @@ class CRUDGrowUp(CRUDBase[GrowUp, GrowUpCreate, GrowUpUpdate]):
         current_grow_up = db.query(GrowUp).get(grow_up_id)
         return current_grow_up
 
-    # @staticmethod
-    # def get_grow_up_by_product_farmer_id(db: Session, product_farmer_id: str) -> Optional[GrowUp]:
-    #     result = db.query(GrowUp).filter(GrowUp.product_farmer_id == product_farmer_id).all()
-    #     return result
-#     loi
+    @staticmethod
+    def get_grow_up_by_product_farmer_id(db: Session, product_farmer_id: str, skip: int, limit: int):
+        db_query = db.query(GrowUp).filter(GrowUp.product_farmer_id == product_farmer_id)
+        total_grow_up = db_query.count()
+        list_grow_up = db_query.order_by(desc(GrowUp.created_at)).offset(skip).limit(limit).all()
+        return total_grow_up, list_grow_up
 
 
 crud_grow_up = CRUDGrowUp(GrowUp)

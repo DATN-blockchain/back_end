@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from app.schemas import ProductFarmerGrowUp
 from app.schemas.product import ProductResponse
 
 
@@ -10,8 +11,8 @@ class GrowUpBase(BaseModel):
     id: Optional[str] = None
     product_farmer_id: Optional[str] = None
     description: Optional[str] = None
-    image: Optional[int] = None
-    video: Optional[int] = None
+    image: Optional[str] = None
+    video: Optional[str] = None
     hashed_data: Optional[int] = None
 
 
@@ -37,4 +38,4 @@ class GrowUpResponse(GrowUpBase):
         orm_mode = True
         arbitrary_types_allowed = True
 
-    # product: Optional[ProductResponse] = None
+    product_farmer: Optional[ProductFarmerGrowUp] = None

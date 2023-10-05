@@ -11,9 +11,9 @@ from ..crud.product_farmer import crud_product_farmer
 from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
-    ProductManufacturerHistoryResponse
+    ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
-    crud_product_manufacturer
+    crud_product_manufacturer, crud_grow_up
 from ..model.base import ProductRole, ProductStatus, UserSystemRole
 
 
@@ -84,6 +84,18 @@ class ProductService:
         result = dict(total_product=total_product, list_product=list_product)
         return result
 
+    async def get_product_grow_up(self, product_id: str, skip: int, limit: int):
+        current_product_farmer = crud_product_farmer.get_product_farmer_by_product_id(db=self.db, product_id=product_id)
+        if current_product_farmer is None:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_FARMER_NOT_FOUND)
+        total_grow_up, list_grow_up = crud_grow_up.get_grow_up_by_product_farmer_id(db=self.db,
+                                                                                    product_farmer_id=current_product_farmer.id,
+                                                                                    skip=skip,
+                                                                                    limit=limit)
+        list_grow_up = [GrowUpResponse.from_orm(item) for item in list_grow_up]
+        result = dict(total_grow_up=total_grow_up, list_grow_up=list_grow_up)
+        return result
+
     async def create_product(self, current_user: User, product_create: ProductCreate, banner: UploadFile = File(...)):
         banner = cloudinary.uploader.upload(banner.file, folder="banner")
         banner_url = banner.get("secure_url")
@@ -98,6 +110,42 @@ class ProductService:
             product_status=ProductStatus.PRIVATE,
             created_by=current_user.id)
         result = crud_product.create(db=self.db, obj_in=product_create)
+        return result
+
+    async def create_grow_up(self, product_id: str, description: str, image: UploadFile = File(...),
+                             video: UploadFile = File(...)):
+
+        if not image and not video or (image and video):
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_INVALID_INPUT)
+
+        current_product_farmer = crud_product_farmer.get_product_farmer_by_product_id(db=self.db, product_id=product_id)
+        if current_product_farmer is None:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_FARMER_NOT_FOUND)
+
+        if image:
+            image = cloudinary.uploader.upload(image.file, folder="image_grow_up")
+            image = image.get("secure_url")
+        else:
+            try:
+                upload_result = cloudinary.uploader.upload(video.file, resource_type='video', folder="video_grow_up")
+                video = upload_result['url']
+            except Exception as error:
+                raise error_exception_handler(error=error, app_status=AppStatus.ERROR_BAD_REQUEST)
+        grow_up_create = GrowUpCreate(
+            id=str(uuid.uuid4()),
+            product_farmer_id=current_product_farmer.id,
+            description=description, image=image, video=video)
+
+        result = crud_grow_up.create(db=self.db, obj_in=grow_up_create)
+        return result
+
+    async def update_grow_up(self, product_id: str, grow_up_update: GrowUpUpdate):
+        current_project = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        product_farmer = current_project.product_farmers
+        current_grow_up = crud_grow_up.get_grow_up_by_id(db=self.db,
+                                                         grow_up_id=product_farmer[0])
+
+        result = crud_grow_up.update(db=self.db, db_obj=current_grow_up, obj_in=grow_up_update)
         return result
 
     async def create_product_entity(self, user_id: str, transaction_id: str,

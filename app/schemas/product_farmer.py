@@ -28,3 +28,12 @@ class ProductFarmerHistoryResponse(ProductFarmerBase):
         arbitrary_types_allowed = True
 
     transactions_sf: Optional[TransactionSFResponse] = None
+
+
+class ProductFarmerGrowUp(ProductFarmerBase):
+    product: Optional[ProductResponse] = None
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
