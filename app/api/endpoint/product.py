@@ -13,7 +13,7 @@ from app.constant.template import NotificationTemplate
 from app.schemas.product import ProductCreateParams, ProductUpdate
 from app.model.base import ProductType, ProductRole, NotificationType, ProductStatus
 from app.model import User, Product
-from app.services import ProductService
+from app.services import ProductService, NotificationService
 
 # logger = logging.getLogger(__name__)
 
@@ -110,6 +110,7 @@ async def create_product(name: str,
                          user: User = Depends(oauth2.get_current_user),
                          db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
+    notification_service = NotificationService(db=db)
 
     product_create = ProductCreateParams(name=name, description=description, price=price, quantity=quantity)
 
@@ -118,6 +119,13 @@ async def create_product(name: str,
                                                                    product_create=product_create,
                                                                    banner=banner)
 
+    message_template = NotificationTemplate.CRUD_PRODUCT_NOTIFICATION_MSG
+    await notification_service.notify_entity_status(entity=product_response,
+                                                    notification_type=NotificationType.PRODUCT_NOTIFICATION,
+                                                    message_template=message_template, action="created",
+                                                    current_user=user)
+
+    db.refresh(product_response)
     return make_response_object(product_response)
 
 
@@ -167,6 +175,7 @@ async def update_product(product_id: str,
                          user: User = Depends(oauth2.get_current_user),
                          db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
+    notification_service = NotificationService(db=db)
 
     # authorization
     await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
@@ -176,6 +185,11 @@ async def update_product(product_id: str,
     product_response = await product_service.update_product(product_id=product_id,
                                                             product_update=product_update,
                                                             banner=banner)
+    message_template = NotificationTemplate.CRUD_PRODUCT_NOTIFICATION_MSG
+    await notification_service.notify_entity_status(entity=product_response,
+                                                    notification_type=NotificationType.PRODUCT_NOTIFICATION,
+                                                    message_template=message_template, action="updated",
+                                                    current_user=user)
 
     return make_response_object(product_response)
 
@@ -217,6 +231,13 @@ async def delete_product(product_id: str,
 
     # authorization
     await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
+    notification_service = NotificationService(db=db)
 
     product_response = await product_service.delete_product(product_id=product_id)
+    message_template = NotificationTemplate.CRUD_PRODUCT_NOTIFICATION_MSG
+    await notification_service.notify_entity_status(entity=product_response,
+                                                    notification_type=NotificationType.PRODUCT_NOTIFICATION,
+                                                    message_template=message_template, action="deleted",
+                                                    current_user=user)
+
     return make_response_object(product_response)

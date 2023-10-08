@@ -6,3 +6,6 @@ from .product_farmer import *
 from .transaction_fm import *
 from .product_manufacturer import *
 from .grow_up import *
+from .reply_comment import *
+from .comment import *
+from .notification import *

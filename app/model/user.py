@@ -27,6 +27,9 @@ class User(Base):
                         onupdate=func.current_timestamp())
 
     products = relationship("Product", back_populates="user", passive_deletes=True)
+    comments = relationship("Comment", back_populates="user", passive_deletes=True)
+    reply_comments = relationship("ReplyComment", back_populates="user", passive_deletes=True)
+    notifications = relationship("Notification", back_populates="user", passive_deletes=True)
     # transactions_fm = relationship("TransactionFM", back_populates="user", passive_deletes=True)
     # transactions_sf = relationship("TransactionSF", back_populates="user", passive_deletes=True)
     # marketplace = relationship("Marketplace", back_populates="user", passive_deletes=True)
