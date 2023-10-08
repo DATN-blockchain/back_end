@@ -9,3 +9,4 @@ from .grow_up import *
 from .reply_comment import *
 from .comment import *
 from .notification import *
+from .activity import *

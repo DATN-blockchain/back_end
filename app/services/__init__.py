@@ -6,3 +6,4 @@ from .transaction_fm import TransactionFMService
 from .comment import CommentService
 from .reply_comment import ReplyCommentService
 from .notification import NotificationService
+from .activity import ActivityService

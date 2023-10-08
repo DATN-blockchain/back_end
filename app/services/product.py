@@ -297,7 +297,7 @@ class ProductService:
         crud_product.update(db=self.db, db_obj=current_product, obj_in=obj_in)
 
         self.db.refresh(result)
-        return result
+        return result, current_product
 
     async def delete_product(self, product_id: str):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)

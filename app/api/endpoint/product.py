@@ -8,12 +8,12 @@ from app.schemas import GrowUpUpdate
 from app.utils.response import make_response_object
 import cloudinary.uploader
 from app.core.settings import settings
-from app.constant.template import NotificationTemplate
+from app.constant.template import NotificationTemplate, ActivityTemplate
 
 from app.schemas.product import ProductCreateParams, ProductUpdate
-from app.model.base import ProductType, ProductRole, NotificationType, ProductStatus
+from app.model.base import ProductType, ProductRole, NotificationType, ProductStatus, ActivityType
 from app.model import User, Product
-from app.services import ProductService, NotificationService
+from app.services import ProductService, NotificationService, ActivityService
 
 # logger = logging.getLogger(__name__)
 
@@ -111,6 +111,7 @@ async def create_product(name: str,
                          db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
     notification_service = NotificationService(db=db)
+    activity_service = ActivityService(db=db)
 
     product_create = ProductCreateParams(name=name, description=description, price=price, quantity=quantity)
 
@@ -124,6 +125,11 @@ async def create_product(name: str,
                                                     notification_type=NotificationType.PRODUCT_NOTIFICATION,
                                                     message_template=message_template, action="created",
                                                     current_user=user)
+    activity_msg = ActivityTemplate.Activity_MSG
+    activity_template = ActivityType.PRODUCT
+    await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
+                                           activity_template=activity_template,
+                                           product=product_response, action="created")
 
     db.refresh(product_response)
     return make_response_object(product_response)
@@ -137,6 +143,7 @@ async def create_grow_up(product_id: str,
                          user: User = Depends(oauth2.get_current_user),
                          db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
+    activity_service = ActivityService(db=db)
 
     # authorization
     await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
@@ -145,7 +152,13 @@ async def create_grow_up(product_id: str,
                                                             description=description,
                                                             image=image,
                                                             video=video)
+    activity_msg = ActivityTemplate.Activity_MSG
+    activity_template = ActivityType.GROW_UP
+    await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
+                                           activity_template=activity_template,
+                                           product=product_response, action="created")
 
+    db.refresh(product_response)
     return make_response_object(product_response)
 
 
@@ -176,6 +189,7 @@ async def update_product(product_id: str,
                          db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
     notification_service = NotificationService(db=db)
+    activity_service = ActivityService(db=db)
 
     # authorization
     await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
@@ -190,6 +204,11 @@ async def update_product(product_id: str,
                                                     notification_type=NotificationType.PRODUCT_NOTIFICATION,
                                                     message_template=message_template, action="updated",
                                                     current_user=user)
+    activity_msg = ActivityTemplate.Activity_MSG
+    activity_template = ActivityType.PRODUCT
+    await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
+                                           activity_template=activity_template,
+                                           product=product_response, action="updated")
 
     return make_response_object(product_response)
 
@@ -200,11 +219,18 @@ async def update_product_status(product_id: str,
                                 user: User = Depends(oauth2.get_current_user),
                                 db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
+    activity_service = ActivityService(db=db)
 
     # authorization
     await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
 
     product_response = await product_service.update_product_status(product_id=product_id, product_status=product_status)
+    activity_msg = ActivityTemplate.Activity_MSG
+    activity_template = ActivityType.STATUS_PRODUCT
+    await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
+                                           activity_template=activity_template,
+                                           product=product_response, action="updated")
+    db.refresh(product_response)
     return make_response_object(product_response)
 
 
@@ -215,11 +241,18 @@ async def purchase_product(product_id: str,
                            user: User = Depends(oauth2.get_current_user),
                            db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
+    activity_service = ActivityService(db=db)
 
-    product_response = await product_service.purchase_product(user_id=user.id,
-                                                              product_id=product_id,
-                                                              price=price,
-                                                              quantity=quantity)
+    product_response, current_product = await product_service.purchase_product(user_id=user.id,
+                                                                               product_id=product_id,
+                                                                               price=price,
+                                                                               quantity=quantity)
+    activity_msg = ActivityTemplate.Activity_Purchase_MSG
+    activity_template = ActivityType.PRODUCT
+    await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
+                                           activity_template=activity_template,
+                                           product=current_product, action="purchase")
+    db.refresh(product_response)
     return make_response_object(product_response)
 
 

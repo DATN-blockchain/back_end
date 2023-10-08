@@ -10,3 +10,4 @@ from .grow_up import GrowUp
 from .comment import Comment
 from .reply_comment import ReplyComment
 from .notification import Notification
+from .activity import Activity
