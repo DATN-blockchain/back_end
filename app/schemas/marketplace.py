@@ -3,7 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from . import ProductResponse
+from app.schemas.product import ProductResponse
+from app.schemas.comment import CommentResponse
 from ..model.base import ProductType
 from app.schemas.user import UserInfo
 
@@ -35,3 +36,4 @@ class MarketplaceResponse(MarketplaceBase):
         arbitrary_types_allowed = True
 
     product: Optional[ProductResponse] = None
+    comments: Optional[CommentResponse] = None

@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.model.base import Base
-from app.model.base import Base
 
 
 class Marketplace(Base):
@@ -18,4 +17,5 @@ class Marketplace(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=True)
 
     product = relationship('Product', back_populates='marketplace')
+    comments = relationship('Comment', back_populates='marketplace', passive_deletes=True)
     # user = relationship('User', back_populates='marketplace')
