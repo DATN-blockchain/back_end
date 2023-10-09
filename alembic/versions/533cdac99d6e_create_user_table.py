@@ -37,6 +37,10 @@ def upgrade() -> None:
                               sa.Enum('SUPPER_ADMIN', 'ADMIN', 'FARMER', 'SEEDLING_COMPANY', 'MANUFACTURER', 'MEMBER',
                                       name='system_role_enum'),
                               nullable=False),
+                    sa.Column('confirm_status',
+                              sa.Enum('NONE', 'PENDING', 'DONE', name='confirm_status_enum'),
+                              nullable=False),
+                    sa.Column('survey_data', sa.JSON(), nullable=True),
                     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
                     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
                     sa.PrimaryKeyConstraint('id')

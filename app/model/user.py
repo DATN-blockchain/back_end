@@ -1,7 +1,7 @@
 from sqlalchemy import (Boolean, Column, Date, String, text, JSON, Integer, func, TIMESTAMP)
 from sqlalchemy.orm import relationship
 
-from app.model.base import Base, UserSystemRole
+from app.model.base import Base, UserSystemRole, ConfirmStatusUser
 from app.model.product import Product
 
 class User(Base):
@@ -22,6 +22,8 @@ class User(Base):
     hashed_password = Column(String(255), nullable=True)
     verify_code = Column(String(255), nullable=True)
     system_role = Column(String(255), nullable=False, default=UserSystemRole.MEMBER)
+    confirm_status = Column(String(255), nullable=False, default=ConfirmStatusUser.NONE)
+    survey_data = Column(JSON())
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
     updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"),
                         onupdate=func.current_timestamp())

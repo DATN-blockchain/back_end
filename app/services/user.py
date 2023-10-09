@@ -12,9 +12,10 @@ from app.constant.app_status import AppStatus
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 from app.core.settings import settings
+from ..model.base import ConfirmStatusUser
 
-
-from ..schemas import UserCreate, UserCreateParams, UserUpdateParams, LoginUser, UserResponse, ChangePassword, UserBase
+from ..schemas import UserCreate, UserCreateParams, UserUpdateParams, LoginUser, UserResponse, ChangePassword, UserBase, \
+    SurveyCreateParam
 from ..crud.user import crud_user
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,10 @@ class UserService:
 
     async def list_users(self, skip: int, limit: int):
         result = crud_user.list_users(db=self.db, skip=skip, limit=limit)
+        return result
+
+    async def list_users_request(self, skip: int, limit: int):
+        result = crud_user.list_users_request(db=self.db, skip=skip, limit=limit)
         return result
 
     async def create_user(self, create_user: UserCreateParams):
@@ -51,6 +56,13 @@ class UserService:
                 email=email_lower))
         await self.get_verification_code(email=email_lower, action="is_active")
         return UserResponse.from_orm(result)
+
+    async def update_survey(self, user_id: str, survey_param: SurveyCreateParam):
+        current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
+        user_update = dict(survey_data=survey_param.survey_data, confirm_status=ConfirmStatusUser.PENDING)
+        result = crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
+
+        return result.survey_data
 
     async def get_verification_code(self, email: str, action: str):
         email_lower = email.lower()

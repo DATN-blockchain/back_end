@@ -14,7 +14,7 @@ from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse
     ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
     crud_product_manufacturer, crud_grow_up
-from ..model.base import ProductRole, ProductStatus, UserSystemRole
+from ..model.base import ProductStatus, UserSystemRole
 
 
 class ProductService:
