@@ -44,6 +44,10 @@ class UserCreate(BaseModel):
     username: str
 
 
+class SurveyCreateParam(BaseModel):
+    survey_data: dict
+
+
 class UserUpdate(BaseModel):
     id: Optional[str] = None
     username: Optional[str] = None

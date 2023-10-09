@@ -11,8 +11,8 @@ from app.core.settings import settings
 from app.constant.template import NotificationTemplate, ActivityTemplate
 
 from app.schemas.product import ProductCreateParams, ProductUpdate
-from app.model.base import ProductType, ProductRole, NotificationType, ProductStatus, ActivityType
-from app.model import User, Product
+from app.model.base import NotificationType, ProductStatus, ActivityType
+from app.model import User
 from app.services import ProductService, NotificationService, ActivityService
 
 # logger = logging.getLogger(__name__)
@@ -156,7 +156,7 @@ async def create_grow_up(product_id: str,
     activity_template = ActivityType.GROW_UP
     await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
                                            activity_template=activity_template,
-                                           product=product_response, action="created")
+                                           product=product_response.product_farmer.product, action="created")
 
     db.refresh(product_response)
     return make_response_object(product_response)

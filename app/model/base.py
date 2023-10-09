@@ -36,9 +36,10 @@ class ProductType(str, Enum):
     MANUFACTURER = "MANUFACTURER"
 
 
-class ProductRole(str, Enum):
-    OWNER = "OWNER"
-    MEMBER = "MEMBER"
+class ConfirmStatusUser(str, Enum):
+    NONE = "NONE"
+    PENDING = "PENDING"
+    DONE = "DONE"
 
 
 class NotificationType(str, Enum):
