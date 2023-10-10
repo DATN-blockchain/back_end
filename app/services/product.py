@@ -6,8 +6,9 @@ from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 import cloudinary
 from cloudinary.uploader import upload
+from datetime import date
 
-from ..crud.product_farmer import crud_product_farmer
+
 from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
@@ -71,25 +72,29 @@ class ProductService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         return result
 
-    async def get_product_by_me(self, user_id: str, skip: int, limit: int):
-        current_product = crud_product.get_product_by_me(db=self.db, user_id=user_id, skip=skip, limit=limit)
+    async def get_product_by_me(self, user_id: str, name: str, skip: int, limit: int):
+        current_product = crud_product.get_product_by_me(db=self.db, user_id=user_id, name=name,
+                                                         skip=skip, limit=limit)
         if not current_product:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
 
         return current_product
 
-    async def list_product(self, skip: int, limit: int):
-        total_product, list_product = crud_product.list_product(db=self.db, skip=skip, limit=limit)
+    async def list_product(self, name: str, user_id: str, skip: int, limit: int):
+        total_product, list_product = crud_product.list_product(db=self.db, name=name, user_id=user_id,
+                                                                skip=skip, limit=limit)
         list_product = [ProductResponse.from_orm(item) for item in list_product]
         result = dict(total_product=total_product, list_product=list_product)
         return result
 
-    async def get_product_grow_up(self, product_id: str, skip: int, limit: int):
+    async def get_product_grow_up(self, product_id: str, from_date: date, to_date: date, skip: int, limit: int):
         current_product_farmer = crud_product_farmer.get_product_farmer_by_product_id(db=self.db, product_id=product_id)
         if current_product_farmer is None:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_FARMER_NOT_FOUND)
         total_grow_up, list_grow_up = crud_grow_up.get_grow_up_by_product_farmer_id(db=self.db,
                                                                                     product_farmer_id=current_product_farmer.id,
+                                                                                    from_date=from_date,
+                                                                                    to_date=to_date,
                                                                                     skip=skip,
                                                                                     limit=limit)
         list_grow_up = [GrowUpResponse.from_orm(item) for item in list_grow_up]

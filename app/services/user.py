@@ -12,7 +12,7 @@ from app.constant.app_status import AppStatus
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 from app.core.settings import settings
-from ..model.base import ConfirmStatusUser, ConfirmUser
+from ..model.base import ConfirmStatusUser, ConfirmUser, UserSystemRole
 
 from ..schemas import UserCreate, UserCreateParams, UserUpdateParams, LoginUser, UserResponse, ChangePassword, UserBase, \
     SurveyCreateParam
@@ -29,12 +29,13 @@ class UserService:
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
         return UserResponse.from_orm(current_user)
 
-    async def list_users(self, skip: int, limit: int):
-        result = crud_user.list_users(db=self.db, skip=skip, limit=limit)
+    async def list_users(self, system_role: UserSystemRole, email: str, username: str, skip: int, limit: int):
+        result = crud_user.list_users(db=self.db, system_role=system_role, email=email, username=username, skip=skip,
+                                      limit=limit)
         return result
 
-    async def list_users_request(self, skip: int, limit: int):
-        result = crud_user.list_users_request(db=self.db, skip=skip, limit=limit)
+    async def list_users_request(self, email: str, username: str,  skip: int, limit: int):
+        result = crud_user.list_users_request(db=self.db, email=email, username=username, skip=skip, limit=limit)
         return result
 
     async def create_user(self, create_user: UserCreateParams):

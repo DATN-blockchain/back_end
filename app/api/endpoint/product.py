@@ -1,9 +1,13 @@
 import logging
 from fastapi import APIRouter
-from fastapi import Depends, UploadFile, File
+from fastapi import Depends, UploadFile, File, Query
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.api.depend import oauth2
+from typing import Optional
+from datetime import date
+
+
 from app.schemas import GrowUpUpdate
 from app.utils.response import make_response_object
 import cloudinary.uploader
@@ -30,21 +34,22 @@ cloudinary.config(
 async def list_product(
         user: User = Depends(oauth2.get_current_user),
         db: Session = Depends(get_db),
-        skip=0,
-        limit=10):
+        skip=0, limit=10,
+        name: str = None, user_id: str = None):
     product_service = ProductService(db=db)
 
-    product_response = await product_service.list_product(skip=skip, limit=limit)
+    product_response = await product_service.list_product(name=name, user_id=user_id, skip=skip, limit=limit)
     return make_response_object(product_response)
 
 
 @router.get("/product/me")
 async def get_product_by_me(skip=0, limit=10,
+                            name: str = None,
                             user: User = Depends(oauth2.get_current_user),
                             db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
 
-    product_response = await product_service.get_product_by_me(user_id=user.id, skip=skip, limit=limit)
+    product_response = await product_service.get_product_by_me(user_id=user.id, name=name, skip=skip, limit=limit)
     return make_response_object(product_response)
 
 
@@ -92,11 +97,14 @@ async def get_product_history(product_id: str,
 async def get_product_grow_up(product_id: str,
                               skip: int = 0,
                               limit: int = 10,
+                              from_date: Optional[date] = Query(default=None),
+                              to_date: Optional[date] = Query(default=None),
                               user: User = Depends(oauth2.get_current_user),
                               db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
 
-    product_response = await product_service.get_product_grow_up(product_id=product_id, skip=skip, limit=limit)
+    product_response = await product_service.get_product_grow_up(product_id=product_id, from_date=from_date,
+                                                                 to_date=to_date, skip=skip, limit=limit)
     return make_response_object(product_response)
 
 

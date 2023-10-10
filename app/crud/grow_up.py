@@ -1,12 +1,11 @@
 import logging
-import uuid
+from datetime import date, datetime
 
-from typing import Dict, Optional
+from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from .base import CRUDBase
-from ..model import GrowUp, Product
-from ..model.base import ProductType, ProductStatus
+from ..model import GrowUp
 
 from ..schemas import GrowUpCreate, GrowUpUpdate
 
@@ -20,8 +19,13 @@ class CRUDGrowUp(CRUDBase[GrowUp, GrowUpCreate, GrowUpUpdate]):
         return current_grow_up
 
     @staticmethod
-    def get_grow_up_by_product_farmer_id(db: Session, product_farmer_id: str, skip: int, limit: int):
+    def get_grow_up_by_product_farmer_id(db: Session, product_farmer_id: str, from_date: date,
+                                         to_date: date, skip: int, limit: int):
         db_query = db.query(GrowUp).filter(GrowUp.product_farmer_id == product_farmer_id)
+        if from_date and to_date:
+            from_datetime = datetime.combine(from_date, datetime.min.time())
+            to_datetime = datetime.combine(to_date, datetime.max.time())
+            db_query = db_query.filter(GrowUp.created_at >= from_datetime, GrowUp.created_at <= to_datetime)
         total_grow_up = db_query.count()
         list_grow_up = db_query.order_by(desc(GrowUp.created_at)).offset(skip).limit(limit).all()
         return total_grow_up, list_grow_up

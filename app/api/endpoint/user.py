@@ -22,20 +22,28 @@ router = APIRouter()
 @router.get("/user/list")
 async def list_users(skip=0,
                      limit=10,
+                     system_role: UserSystemRole = None,
+                     email: str = None,
+                     username: str = None,
                      user: User = Depends(oauth2.admin),
                      db: Session = Depends(get_db)):
     user_service = UserService(db=db)
-    user_response = await user_service.list_users(skip=skip, limit=limit)
+    user_response = await user_service.list_users(system_role=system_role, email=email,
+                                                  username=username, skip=skip,
+                                                  limit=limit)
     return make_response_object(user_response)
 
 
 @router.get("/user/list_users_request")
 async def list_users_request(skip=0,
                              limit=10,
+                             email: str = None,
+                             username: str = None,
                              user: User = Depends(oauth2.admin),
                              db: Session = Depends(get_db)):
     user_service = UserService(db=db)
-    user_response = await user_service.list_users_request(skip=skip, limit=limit)
+    user_response = await user_service.list_users_request(email=email, username=username,
+                                                          skip=skip, limit=limit)
     return make_response_object(user_response)
 
 
@@ -128,6 +136,7 @@ async def confirm_user(user_id: str, confirm: ConfirmUser,
     user_response = await user_service.confirm_user(user_id=user_id, confirm=confirm)
     logger.info("Endpoints: confirm_user called successfully.")
     return make_response_object(user_response)
+
 
 @router.put("/user/{user_id}/role")
 async def update_user_role(
