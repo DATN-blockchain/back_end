@@ -28,6 +28,7 @@ async def create_marketplace(product_id: str,
 async def list_marketplace(
         product_id: str = None,
         order_type: ProductType = None,
+        name_product: str = None,
         user: User = Depends(oauth2.get_current_user),
         db: Session = Depends(get_db),
         skip=0,
@@ -35,6 +36,7 @@ async def list_marketplace(
     marketplace_service = MarketplaceService(db=db)
 
     marketplace_response = await marketplace_service.list_marketplace(product_id=product_id, order_type=order_type,
+                                                                      name_product=name_product,
                                                                       skip=skip, limit=limit)
     return make_response_object(marketplace_response)
 

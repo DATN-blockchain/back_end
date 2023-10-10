@@ -8,7 +8,7 @@ from app.utils import hash_lib
 
 from app.utils.hash_lib import hash_verify_code
 from app.schemas.user import UserCreate, UserUpdate
-from ..model.base import ConfirmStatusUser
+from ..model.base import ConfirmStatusUser, UserSystemRole
 
 logger = logging.getLogger(__name__)
 
@@ -26,18 +26,31 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return current_user
 
     @staticmethod
-    def list_users(db: Session, skip: int = None, limit: int = None):
-        total_users = db.query(User).count()
+    def list_users(db: Session, system_role: UserSystemRole = None, email: str = None, username: str = None,
+                   skip: int = None, limit: int = None):
+        db_query = db.query(User)
+        if system_role is not None:
+            db_query = db_query.filter(User.system_role == system_role)
+        if email is not None:
+            db_query = db_query.filter(User.email.ilike(f'%{email}%'))
+        if username is not None:
+            db_query = db_query.filter(User.email.ilike(f'%{username}%'))
         if skip and limit is None:
-            list_users = db.query(User).all()
+            list_users = db_query.all()
         else:
-            list_users = db.query(User).offset(skip).limit(limit).all()
+            list_users = db_query.offset(skip).limit(limit).all()
+
+        total_users = db_query.count()
         result = dict(total_users=total_users, list_users=list_users)
         return result
 
     @staticmethod
-    def list_users_request(db: Session, skip: int = None, limit: int = None):
+    def list_users_request(db: Session, email: str = None, username: str = None, skip: int = None, limit: int = None):
         db_query = db.query(User).filter(User.confirm_status == ConfirmStatusUser.PENDING)
+        if email is not None:
+            db_query = db_query.filter(User.email.ilike(f'%{email}%'))
+        if username is not None:
+            db_query = db_query.filter(User.email.ilike(f'%{username}%'))
         if skip and limit is None:
             list_users = db_query.all()
         else:

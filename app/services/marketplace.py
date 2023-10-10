@@ -21,10 +21,12 @@ class MarketplaceService:
 
         return current_marketplace
 
-    async def list_marketplace(self, product_id: str, order_type: ProductType, skip: int, limit: int):
+    async def list_marketplace(self, product_id: str, order_type: ProductType,
+                               name_product: str, skip: int, limit: int):
         total_marketplace, list_marketplace = crud_marketplace.list_marketplace(db=self.db, product_id=product_id,
-                                                                                order_type=order_type, skip=skip,
-                                                                                limit=limit)
+                                                                                order_type=order_type,
+                                                                                name_product=name_product,
+                                                                                skip=skip, limit=limit)
         list_marketplace = [MarketplaceResponse.from_orm(item) for item in list_marketplace]
         result = dict(total_marketplace=total_marketplace, list_marketplace=list_marketplace)
         return result

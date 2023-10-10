@@ -20,13 +20,16 @@ class CRUDMarketplace(CRUDBase[Marketplace, MarketplaceCreate, MarketplaceUpdate
         return current_marketplace
 
     @staticmethod
-    def list_marketplace(db: Session, skip: int, limit: int, order_type: ProductType = None, product_id: str = None):
+    def list_marketplace(db: Session, skip: int, limit: int, order_type: ProductType = None,
+                         product_id: str = None, name_product: str = None):
         db_query = db.query(Marketplace).join(Product, Marketplace.order_id == Product.id).filter(
             Product.product_status == ProductStatus.PUBLISH)
         if order_type is not None:
             db_query = db_query.filter(Marketplace.order_type == order_type)
         if product_id is not None:
             db_query = db_query.filter(Marketplace.order_id == product_id)
+        if name_product is not None:
+            db_query = db_query.filter(Product.name.ilike(f'%{name_product}%'))
 
         total_marketplace = db_query.count()
         list_marketplace = db_query.order_by(desc(Marketplace.created_at)).offset(skip).limit(limit).all()
