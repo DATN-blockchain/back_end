@@ -13,7 +13,7 @@ from app.model import User
 from app.services.user import UserService
 from app.utils.response import make_response_object
 from ...schemas import UserCreateParams, UserUpdateParams, LoginUser, ChangePassword, SurveyCreateParam
-from ...model.base import UserSystemRole
+from ...model.base import UserSystemRole, ConfirmUser
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -117,6 +117,17 @@ async def update_survey(survey_param: SurveyCreateParam,
     logger.info("Endpoints: create_survey called successfully.")
     return make_response_object(survey_response)
 
+
+@router.put("/user/{user_id}/confirm_user")
+async def confirm_user(user_id: str, confirm: ConfirmUser,
+                       user: User = Depends(oauth2.admin),
+                       db: Session = Depends(get_db)):
+    user_service = UserService(db=db)
+    logger.info(f"Endpoints: confirm_user with uid {user.id} called.")
+
+    user_response = await user_service.confirm_user(user_id=user_id, confirm=confirm)
+    logger.info("Endpoints: confirm_user called successfully.")
+    return make_response_object(user_response)
 
 @router.put("/user/{user_id}/role")
 async def update_user_role(

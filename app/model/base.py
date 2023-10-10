@@ -42,6 +42,11 @@ class ConfirmStatusUser(str, Enum):
     DONE = "DONE"
 
 
+class ConfirmUser(str, Enum):
+    ACCEPT = "ACCEPT"
+    REJECT = "REJECT"
+
+
 class NotificationType(str, Enum):
     SYSTEM_NOTIFICATION = "SYSTEM_NOTIFICATION"
     PRODUCT_NOTIFICATION = "PRODUCT_NOTIFICATION"

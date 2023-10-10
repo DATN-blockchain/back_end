@@ -12,7 +12,7 @@ from app.constant.app_status import AppStatus
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 from app.core.settings import settings
-from ..model.base import ConfirmStatusUser
+from ..model.base import ConfirmStatusUser, ConfirmUser
 
 from ..schemas import UserCreate, UserCreateParams, UserUpdateParams, LoginUser, UserResponse, ChangePassword, UserBase, \
     SurveyCreateParam
@@ -131,6 +131,18 @@ class UserService:
         if not current_user:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
         result = crud_user.update_user(db=self.db, current_user=current_user, update_user=update_user)
+        return UserResponse.from_orm(result)
+
+    async def confirm_user(self, user_id: str, confirm: ConfirmUser):
+        current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
+        if not current_user:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
+        if confirm == ConfirmUser.ACCEPT:
+            system_role = current_user.survey_data["user_role"]
+        else:
+            system_role = current_user.system_role
+        user_update = dict(system_role=system_role, confirm_status=ConfirmStatusUser.DONE)
+        result = crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
         return UserResponse.from_orm(result)
 
     async def update_user_role(self, user_id: str, user_role: str):
