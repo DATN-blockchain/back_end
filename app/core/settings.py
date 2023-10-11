@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     API_KEY: str
     API_SECRET: str
 
+    # blockchain
+    WEB3_PROVIDER: Optional[str] = None
+    WEB3_FACTORY_ADDRESS: Optional[str] = None
+    HASH_KEY: str
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}/{self.POSTGRES_DB}"
