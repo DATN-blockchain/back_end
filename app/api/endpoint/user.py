@@ -12,7 +12,7 @@ from app.db.database import get_db
 from app.model import User
 from app.services.user import UserService
 from app.utils.response import make_response_object
-from ...schemas import UserCreateParams, UserUpdateParams, LoginUser, ChangePassword, SurveyCreateParam
+from ...schemas import UserCreateParams, UserUpdateParams, LoginUser, ChangePassword, SurveyCreateParam, UserResponse
 from ...model.base import UserSystemRole, ConfirmUser
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,8 @@ async def login(login_request: LoginUser,
     created_access_token = create_access_token(data={"uid": current_user.id})
     created_refresh_token = create_refresh_token(data={"uid": current_user.id})
     return make_response_object(data=dict(access_token=created_access_token,
-                                          refresh_token=created_refresh_token))
+                                          refresh_token=created_refresh_token,
+                                          user=UserResponse.from_orm(current_user)))
 
 
 @router.post("/auth/refresh")

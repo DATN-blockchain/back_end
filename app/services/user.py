@@ -46,7 +46,7 @@ class UserService:
         if current_email:
             if current_email.hashed_password is None:
                 update_user = UserBase(email=email_lower, username=username_lower)
-                result = crud_user.update_user(db=self.db, current_user=current_email, update_user=update_user)
+                result = crud_user.update(db=self.db, db_obj=current_email, obj_in=update_user)
             else:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_EMAIL_ALREADY_EXIST)
 
@@ -131,7 +131,7 @@ class UserService:
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
         if not current_user:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
-        result = crud_user.update_user(db=self.db, current_user=current_user, update_user=update_user)
+        result = crud_user.update(db=self.db, db_obj=current_user, obj_in=update_user)
         return UserResponse.from_orm(result)
 
     async def confirm_user(self, user_id: str, confirm: ConfirmUser):
