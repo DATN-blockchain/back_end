@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter
+from fastapi import APIRouter, BackgroundTasks
 from fastapi import Depends, UploadFile, File, Query
 from sqlalchemy.orm import Session
 from app.db.database import get_db
@@ -7,8 +7,8 @@ from app.api.depend import oauth2
 from typing import Optional
 from datetime import date
 
-
 from app.schemas import GrowUpUpdate
+from app.utils.background_tasks import send_notification
 from app.utils.response import make_response_object
 import cloudinary.uploader
 from app.core.settings import settings
@@ -110,6 +110,7 @@ async def get_product_grow_up(product_id: str,
 
 @router.post("/product/create")
 async def create_product(name: str,
+                         background_tasks: BackgroundTasks,
                          price: int = None,
                          quantity: int = None,
                          description: str = None,
@@ -127,12 +128,12 @@ async def create_product(name: str,
                                                                    transaction_id=transaction_id,
                                                                    product_create=product_create,
                                                                    banner=banner)
-
     message_template = NotificationTemplate.CRUD_PRODUCT_NOTIFICATION_MSG
-    await notification_service.notify_entity_status(entity=product_response,
-                                                    notification_type=NotificationType.PRODUCT_NOTIFICATION,
-                                                    message_template=message_template, action="created",
-                                                    current_user=user)
+    background_tasks.add_task(
+        send_notification, notification_service, entity=product_response,
+        notification_type=NotificationType.PRODUCT_NOTIFICATION,
+        message_template=message_template, action='created', current_user=user
+    )
     activity_msg = ActivityTemplate.Activity_MSG
     activity_template = ActivityType.PRODUCT
     await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
@@ -187,6 +188,7 @@ async def update_product(product_id: str,
 
 @router.put("/product/update/{product_id}")
 async def update_product(product_id: str,
+                         background_tasks: BackgroundTasks,
                          name: str = None,
                          description: str = None,
                          price: str = None,
@@ -208,10 +210,11 @@ async def update_product(product_id: str,
                                                             product_update=product_update,
                                                             banner=banner)
     message_template = NotificationTemplate.CRUD_PRODUCT_NOTIFICATION_MSG
-    await notification_service.notify_entity_status(entity=product_response,
-                                                    notification_type=NotificationType.PRODUCT_NOTIFICATION,
-                                                    message_template=message_template, action="updated",
-                                                    current_user=user)
+    background_tasks.add_task(
+        send_notification, notification_service, entity=product_response,
+        notification_type=NotificationType.PRODUCT_NOTIFICATION,
+        message_template=message_template, action='updated', current_user=user
+    )
     activity_msg = ActivityTemplate.Activity_MSG
     activity_template = ActivityType.PRODUCT
     await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
@@ -266,6 +269,7 @@ async def purchase_product(product_id: str,
 
 @router.delete("/product/{product_id}/delete")
 async def delete_product(product_id: str,
+                         background_tasks: BackgroundTasks,
                          user: User = Depends(oauth2.get_current_user),
                          db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
@@ -276,9 +280,10 @@ async def delete_product(product_id: str,
 
     product_response = await product_service.delete_product(product_id=product_id)
     message_template = NotificationTemplate.CRUD_PRODUCT_NOTIFICATION_MSG
-    await notification_service.notify_entity_status(entity=product_response,
-                                                    notification_type=NotificationType.PRODUCT_NOTIFICATION,
-                                                    message_template=message_template, action="deleted",
-                                                    current_user=user)
+    background_tasks.add_task(
+        send_notification, notification_service, entity=product_response,
+        notification_type=NotificationType.PRODUCT_NOTIFICATION,
+        message_template=message_template, action='deleted', current_user=user
+    )
 
     return make_response_object(product_response)

@@ -50,7 +50,7 @@ class CommentService:
                                marketplace_id=comment.marketplace_id)
 
         result = crud_comment.create(db=self.db, obj_in=obj_in)
-        return result
+        return current_marketplace, result
 
     async def update_comment(self, comment_id: str, comment: CommentUpdateParams):
         current_comment = crud_comment.get_comment_by_id(db=self.db, comment_id=comment_id)

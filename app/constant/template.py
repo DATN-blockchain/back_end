@@ -11,5 +11,6 @@ class ActivityTemplate(Enum):
     Activity_Purchase_MSG = lambda action, entity, entity_name, owner: f"You {action}d the {entity} from {owner} - <span style=\"background: linear-gradient(to right, #7AF4AE 0%, #3262DD 100%);\
     -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: bold;\">{entity_name}</span>"
 
-
-
+class CommentTemplate(Enum):
+    Comment_MSG = lambda username, action, entity_name: f"{username} {action} on your post - <span style=\"background: linear-gradient(to right, #7AF4AE 0%, #3262DD 100%);\
+    -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: bold;\">{entity_name}</span>"
