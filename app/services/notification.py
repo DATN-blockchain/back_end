@@ -8,6 +8,7 @@ from app.core.pusher.pusher_client import PusherClient
 from app.core.settings import settings
 
 from ..crud import crud_notification, crud_user
+from ..model.base import NotificationType
 from ..schemas import NotificationCreate
 from app.utils.pagination import calc_skip_record_query, make_response_pagination
 
@@ -37,10 +38,16 @@ class NotificationService:
                                                                    unread=False)
         return notification.data
 
-    async def notify_entity_status(self, entity, notification_type, message_template, action, current_user=None):
-        data_push = self.create_data_notification(action, message_template, notification_type, entity, current_user)
+    async def notify_entity_status(self, entity, notification_type,
+                                   message_template, action, current_user=None, owner=None):
+        data_push = self.create_data_notification(action, message_template,
+                                                  notification_type, entity, current_user)
+        if notification_type == NotificationType.COMMENT_NOTIFICATION:
+            user_id = owner.id
+        else:
+            user_id = current_user.id
 
-        request_data = NotificationCreate(id=str(uuid.uuid4()), data=data_push, user_id=current_user.id,
+        request_data = NotificationCreate(id=str(uuid.uuid4()), data=data_push, user_id=user_id,
                                           notification_type=notification_type)
         await self.create_notification(request_data=request_data)
 
@@ -56,22 +63,44 @@ class NotificationService:
 
         await self.create_multi_notification(list_request_data=list_request_data, data_push=data_push)
 
+    def creted_data_push(self, message, notification_type, entity):
+        data_push = {
+            "message": message,
+            "params": {
+                notification_type[:-13].lower() + '_id': f'{entity.id}',
+                notification_type[:-13].lower() + '_name': f'{entity.name}',
+                "notification_type": notification_type
+            },
+            "data": {
+            }
+        }
+        return data_push
+
+    def creted_data_push_comment(self, message, notification_type, entity):
+        data_push = {
+            "message": message,
+            "params": {
+                'marketplace_id': f'{entity.id}',
+                "notification_type": notification_type
+            },
+            "data": {
+            }
+        }
+        return data_push
+
     def create_data_notification(self, action, message_template, notification_type, entity, current_user):
         if action in ['created', 'updated', 'deleted']:
             message = message_template(product_type=notification_type[:-13].lower(),
                                        product_name=entity.name,
                                        action=action,
                                        user_name=current_user.username)
-            data_push = {
-                "message": message,
-                "params": {
-                    notification_type[:-13].lower() + '_id': f'{entity.id}',
-                    notification_type[:-13].lower() + '_name': f'{entity.name}',
-                    "notification_type": notification_type
-                },
-                "data": {
-                }
-            }
+            data_push = self.creted_data_push(message=message, notification_type=notification_type, entity=entity)
+        elif action in ['commented']:
+            message = message_template(username=current_user.username,
+                                       action=action,
+                                       entity_name=entity.product.name)
+            data_push = self.creted_data_push_comment(message=message, notification_type=notification_type,
+                                                      entity=entity)
         else:
             data_push = []
         return data_push
