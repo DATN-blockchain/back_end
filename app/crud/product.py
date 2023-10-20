@@ -27,9 +27,9 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
             db_query = db_query.filter(Product.name.ilike(f'%{name}%'))
         total_product = db_query.count()
         if skip and limit is not None:
-            list_product = db_query.offset(skip).limit(limit).all()
+            list_product = db_query.order_by(desc(Product.created_at)).offset(skip).limit(limit).all()
         else:
-            list_product = db_query.all()
+            list_product = db_query.order_by(desc(Product.created_at)).all()
         return total_product, list_product
 
     @staticmethod
