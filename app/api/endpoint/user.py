@@ -160,6 +160,19 @@ async def update_user_role(
     return make_response_object(user_response)
 
 
+@router.put("/auth/reset_password")
+async def change_password(
+        request: ChangePassword,
+        user: User = Depends(oauth2.get_current_active_user),
+        db: Session = Depends(get_db)
+):
+    logger.info("Endpoints: change_password called.")
+    user_service = UserService(db=db)
+    await user_service.change_password(current_user=user, obj_in=request)
+    logger.info("Endpoints: change_password called successfully.")
+    return dict(message_code=AppStatus.SUCCESS.message)
+
+
 @router.put("/auth/verify_code")
 async def verify_code(
         email: str,
