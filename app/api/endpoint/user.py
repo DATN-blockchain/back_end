@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import Depends, UploadFile, File
 from sqlalchemy.orm import Session
 
 from app.api.depend import oauth2
@@ -112,6 +112,15 @@ async def update_profile(update_user: UserUpdateParams,
                          db: Session = Depends(get_db)):
     user_service = UserService(db=db)
     user_response = await user_service.update_profile(user_id=user.id, update_user=update_user)
+    return make_response_object(user_response)
+
+
+@router.put("/user/avatar")
+async def update_avatar(avatar: UploadFile = File(None),
+                        user: User = Depends(oauth2.get_current_user),
+                        db: Session = Depends(get_db)):
+    user_service = UserService(db=db)
+    user_response = await user_service.update_avatar(user_id=user.id, avatar=avatar)
     return make_response_object(user_response)
 
 
