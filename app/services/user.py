@@ -7,12 +7,15 @@ import secrets
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from app.constant.app_status import AppStatus
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 from app.core.settings import settings
 from ..model.base import ConfirmStatusUser, ConfirmUser, UserSystemRole
+import cloudinary
+from cloudinary.uploader import upload
 
 from ..schemas import UserCreate, UserCreateParams, UserUpdateParams, LoginUser, UserResponse, ChangePassword, UserBase, \
     SurveyCreateParam
@@ -133,6 +136,14 @@ class UserService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
         result = crud_user.update(db=self.db, db_obj=current_user, obj_in=update_user)
         return UserResponse.from_orm(result)
+
+    async def update_avatar(self, user_id: str, avatar: UploadFile):
+        current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
+        uploaded_banner = upload(avatar.file)
+        avatar_url = uploaded_banner['secure_url']
+        user_update = dict(avatar=avatar_url)
+        crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
+        return avatar_url
 
     async def confirm_user(self, user_id: str, confirm: ConfirmUser):
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
