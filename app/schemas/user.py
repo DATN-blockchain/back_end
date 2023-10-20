@@ -64,9 +64,9 @@ class LoginUser(BaseModel):
 
 
 class ChangePassword(BaseModel):
-    old_password: str
-    new_password: str
-    new_password_confirm: str
+    old_password: constr(min_length=6)
+    new_password: constr(min_length=6)
+    new_password_confirm: constr(min_length=6)
 
 
 class UserInfo(BaseModel):

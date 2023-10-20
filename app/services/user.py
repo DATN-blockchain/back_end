@@ -13,6 +13,7 @@ from app.constant.app_status import AppStatus
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 from app.core.settings import settings
+from ..model import User
 from ..model.base import ConfirmStatusUser, ConfirmUser, UserSystemRole
 import cloudinary
 from cloudinary.uploader import upload
@@ -164,6 +165,20 @@ class UserService:
 
         result = crud_user.update_user_role(self.db, current_user=current_user, user_role=user_role)
         return UserResponse.from_orm(result)
+
+    async def change_password(self, current_user: User, obj_in: ChangePassword):
+        logger.info("UserService: change_password called.")
+
+        if not hash_lib.verify_password(obj_in.old_password, current_user.hashed_password):
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PASSWORD_INCORRECT)
+
+        if obj_in.new_password != obj_in.new_password_confirm:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PASSWORD_CONFIRM_WRONG)
+
+        hashed_password = hash_lib.hash_password(obj_in.new_password)
+
+        result = crud_user.change_password(db=self.db, id_user=current_user.id, new_password=hashed_password)
+        logger.info("UserService: change_password called successfully.")
 
     async def verify_code(self, email: str,
                           verify_code: str,
