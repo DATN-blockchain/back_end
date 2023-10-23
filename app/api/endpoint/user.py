@@ -56,10 +56,10 @@ async def read_me(user: User = Depends(oauth2.get_current_user),
 
 
 @router.post("/auth/register")
-async def create_user(create_user: UserCreateParams,
+async def create_user(user_create: UserCreateParams,
                       db: Session = Depends(get_db)):
     user_service = UserService(db=db)
-    user_response = await user_service.create_user(create_user=create_user)
+    user_response = await user_service.create_user(create_user=user_create)
     return make_response_object(user_response)
 
 
@@ -92,20 +92,6 @@ async def refresh_token(decoded_refresh_token=Depends(verify_refresh_token),
                                           refresh_token=created_refresh_token))
 
 
-@router.post("/auth/reset_password")
-async def change_password(
-        request: ChangePassword,
-        user: User = Depends(oauth2.get_current_user),
-        db: Session = Depends(get_db)
-):
-    user_service = UserService(db=db)
-    logger.info("Endpoint_user: change_password called")
-
-    user_response = await user_service.change_password(current_user=user, obj_in=request)
-    logger.info("Endpoint_user: change_password called successfully")
-    return make_response_object(user_response)
-
-
 @router.put("/user/update_me")
 async def update_profile(update_user: UserUpdateParams,
                          user: User = Depends(oauth2.get_current_user),
@@ -121,6 +107,15 @@ async def update_avatar(avatar: UploadFile = File(None),
                         db: Session = Depends(get_db)):
     user_service = UserService(db=db)
     user_response = await user_service.update_avatar(user_id=user.id, avatar=avatar)
+    return make_response_object(user_response)
+
+
+@router.put("/user/qr_code")
+async def update_qr_code(qr_code: UploadFile = File(None),
+                         user: User = Depends(oauth2.admin),
+                         db: Session = Depends(get_db)):
+    user_service = UserService(db=db)
+    user_response = await user_service.update_qr_code(user_id=user.id, qr_code=qr_code)
     return make_response_object(user_response)
 
 

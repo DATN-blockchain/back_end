@@ -7,3 +7,4 @@ from .comment import CommentService
 from .reply_comment import ReplyCommentService
 from .notification import NotificationService
 from .activity import ActivityService
+from .financial_transaction import FinancialTransactionService

@@ -8,7 +8,6 @@ import cloudinary
 from cloudinary.uploader import upload
 from datetime import date
 
-
 from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
@@ -260,6 +259,8 @@ class ProductService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
         if current_product.quantity < quantity:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_INVALID_QUANTITY)
+        if current_user.account_balance < price:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_YOU_BALANCE_IS_INSUFFICIENT)
 
         # Purchase for Farmer
         if current_user.system_role == UserSystemRole.FARMER:
@@ -298,8 +299,12 @@ class ProductService:
 
         update_quantity = self.update_quantity_product(product_quantity=current_product.quantity,
                                                        purchase_quantity=quantity)
-        obj_in = dict(quantity=update_quantity)
+
+        current_number_of_sales = current_product.number_of_sales + 1
+        obj_in = dict(quantity=update_quantity, number_of_sales=current_number_of_sales)
         crud_product.update(db=self.db, db_obj=current_product, obj_in=obj_in)
+
+        crud_user.update_account_balance(db=self.db, current_user=current_user, product_price=price)
 
         self.db.refresh(result)
         return result, current_product
