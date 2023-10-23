@@ -10,3 +10,4 @@ from .reply_comment import *
 from .comment import *
 from .notification import *
 from .activity import *
+from .financial_transaction import *

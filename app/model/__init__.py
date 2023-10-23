@@ -11,3 +11,4 @@ from .comment import Comment
 from .reply_comment import ReplyComment
 from .notification import Notification
 from .activity import Activity
+from .financial_transaction import FinancialTransaction

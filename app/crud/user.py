@@ -106,5 +106,15 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         logger.info("CRUD_user: change_password called successfully.")
         return current_user
 
+    @staticmethod
+    def update_account_balance(db: Session, current_user: dict, product_price: int):
+        logger.info("CRUD_user: change_password called.")
+        account_balance = current_user.account_balance - product_price
+        current_user.account_balance = account_balance
+        db.commit()
+        db.refresh(current_user)
+        logger.info("CRUD_user: change_password called successfully.")
+        return current_user
+
 
 crud_user = CRUDUser(User)

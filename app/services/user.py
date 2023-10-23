@@ -3,6 +3,7 @@ import smtplib
 import logging
 import string
 import secrets
+import random
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -145,6 +146,14 @@ class UserService:
         user_update = dict(avatar=avatar_url)
         crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
         return avatar_url
+
+    async def update_qr_code(self, user_id: str, qr_code: UploadFile):
+        current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
+        uploaded_qr_code = upload(qr_code.file)
+        qr_code_url = uploaded_qr_code['secure_url']
+        user_update = dict(qr_code=qr_code_url)
+        crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
+        return qr_code_url
 
     async def confirm_user(self, user_id: str, confirm: ConfirmUser):
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)

@@ -69,3 +69,23 @@ class ActivityType(str, Enum):
     MARKETPLACE = "MARKETPLACE"
     GROW_UP = "GROW_UP"
     PURCHASE = "PURCHASE"
+
+
+class TypeTransaction(str, Enum):
+    DEPOSIT = "DEPOSIT"
+    WITHDRAW = "WITHDRAW"
+
+
+class FinancialStatus(str, Enum):
+    PENDING = "PENDING"
+    DONE = "DONE"
+    FAIL = "FAIL"
+
+
+class AmountMoney(str, Enum):
+    _50000 = '50000'
+    _100000 = '100000'
+    _500000 = '500000'
+    _1000000 = '1000000'
+    _5000000 = '5000000'
+    _10000000 = '10000000'
