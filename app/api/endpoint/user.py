@@ -47,6 +47,15 @@ async def list_users_request(skip=0,
     return make_response_object(user_response)
 
 
+@router.get("/user/{user_id}/get_user")
+async def get_user_by_id(user_id: str,
+                         user: User = Depends(oauth2.get_current_user),
+                         db: Session = Depends(get_db)):
+    user_service = UserService(db=db)
+    user_response = await user_service.get_user_by_id(user_id=user_id)
+    return make_response_object(user_response)
+
+
 @router.get("/user/me")
 async def read_me(user: User = Depends(oauth2.get_current_user),
                   db: Session = Depends(get_db)):

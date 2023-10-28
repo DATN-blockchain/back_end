@@ -29,6 +29,7 @@ class TransactionFMResponse(BaseModel):
     id: Optional[str] = None
     product_id: Optional[str] = None
     user_id: Optional[str] = None
+    status: Optional[str] = None
     price: Optional[int] = None
     quantity: Optional[int] = None
     created_at: Optional[datetime] = None
