@@ -26,7 +26,8 @@ class ProductService:
         if not current_product:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
 
-        return current_product
+        result = ProductResponse.from_orm(current_product)
+        return result
 
     async def get_product_seedling_company_history(self, product_id: str):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
