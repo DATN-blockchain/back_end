@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -10,7 +10,7 @@ class TransactionFM(Base):
 
     id = Column(String(255), primary_key=True, nullable=False)
     hashed_data = Column(String(255), nullable=True)
-    status = Column(String(255), nullable=True)
+    status = Column(String(255), nullable=True,  server_default=text("true"))
     price = Column(Integer, nullable=True)
     quantity = Column(Integer, nullable=True)
     user_id = Column(String(255), ForeignKey('user.id', ondelete='CASCADE'), nullable=False)

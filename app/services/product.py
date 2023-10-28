@@ -159,10 +159,12 @@ class ProductService:
         if current_user.system_role == UserSystemRole.MEMBER:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
 
+        # Seedling company
         if current_user.system_role == UserSystemRole.SEEDLING_COMPANY:
             product_create = await self.create_product(current_user=current_user, product_create=product_create,
                                                        banner=banner)
 
+        # Farmer
         elif current_user.system_role == UserSystemRole.FARMER:
             if transaction_id is None:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_TRANSACTION_ID)
@@ -176,17 +178,14 @@ class ProductService:
             if current_transaction.user_id != user_id:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
 
-            project_me = crud_product.get_transaction_sf_in_product(db=self.db, user_id=user_id,
-                                                                    transaction_id=transaction_id)
-            if project_me:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_SF_CONFLICT)
-
             product_create = await self.create_product(current_user=current_user,
                                                        product_create=product_create, banner=banner)
             product_farmer = ProductFarmerCreate(id=str(uuid.uuid4()),
                                                  product_id=product_create.id,
                                                  transaction_sf_id=transaction_id)
             crud_product_farmer.create(db=self.db, obj_in=product_farmer)
+
+        # Manufacturer
         elif current_user.system_role == UserSystemRole.MANUFACTURER:
             if transaction_id is None:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_TRANSACTION_ID)
@@ -198,9 +197,7 @@ class ProductService:
             if current_transaction.user_id != user_id:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
 
-            project_me = crud_product.get_transaction_fm_in_product(db=self.db, user_id=user_id,
-                                                                    transaction_id=transaction_id)
-            if project_me:
+            if current_transaction.status == False:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_FM_CONFLICT)
 
             product_create = await self.create_product(current_user=current_user,
@@ -208,6 +205,8 @@ class ProductService:
             product_manufacturer = ProductManufacturerCreate(id=str(uuid.uuid4()),
                                                              product_id=product_create.id,
                                                              transaction_fm_id=transaction_id)
+            update_status = dict(status=False)
+            crud_transaction_fm.update(db=self.db, db_obj=current_transaction, obj_in=update_status)
             crud_product_manufacturer.create(db=self.db, obj_in=product_manufacturer)
 
         self.db.refresh(product_create)
