@@ -63,25 +63,27 @@ class NotificationService:
 
         await self.create_multi_notification(list_request_data=list_request_data, data_push=data_push)
 
-    def creted_data_push(self, message, notification_type, entity):
+    def creted_data_push(self, message, notification_type, entity, action):
         data_push = {
             "message": message,
             "params": {
                 notification_type[:-13].lower() + '_id': f'{entity.id}',
                 notification_type[:-13].lower() + '_name': f'{entity.name}',
-                "notification_type": notification_type
+                "notification_type": notification_type,
+                "action": action
             },
             "data": {
             }
         }
         return data_push
 
-    def creted_data_push_comment(self, message, notification_type, entity):
+    def creted_data_push_comment(self, message, notification_type, entity, action):
         data_push = {
             "message": message,
             "params": {
                 'marketplace_id': f'{entity.id}',
-                "notification_type": notification_type
+                "notification_type": notification_type,
+                "action": action
             },
             "data": {
             }
@@ -94,13 +96,14 @@ class NotificationService:
                                        product_name=entity.name,
                                        action=action,
                                        user_name=current_user.username)
-            data_push = self.creted_data_push(message=message, notification_type=notification_type, entity=entity)
+            data_push = self.creted_data_push(message=message, notification_type=notification_type,
+                                              entity=entity, action=action)
         elif action in ['commented']:
             message = message_template(username=current_user.username,
                                        action=action,
                                        entity_name=entity.product.name)
             data_push = self.creted_data_push_comment(message=message, notification_type=notification_type,
-                                                      entity=entity)
+                                                      entity=entity, action=action)
         else:
             data_push = []
         return data_push
