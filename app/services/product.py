@@ -29,15 +29,10 @@ class ProductService:
         result = ProductResponse.from_orm(current_product)
         return result
 
-    # async def get_product_leaderboard(self, product_type: str):
-    #     leaderboard = crud_product.get_product_leaderboard(db=self.db, product_type=product_type)
-    #     result = [ProductResponse.from_orm(item) for item in leaderboard]
-    #     return result
 
     async def get_product_top_selling(self, product_type: str):
         top_selling = crud_product.get_product_top_selling(db=self.db, product_type=product_type)
-        result = [ProductResponse.from_orm(item) for item in top_selling]
-        return result
+        return top_selling
 
     async def get_product_seedling_company_history(self, product_id: str):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
