@@ -11,9 +11,9 @@ from datetime import date
 from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
-    ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse
+    ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse, LeaderboardUpdate, LeaderboardCreate
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
-    crud_product_manufacturer, crud_grow_up
+    crud_product_manufacturer, crud_grow_up, crud_leaderboard
 from ..model.base import ProductStatus, UserSystemRole
 
 
@@ -27,6 +27,16 @@ class ProductService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
 
         result = ProductResponse.from_orm(current_product)
+        return result
+
+    # async def get_product_leaderboard(self, product_type: str):
+    #     leaderboard = crud_product.get_product_leaderboard(db=self.db, product_type=product_type)
+    #     result = [ProductResponse.from_orm(item) for item in leaderboard]
+    #     return result
+
+    async def get_product_top_selling(self, product_type: str):
+        top_selling = crud_product.get_product_top_selling(db=self.db, product_type=product_type)
+        result = [ProductResponse.from_orm(item) for item in top_selling]
         return result
 
     async def get_product_seedling_company_history(self, product_id: str):
@@ -303,11 +313,29 @@ class ProductService:
         current_number_of_sales = current_product.number_of_sales + 1
         obj_in = dict(quantity=update_quantity, number_of_sales=current_number_of_sales)
         crud_product.update(db=self.db, db_obj=current_product, obj_in=obj_in)
+        self.create_leader_board(user_id=current_product.created_by, quantity_sales=quantity)
 
         crud_user.update_account_balance(db=self.db, current_user=current_user, product_price=price)
 
         self.db.refresh(result)
         return result, current_product
+
+    def create_leader_board(self, user_id, quantity_sales):
+        current_leaderboard = crud_leaderboard.get_leaderboard_by_user_id(db=self.db, user_id=user_id)
+        if current_leaderboard:
+            new_number_of_sales = current_leaderboard.number_of_sales + 1
+            new_quantity_sales = current_leaderboard.number_of_sales + quantity_sales
+            obj_in = LeaderboardUpdate(number_of_sales=new_number_of_sales, quantity_sales=new_quantity_sales)
+            leaderboard = crud_leaderboard.update(db=self.db, db_obj=current_leaderboard, obj_in=obj_in)
+        else:
+            obj_in = LeaderboardCreate(
+                id=str(uuid.uuid4()),
+                user_id=user_id,
+                number_of_sales=1,
+                quantity_sales=quantity_sales
+            )
+            leaderboard = crud_leaderboard.create(db=self.db, obj_in=obj_in)
+        return leaderboard
 
     async def delete_product(self, product_id: str):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)

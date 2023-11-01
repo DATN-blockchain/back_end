@@ -36,4 +36,3 @@ class MarketplaceResponse(MarketplaceBase):
         arbitrary_types_allowed = True
 
     product: Optional[ProductResponse] = None
-    comments: Optional[CommentResponse] = None

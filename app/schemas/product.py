@@ -7,15 +7,16 @@ from app.schemas.user import UserInfo
 
 
 class ProductBase(BaseModel):
-    id: str
+    id: Optional[str] = None
     product_type: Optional[ProductType] = None
     product_status: Optional[ProductStatus] = None
-    name: str
+    name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[str] = None
-    quantity: Optional[str] = None
+    price: Optional[int] = None
+    quantity: Optional[int] = None
+    number_of_sales: Optional[int] = None
     banner: Optional[str] = None
-    created_by: str
+    created_by: Optional[str] = None
 
 
 class ProductCreateParams(BaseModel):

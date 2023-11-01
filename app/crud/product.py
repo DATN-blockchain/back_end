@@ -1,5 +1,6 @@
 import logging
 import uuid
+from datetime import datetime
 
 from typing import Dict, Optional
 from sqlalchemy.orm import Session, joinedload
@@ -31,6 +32,18 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         else:
             list_product = db_query.order_by(desc(Product.created_at)).all()
         return total_product, list_product
+
+    @staticmethod
+    def get_product_top_selling(db: Session, product_type: str):
+        if product_type is None:
+            db_query = db.query(Product)
+        else:
+            db_query = db.query(Product).filter(Product.product_type == product_type)
+        current_date = datetime.now()
+        top_selling = (db_query.filter(Product.number_of_sales > 0).
+                       filter(Product.created_at >= current_date.date()).
+                       order_by(desc(Product.number_of_sales)).limit(3).all())
+        return top_selling
 
     @staticmethod
     def get_transaction_sf_in_product(db: Session, user_id: str, transaction_id: str):
