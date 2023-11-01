@@ -1,17 +1,22 @@
 import logging
-import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from typing import Dict, Optional
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import desc
+from typing import Optional
+from sqlalchemy.orm import Session
+from sqlalchemy import desc, func
 from .base import CRUDBase
-from ..model import Product, TransactionSF, ProductFarmer, ProductManufacturer
-from ..model.base import ProductStatus
+from ..model import Product, TransactionSF, ProductFarmer, ProductManufacturer, TransactionFM
+from ..model.base import ProductStatus, ProductType
 
 from ..schemas import ProductCreate, ProductUpdate
 
 logger = logging.getLogger(__name__)
+
+
+class ProductWithTotalQuantity:
+    def __init__(self, product, total_quantity):
+        self.product = product
+        self.total_quantity = total_quantity
 
 
 class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
@@ -34,15 +39,26 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return total_product, list_product
 
     @staticmethod
-    def get_product_top_selling(db: Session, product_type: str):
-        if product_type is None:
-            db_query = db.query(Product)
-        else:
-            db_query = db.query(Product).filter(Product.product_type == product_type)
+    def get_product_top_selling(db: Session, product_type: ProductType):
         current_date = datetime.now()
-        top_selling = (db_query.filter(Product.number_of_sales > 0).
-                       filter(Product.created_at >= current_date.date()).
-                       order_by(desc(Product.number_of_sales)).limit(3).all())
+        start_date = current_date - timedelta(days=7)
+        if product_type == ProductType.SEEDLING_COMPANY:
+            top_selling = db.query(Product, func.sum(TransactionSF.quantity).label('total_quantity'),
+                                   func.count(TransactionSF.quantity).label('total_sales')).join(
+                TransactionSF, TransactionSF.product_id == Product.id).filter(
+                TransactionSF.created_at >= start_date,
+                TransactionSF.created_at <= current_date).group_by(Product).order_by(
+                func.sum(TransactionSF.quantity).desc()).limit(3).all()
+        elif product_type == ProductType.FARMER:
+            top_selling = db.query(Product, func.sum(TransactionFM.quantity).label('total_quantity'),
+                                   func.count(TransactionFM.quantity).label('total_sales')).join(
+                TransactionFM, TransactionFM.product_id == Product.id).filter(
+                TransactionFM.created_at >= start_date,
+                TransactionFM.created_at <= current_date).group_by(Product).order_by(
+                func.sum(TransactionSF.quantity).desc()).limit(3).all()
+        else:
+            return []
+
         return top_selling
 
     @staticmethod

@@ -54,7 +54,7 @@ async def get_product_by_me(skip=0, limit=10,
 
 
 @router.get("/product/top_selling")
-async def get_product_top_selling(product_type: ProductType = None,
+async def get_product_top_selling(product_type: ProductType,
                                   user: User = Depends(oauth2.get_current_user),
                                   db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
