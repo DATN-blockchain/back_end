@@ -2,7 +2,8 @@ from fastapi import APIRouter
 
 from app.api.endpoint import (user, product, marketplace, transaction_sf,
                               transaction_fm, comment, reply_comment,
-                              notification, activity, financial_transaction)
+                              notification, activity, financial_transaction,
+                              leaderboard)
 
 route = APIRouter()
 
@@ -16,3 +17,4 @@ route.include_router(transaction_fm.router, tags=["transactions_fm"])
 route.include_router(financial_transaction.router, tags=["financial_transactions"])
 route.include_router(notification.router, tags=["notifications"])
 route.include_router(activity.router, tags=["activities"])
+route.include_router(leaderboard.router, tags=["leaderboards"])

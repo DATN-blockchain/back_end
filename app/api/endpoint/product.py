@@ -15,11 +15,11 @@ from app.core.settings import settings
 from app.constant.template import NotificationTemplate, ActivityTemplate
 
 from app.schemas.product import ProductCreateParams, ProductUpdate
-from app.model.base import NotificationType, ProductStatus, ActivityType
+from app.model.base import NotificationType, ProductStatus, ActivityType, ProductType
 from app.model import User
 from app.services import ProductService, NotificationService, ActivityService
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -50,6 +50,16 @@ async def get_product_by_me(skip=0, limit=10,
     product_service = ProductService(db=db)
 
     product_response = await product_service.get_product_by_me(user_id=user.id, name=name, skip=skip, limit=limit)
+    return make_response_object(product_response)
+
+
+@router.get("/product/top_selling")
+async def get_product_top_selling(product_type: ProductType = None,
+                                  user: User = Depends(oauth2.get_current_user),
+                                  db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    product_response = await product_service.get_product_top_selling(product_type=product_type)
     return make_response_object(product_response)
 
 

@@ -75,6 +75,7 @@ class UserInfo(BaseModel):
     avatar: Optional[str] = None
     username: Optional[str] = None
     email: Optional[str] = None
+    phone: Optional[str] = None
 
     class Config:
         allow_population_by_field_name = True
