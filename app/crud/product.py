@@ -55,7 +55,7 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
                 TransactionFM, TransactionFM.product_id == Product.id).filter(
                 TransactionFM.created_at >= start_date,
                 TransactionFM.created_at <= current_date).group_by(Product).order_by(
-                func.sum(TransactionSF.quantity).desc()).limit(10).all()
+                func.sum(TransactionFM.quantity).desc()).limit(10).all()
         else:
             return []
 
