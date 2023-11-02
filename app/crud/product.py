@@ -48,14 +48,14 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
                 TransactionSF, TransactionSF.product_id == Product.id).filter(
                 TransactionSF.created_at >= start_date,
                 TransactionSF.created_at <= current_date).group_by(Product).order_by(
-                func.sum(TransactionSF.quantity).desc()).limit(3).all()
+                func.sum(TransactionSF.quantity).desc()).limit(10).all()
         elif product_type == ProductType.FARMER:
             top_selling = db.query(Product, func.sum(TransactionFM.quantity).label('total_quantity'),
                                    func.count(TransactionFM.quantity).label('total_sales')).join(
                 TransactionFM, TransactionFM.product_id == Product.id).filter(
                 TransactionFM.created_at >= start_date,
                 TransactionFM.created_at <= current_date).group_by(Product).order_by(
-                func.sum(TransactionSF.quantity).desc()).limit(3).all()
+                func.sum(TransactionSF.quantity).desc()).limit(10).all()
         else:
             return []
 
