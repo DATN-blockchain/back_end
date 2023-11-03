@@ -11,7 +11,8 @@ from datetime import date
 from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
-    ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse, LeaderboardUpdate, LeaderboardCreate
+    ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse, LeaderboardUpdate, \
+    LeaderboardCreate, ProductResponseChart
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
     crud_product_manufacturer, crud_grow_up, crud_leaderboard
 from ..model.base import ProductStatus, UserSystemRole
@@ -29,10 +30,16 @@ class ProductService:
         result = ProductResponse.from_orm(current_product)
         return result
 
-
     async def get_product_top_selling(self, product_type: str):
         top_selling = crud_product.get_product_top_selling(db=self.db, product_type=product_type)
         return top_selling
+
+    async def get_product_chart(self, product_id: str):
+        current_product = crud_product.get(db=self.db, entry_id=product_id)
+        if current_product is None:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+        data_chart = crud_product.get_chart_product(db=self.db, product_id=product_id)
+        return data_chart
 
     async def get_product_seedling_company_history(self, product_id: str):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
@@ -150,8 +157,8 @@ class ProductService:
         return result
 
     async def update_grow_up(self, product_id: str, grow_up_update: GrowUpUpdate):
-        current_project = crud_product.get_product_by_id(db=self.db, product_id=product_id)
-        product_farmer = current_project.product_farmers
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        product_farmer = current_product.product_farmers
         current_grow_up = crud_grow_up.get_grow_up_by_id(db=self.db,
                                                          grow_up_id=product_farmer[0])
 

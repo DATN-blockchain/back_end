@@ -22,6 +22,15 @@ class TransactionSFService:
 
         return current_transaction_sf
 
+    async def get_transaction_sf_by_product_id(self, product_id: str):
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        if not current_product:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+        list_transaction_sf = crud_transaction_sf.get_transaction_sf_by_product_id(db=self.db,
+                                                                                   product_id=product_id)
+        list_transaction_sf = [TransactionSFResponse.from_orm(item) for item in list_transaction_sf]
+        return list_transaction_sf
+
     async def list_transaction_sf(self, product_id: str, user_id, skip: int, limit: int):
         total_transaction_sf, list_transaction_sf = crud_transaction_sf.list_transaction_sf(db=self.db,
                                                                                             user_id=user_id,

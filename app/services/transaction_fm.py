@@ -22,6 +22,15 @@ class TransactionFMService:
 
         return current_transaction_fm
 
+    async def get_transaction_fm_by_product_id(self, product_id: str):
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        if not current_product:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+        list_transaction_fm = crud_transaction_fm.get_transaction_fm_by_product_id(db=self.db,
+                                                                                   product_id=product_id)
+        list_transaction_fm = [TransactionFMResponse.from_orm(item) for item in list_transaction_fm]
+        return list_transaction_fm
+
     async def list_transaction_fm(self, product_id: str, user_id, skip: int, limit: int):
         total_transaction_fm, list_transaction_fm = crud_transaction_fm.list_transaction_fm(db=self.db,
                                                                                             user_id=user_id,

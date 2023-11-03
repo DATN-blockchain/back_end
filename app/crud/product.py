@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from typing import Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import desc, func
+from sqlalchemy import desc, func, extract
 from .base import CRUDBase
 from ..model import Product, TransactionSF, ProductFarmer, ProductManufacturer, TransactionFM
 from ..model.base import ProductStatus, ProductType
@@ -90,6 +90,41 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         db.commit()
         db.refresh(current_product)
         return current_product
+
+    @staticmethod
+    def get_chart_product(db: Session, product_id: int):
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+        current_product = db.query(Product).filter(Product.id == product_id).first()
+        product_chart = {}
+        for i in range(6):
+            month = current_month - i
+            year = current_year
+            if month <= 0:
+                month += 12
+                year -= 1
+
+            if current_product.product_type == ProductType.SEEDLING_COMPANY:
+                item = TransactionSF
+            elif current_product.product_type == ProductType.FARMER:
+                item = TransactionFM
+            else:
+                return product_chart
+            count_number_of_sale = db.query(Product, item.created_at).join(item, Product.id == item.product_id).filter(
+                Product.id == product_id, extract('year', item.created_at) == year,
+                extract('month', item.created_at) == month).count()
+            total_quantity = db.query(func.coalesce(func.sum(TransactionSF.quantity), 0)) \
+                .join(Product, Product.id == item.product_id) \
+                .filter(Product.id == product_id, extract('year', item.created_at) == year,
+                        extract('month', item.created_at) == month) \
+                .scalar()
+
+            product_chart[str(month)] = {
+                "count_number_of_sale": count_number_of_sale,
+                "total_quantity": total_quantity,
+            }
+
+        return product_chart
 
 
 crud_product = CRUDProduct(Product)

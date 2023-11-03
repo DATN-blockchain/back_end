@@ -4,7 +4,7 @@ from fastapi import Depends, UploadFile, File, Query
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.api.depend import oauth2
-from typing import Optional
+from typing import Optional, Any
 from datetime import date
 
 from app.schemas import GrowUpUpdate
@@ -61,6 +61,20 @@ async def get_product_top_selling(product_type: ProductType,
 
     product_response = await product_service.get_product_top_selling(product_type=product_type)
     return make_response_object(product_response)
+
+
+@router.get("/product/{product_id}/chart")
+async def get_product_chart(
+        product_id: str,
+        user: User = Depends(oauth2.get_current_user),
+        db: Session = Depends(get_db),
+) -> Any:
+    product_service = ProductService(db=db)
+    logger.info(f"Endpoints: get_project_chart with uid {user.id} called.")
+
+    users_response = await product_service.get_product_chart(product_id=product_id)
+    logger.info("Endpoints: get_project_chart called successfully.")
+    return make_response_object(users_response)
 
 
 @router.get("/product/{product_id}")

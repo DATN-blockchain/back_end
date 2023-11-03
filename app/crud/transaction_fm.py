@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 
 class CRUDTransactionFM(CRUDBase[TransactionFM, TransactionFMCreate, TransactionFMUpdate]):
     @staticmethod
+    def get_transaction_fm_by_product_id(db: Session, product_id: str):
+        current_transaction_fm = db.query(TransactionFM).filter(TransactionFM.product_id == product_id).all()
+        return current_transaction_fm
+
+    @staticmethod
     def get_transaction_fm_by_id(db: Session, transaction_fm_id: str) -> Optional[TransactionFM]:
         current_transaction_fm = db.query(TransactionFM).get(transaction_fm_id)
         return current_transaction_fm

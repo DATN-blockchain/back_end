@@ -13,6 +13,16 @@ from app.services import TransactionSFService
 router = APIRouter()
 
 
+@router.get("/transaction_sf/{product_id}/get")
+async def get_transaction_sf_by_product_id(
+        product_id: str,
+        user: User = Depends(oauth2.get_current_user),
+        db: Session = Depends(get_db)):
+    transaction_sf_service = TransactionSFService(db=db)
+
+    transaction_sf_response = await transaction_sf_service.get_transaction_sf_by_product_id(product_id=product_id)
+    return make_response_object(transaction_sf_response)
+
 @router.get("/transaction_sf/list")
 async def list_transaction_sf(
         product_id: str = None,
