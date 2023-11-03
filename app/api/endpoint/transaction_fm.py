@@ -13,6 +13,17 @@ from app.services import TransactionFMService
 router = APIRouter()
 
 
+@router.get("/transaction_fm/{product_id}/get")
+async def get_transaction_fm_by_product_id(
+        product_id: str,
+        user: User = Depends(oauth2.get_current_user),
+        db: Session = Depends(get_db)):
+    transaction_fm_service = TransactionFMService(db=db)
+
+    transaction_fm_response = await transaction_fm_service.get_transaction_fm_by_product_id(product_id=product_id)
+    return make_response_object(transaction_fm_response)
+
+
 @router.get("/transaction_fm/list")
 async def list_transaction_fm(
         product_id: str = None,

@@ -13,6 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class CRUDTransactionSF(CRUDBase[TransactionSF, TransactionSFCreate, TransactionSFUpdate]):
+
+    @staticmethod
+    def get_transaction_sf_by_product_id(db: Session, product_id: str):
+        current_transaction_sf = db.query(TransactionSF).filter(TransactionSF.product_id == product_id).all()
+        return current_transaction_sf
+
     @staticmethod
     def get_transaction_sf_by_id(db: Session, transaction_sf_id: str) -> Optional[TransactionSF]:
         current_transaction_sf = db.query(TransactionSF).get(transaction_sf_id)

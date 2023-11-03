@@ -39,6 +39,14 @@ class ProductUpdate(BaseModel):
     hashed_data: Optional[str] = None
 
 
+class ProductResponseChart(ProductBase):
+    project_chart: Optional[dict] = None
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+
 class ProductResponse(ProductBase):
     created_at: Optional[datetime] = None
 
