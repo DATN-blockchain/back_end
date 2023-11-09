@@ -9,7 +9,7 @@ from app.core.settings import settings
 
 from ..crud import crud_notification, crud_user
 from ..model.base import NotificationType
-from ..schemas import NotificationCreate
+from ..schemas import NotificationCreate, NotificationResponse
 from app.utils.pagination import calc_skip_record_query, make_response_pagination
 
 
@@ -23,7 +23,7 @@ class NotificationService:
                                                                                        unread=unread,
                                                                                        skip=skip_record,
                                                                                        limit=limit_record)
-        data = [notification.data for notification in list_notifications]
+        data = [NotificationResponse.from_orm(item) for item in list_notifications]
         notification_unread_total, _ = crud_notification.list_notifications_unread(db=self.db, user_id=user_id)
         meta = dict(unread_total=notification_unread_total)
         result = make_response_pagination(items=data, page=page, limit=limit, total=total_notifications, meta=meta)
