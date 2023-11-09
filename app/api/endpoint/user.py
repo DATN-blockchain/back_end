@@ -167,7 +167,7 @@ async def update_user_role(
 @router.put("/auth/reset_password")
 async def change_password(
         request: ChangePassword,
-        user: User = Depends(oauth2.get_current_active_user),
+        user: User = Depends(oauth2.get_current_user),
         db: Session = Depends(get_db)
 ):
     logger.info("Endpoints: change_password called.")

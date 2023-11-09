@@ -21,7 +21,7 @@ async def list_notifications(unread: Optional[bool] = None,
     notification_service = NotificationService(db=db)
     notification_response = await notification_service.list_notifications(user_id=user.id, unread=unread, page=page,
                                                                           limit=limit)
-    return make_response_object(notification_response)
+    return notification_response
 
 
 @router.get("/notifications/{notification_id}/detail")
