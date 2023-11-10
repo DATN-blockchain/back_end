@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
+
 from ..model.base import ProductType, ProductStatus
 from app.schemas.user import UserInfo
 
@@ -15,6 +16,7 @@ class ProductBase(BaseModel):
     price: Optional[int] = None
     quantity: Optional[int] = None
     number_of_sales: Optional[int] = None
+    is_sale: Optional[bool] = None
     banner: Optional[str] = None
     created_by: Optional[str] = None
 

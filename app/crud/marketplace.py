@@ -20,6 +20,11 @@ class CRUDMarketplace(CRUDBase[Marketplace, MarketplaceCreate, MarketplaceUpdate
         return current_marketplace
 
     @staticmethod
+    def get_marketplace_by_product_id(db: Session, product_id: str) -> Optional[Marketplace]:
+        current_marketplace = db.query(Marketplace).filter(Marketplace.order_id == product_id).first()
+        return current_marketplace
+
+    @staticmethod
     def list_marketplace(db: Session, skip: int, limit: int, order_type: ProductType = None,
                          product_id: str = None, name_product: str = None):
         db_query = db.query(Marketplace).join(Product, Marketplace.order_id == Product.id).filter(

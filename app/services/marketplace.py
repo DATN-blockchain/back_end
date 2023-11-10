@@ -1,11 +1,8 @@
 import uuid
-
 from sqlalchemy.orm import Session
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 
-from ..model import Product
-from ..model.base import ProductStatus
 from ..schemas import ProductType, MarketplaceCreate, MarketplaceUpdate, MarketplaceResponse
 from ..crud import crud_marketplace, crud_product
 
@@ -37,6 +34,10 @@ class MarketplaceService:
         if current_product.created_by != user_id:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
 
+        current_marketplace = crud_marketplace.get_marketplace_by_product_id(db=self.db, product_id=product_id)
+        # return current_marketplace
+        if current_marketplace:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_ALREADY_POSTED_FOR_SALE)
         marketplace_create = MarketplaceCreate(
             id=str(uuid.uuid4()),
             order_type=current_product.product_type,
@@ -44,6 +45,7 @@ class MarketplaceService:
             order_by=user_id)
 
         result = crud_marketplace.create(db=self.db, obj_in=marketplace_create)
+        crud_product.update_is_sale(db=self.db, current_product=current_product, is_sale=True)
         return result
 
     async def has_marketplace_permissions(self, user_id: str, marketplace_id: str):
