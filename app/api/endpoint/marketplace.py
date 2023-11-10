@@ -20,7 +20,7 @@ async def create_marketplace(product_id: str,
     marketplace_service = MarketplaceService(db=db)
 
     product_response = await marketplace_service.create_marketplace(user_id=user.id, product_id=product_id)
-
+    db.refresh(product_response)
     return make_response_object(product_response)
 
 

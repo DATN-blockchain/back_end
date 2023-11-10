@@ -21,8 +21,8 @@ class ProductWithTotalQuantity:
 
 class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
     @staticmethod
-    def get_product_by_id(db: Session, product_id: str) -> Optional[Product]:
-        current_product = db.query(Product).get(product_id)
+    def get_product_by_id(db: Session, product_id: str) -> Product:
+        current_product = db.query(Product).filter(Product.id == product_id).first()
         return current_product
 
     @staticmethod
@@ -87,6 +87,13 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
     @staticmethod
     def update_product_status(db: Session, current_product: Product, product_status: ProductStatus):
         current_product.product_status = product_status
+        db.commit()
+        db.refresh(current_product)
+        return current_product
+
+    @staticmethod
+    def update_is_sale(db: Session, current_product: Product, is_sale: bool):
+        current_product.is_sale = is_sale
         db.commit()
         db.refresh(current_product)
         return current_product
