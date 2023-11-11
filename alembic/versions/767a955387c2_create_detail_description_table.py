@@ -21,7 +21,7 @@ def upgrade() -> None:
     op.create_table('detail_description',
                     sa.Column('id', sa.String(length=255), nullable=False),
                     sa.Column('title', sa.String(length=255), nullable=False),
-                    sa.Column('description', sa.String(length=500), nullable=True),
+                    sa.Column('description', sa.Text(), nullable=True),
                     sa.Column('image', sa.String(length=255), nullable=True),
                     sa.Column('product_id', sa.String(length=255), nullable=True),
                     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
