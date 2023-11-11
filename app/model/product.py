@@ -31,3 +31,4 @@ class Product(Base):
     product_farmers = relationship('ProductFarmer', back_populates='product', passive_deletes=True)
     marketplace = relationship('Marketplace', back_populates='product', passive_deletes=True)
     carts = relationship('Cart', back_populates='product', passive_deletes=True)
+    detail_description = relationship('DetailDescription', back_populates='product', passive_deletes=True)

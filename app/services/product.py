@@ -28,6 +28,7 @@ class ProductService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
 
         result = ProductResponse.from_orm(current_product)
+        # result = [ProductResponse.from_orm(item) for item in current_product]
         return result
 
     async def get_product_top_selling(self, product_type: str):

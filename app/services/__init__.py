@@ -10,3 +10,4 @@ from .activity import ActivityService
 from .financial_transaction import FinancialTransactionService
 from .leaderboard import LeaderboardService
 from .cart import CartService
+from .detail_description import DetailDescriptionService

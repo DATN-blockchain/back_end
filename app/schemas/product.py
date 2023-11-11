@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from app.schemas.detail_description import DetailDescriptionResponse
 from ..model.base import ProductType, ProductStatus
 from app.schemas.user import UserInfo
 
@@ -56,4 +57,16 @@ class ProductResponse(ProductBase):
         orm_mode = True
         arbitrary_types_allowed = True
 
+    detail_description: Optional[list[DetailDescriptionResponse]] = None
+    user: Optional[UserInfo] = None
+
+
+class ProductResponseDetail(ProductBase):
+    created_at: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+    detail_description: Optional[DetailDescriptionResponse] = None
     user: Optional[UserInfo] = None
