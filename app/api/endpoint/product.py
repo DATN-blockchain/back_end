@@ -273,6 +273,7 @@ async def update_product_status(product_id: str,
 async def purchase_product(product_id: str,
                            price: int,
                            quantity: int,
+                           cart_id: str = None,
                            user: User = Depends(oauth2.get_current_user),
                            db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
@@ -281,7 +282,8 @@ async def purchase_product(product_id: str,
     product_response, current_product = await product_service.purchase_product(user_id=user.id,
                                                                                product_id=product_id,
                                                                                price=price,
-                                                                               quantity=quantity)
+                                                                               quantity=quantity,
+                                                                               cart_id=cart_id)
     activity_msg = ActivityTemplate.Activity_Purchase_MSG
     activity_template = ActivityType.PRODUCT
     await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
