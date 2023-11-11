@@ -13,3 +13,4 @@ from .activity import *
 from .financial_transaction import *
 from .leaderboard import *
 from .cart import *
+from .detail_description import *
