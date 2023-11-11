@@ -20,6 +20,12 @@ class CRUDTransactionSF(CRUDBase[TransactionSF, TransactionSFCreate, Transaction
         return current_transaction_sf
 
     @staticmethod
+    def get_statistical_transaction_sf(db: Session):
+        db_query = db.query(TransactionSF).count()
+        result = dict(total_transaction_sf=db_query)
+        return result
+
+    @staticmethod
     def get_transaction_sf_by_id(db: Session, transaction_sf_id: str) -> Optional[TransactionSF]:
         current_transaction_sf = db.query(TransactionSF).get(transaction_sf_id)
         return current_transaction_sf

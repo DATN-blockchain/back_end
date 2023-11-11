@@ -19,6 +19,12 @@ class CartCreate(CartBase):
     pass
 
 
+class CartCreateParam(BaseModel):
+    product_id: str
+    price: int
+    quantity: int
+
+
 class CartUpdate(BaseModel):
     pass
 
