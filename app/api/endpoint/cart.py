@@ -3,6 +3,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.api.depend import oauth2
+from app.schemas import CartCreateParam
 from app.utils.response import make_response_object
 
 from app.schemas.cart import CartUpdate
@@ -12,14 +13,13 @@ from app.services import CartService
 router = APIRouter()
 
 
-@router.get("/cart/{product_id}/get")
-async def get_cart_by_product_id(
-        product_id: str,
-        user: User = Depends(oauth2.get_current_user),
-        db: Session = Depends(get_db)):
+@router.get("/cart/{cart_id}/get")
+async def get_cart_by_id(cart_id: str,
+                         user: User = Depends(oauth2.get_current_user),
+                         db: Session = Depends(get_db)):
     cart_service = CartService(db=db)
 
-    cart_response = await cart_service.get_cart_by_product_id(product_id=product_id)
+    cart_response = await cart_service.get_cart_by_id(cart_id=cart_id)
     return make_response_object(cart_response)
 
 
@@ -38,14 +38,13 @@ async def list_cart(
     return make_response_object(cart_response)
 
 
-@router.get("/cart/{cart_id}")
-async def get_cart_by_id(cart_id: str,
-                         user: User = Depends(oauth2.get_current_user),
-                         db: Session = Depends(get_db)):
+@router.post("/cart/create")
+async def create_cart(cart_create: CartCreateParam,
+                      user: User = Depends(oauth2.get_current_user),
+                      db: Session = Depends(get_db)):
     cart_service = CartService(db=db)
-
-    cart_response = await cart_service.get_cart_by_id(cart_id=cart_id)
-    return make_response_object(cart_response)
+    product_response = await cart_service.create_cart(user=user, cart_create=cart_create)
+    return make_response_object(product_response)
 
 
 @router.delete("/cart/{cart_id}/delete")

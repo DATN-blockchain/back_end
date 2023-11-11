@@ -26,6 +26,18 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return current_product
 
     @staticmethod
+    def get_statistical_product(db: Session):
+        db_query = db.query(Product)
+        seedling_count = db_query.filter(Product.product_type == ProductType.SEEDLING_COMPANY).count()
+        farmer_count = db_query.filter(Product.product_type == ProductType.FARMER).count()
+        manufacturer_count = db_query.filter(Product.product_type == ProductType.MANUFACTURER).count()
+        total_product = db_query.count()
+        result = dict(total_product=total_product,
+                      seedling_count=seedling_count, farmer_count=farmer_count,
+                      manufacturer_count=manufacturer_count)
+        return result
+
+    @staticmethod
     def get_product_by_me(db: Session, user_id: str, name: str = None,
                           skip: int = None, limit: int = None):
         db_query = db.query(Product).filter(Product.created_by == user_id)

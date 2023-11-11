@@ -31,9 +31,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db_query = db.query(User)
         if system_role is not None:
             db_query = db_query.filter(User.system_role == system_role)
-        if email is not None:
+        if email:
             db_query = db_query.filter(User.email.ilike(f'%{email}%'))
-        if username is not None:
+        if username:
             db_query = db_query.filter(User.email.ilike(f'%{username}%'))
         if skip and limit is None:
             list_users = db_query.all()
@@ -61,6 +61,19 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return result
 
     @staticmethod
+    def get_statistical_user(db: Session):
+        db_query = db.query(User)
+        member_count = db_query.filter(User.system_role == UserSystemRole.MEMBER).count()
+        seedling_count = db_query.filter(User.system_role == UserSystemRole.SEEDLING_COMPANY).count()
+        farmer_count = db_query.filter(User.system_role == UserSystemRole.FARMER).count()
+        manufacturer_count = db_query.filter(User.system_role == UserSystemRole.MANUFACTURER).count()
+        total_user = db_query.count()
+        result = dict(total_user=total_user, member_count=member_count,
+                      seedling_count=seedling_count, farmer_count=farmer_count,
+                      manufacturer_count=manufacturer_count)
+        return result
+
+    @staticmethod
     def create_user(db: Session, create_user: UserCreate):
         current_user = User(**create_user.dict())
         db.add(current_user)
@@ -74,11 +87,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.commit()
         db.refresh(current_user)
         return current_user
-
-    @staticmethod
-    def update_user(db: Session, current_user: str, update_user: UserUpdate):
-        result = super().update(db, obj_in=update_user, db_obj=current_user)
-        return result
 
     @staticmethod
     def update_user_role(db: Session, current_user: str, user_role: str):

@@ -9,8 +9,8 @@ from ..schemas import CartCreate, CartUpdate
 
 class CRUDCart(CRUDBase[Cart, CartCreate, CartUpdate]):
     @staticmethod
-    def get_cart_by_product_id(db: Session, product_id: str):
-        current_cart = db.query(Cart).filter(Cart.product_id == product_id).all()
+    def get_cart_by_product_id(db: Session, product_id: str, user_id: str):
+        current_cart = db.query(Cart).filter(Cart.product_id == product_id, Cart.user_id == user_id).first()
         return current_cart
 
     @staticmethod

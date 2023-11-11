@@ -14,6 +14,7 @@ from app.constant.app_status import AppStatus
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 from app.core.settings import settings
+from ..crud import crud_product, crud_transaction_sf, crud_transaction_fm
 from ..model import User
 from ..model.base import ConfirmStatusUser, ConfirmUser, UserSystemRole
 import cloudinary
@@ -43,6 +44,16 @@ class UserService:
 
     async def list_users_request(self, email: str, username: str,  skip: int, limit: int):
         result = crud_user.list_users_request(db=self.db, email=email, username=username, skip=skip, limit=limit)
+        return result
+
+    async def get_statistical(self):
+        statistical_user = crud_user.get_statistical_user(db=self.db)
+        statistical_product = crud_product.get_statistical_product(db=self.db)
+        statistical_transaction_sf = crud_transaction_sf.get_statistical_transaction_sf(db=self.db)
+        statistical_transaction_fm = crud_transaction_fm.get_statistical_transaction_fm(db=self.db)
+        result = dict(statistical_user=statistical_user, statistical_product=statistical_product,
+                      statistical_transaction_sf=statistical_transaction_sf,
+                      statistical_transaction_fm=statistical_transaction_fm)
         return result
 
     async def create_user(self, create_user: UserCreateParams):
