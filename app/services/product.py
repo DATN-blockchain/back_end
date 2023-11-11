@@ -14,7 +14,7 @@ from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse
     ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse, LeaderboardUpdate, \
     LeaderboardCreate, ProductResponseChart
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
-    crud_product_manufacturer, crud_grow_up, crud_leaderboard
+    crud_product_manufacturer, crud_grow_up, crud_leaderboard, crud_cart
 from ..model.base import ProductStatus, UserSystemRole
 
 
@@ -261,7 +261,7 @@ class ProductService:
         if value <= 0:
             raise error_exception_handler(error=Exception(), app_status=error_message)
 
-    async def purchase_product(self, user_id: str, product_id: str, price: int, quantity: int):
+    async def purchase_product(self, user_id: str, product_id: str, price: int, quantity: int, cart_id: str = None):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
 
@@ -273,6 +273,12 @@ class ProductService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_INVALID_QUANTITY)
         if current_user.account_balance < price:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_YOU_BALANCE_IS_INSUFFICIENT)
+        if cart_id:
+            current_cart = crud_cart.get_cart_by_id(db=self.db, cart_id=cart_id)
+            if not current_cart:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CART_NOT_FOUND)
+        else:
+            current_cart = None
 
         # Purchase for Farmer
         if current_user.system_role == UserSystemRole.FARMER:
@@ -318,6 +324,8 @@ class ProductService:
         self.create_leader_board(user_id=current_product.created_by, quantity_sales=quantity)
 
         crud_user.update_account_balance(db=self.db, current_user=current_user, product_price=price)
+        if current_cart:
+            crud_cart.remove(db=self.db, entry_id=cart_id)
 
         self.db.refresh(result)
         return result, current_product

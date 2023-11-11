@@ -13,3 +13,4 @@ from .notification import Notification
 from .activity import Activity
 from .financial_transaction import FinancialTransaction
 from .leaderboard import Leaderboard
+from .cart import Cart

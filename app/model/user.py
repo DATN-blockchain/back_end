@@ -36,6 +36,7 @@ class User(Base):
     notifications = relationship("Notification", back_populates="user", passive_deletes=True)
     financial_transactions = relationship("FinancialTransaction", back_populates="user", passive_deletes=True)
     leaderboards = relationship("Leaderboard", back_populates="user", passive_deletes=True)
+    carts = relationship("Cart", back_populates="user", passive_deletes=True)
     # transactions_fm = relationship("TransactionFM", back_populates="user", passive_deletes=True)
     # transactions_sf = relationship("TransactionSF", back_populates="user", passive_deletes=True)
     # marketplace = relationship("Marketplace", back_populates="user", passive_deletes=True)
