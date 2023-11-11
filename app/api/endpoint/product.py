@@ -213,12 +213,8 @@ async def update_product(product_id: str,
 @router.put("/product/update/{product_id}")
 async def update_product(product_id: str,
                          background_tasks: BackgroundTasks,
-                         name: str = None,
-                         description: str = None,
-                         price: str = None,
-                         quantity: str = None,
-                         hashed_data: str = None,
-                         banner: UploadFile = File(None),
+                         product_update: ProductUpdate,
+                         # banner: UploadFile = File(None),
                          user: User = Depends(oauth2.get_current_user),
                          db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
@@ -227,12 +223,8 @@ async def update_product(product_id: str,
 
     # authorization
     await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
-    product_update = ProductUpdate(name=name, description=description, price=price, quantity=quantity,
-                                   hashed_data=hashed_data)
-
     product_response = await product_service.update_product(product_id=product_id,
-                                                            product_update=product_update,
-                                                            banner=banner)
+                                                            product_update=product_update)
     message_template = NotificationTemplate.CRUD_PRODUCT_NOTIFICATION_MSG
     background_tasks.add_task(
         send_notification, notification_service, entity=product_response,
@@ -245,6 +237,17 @@ async def update_product(product_id: str,
                                            activity_template=activity_template,
                                            product=product_response, action="updated")
 
+    return make_response_object(product_response)
+
+
+@router.put("/product/{product_id}/banner")
+async def update_avatar(product_id: str,
+                        banner: UploadFile = File(None),
+                        user: User = Depends(oauth2.get_current_user),
+                        db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+    await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
+    product_response = await product_service.update_banner(product_id=product_id, banner=banner)
     return make_response_object(product_response)
 
 
