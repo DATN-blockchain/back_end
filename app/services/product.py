@@ -233,16 +233,18 @@ class ProductService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
         return current_product
 
-    async def update_product(self, product_id: str, product_update: ProductUpdate,
-                             banner: UploadFile):
+    async def update_product(self, product_id: str, product_update: ProductUpdate):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
-        if banner:
-            uploaded_banner = upload(banner.file)
-            banner_url = uploaded_banner['secure_url']
-            product_update.banner = banner_url
-
         result = crud_product.update(db=self.db, db_obj=current_product, obj_in=product_update)
         return result
+
+    async def update_banner(self, product_id: str, banner: UploadFile):
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        uploaded_banner = upload(banner.file)
+        banner_url = uploaded_banner['secure_url']
+        product_update = dict(banner=banner_url)
+        crud_user.update(db=self.db, db_obj=current_product, obj_in=product_update)
+        return AppStatus.SUCCESS
 
     async def update_product_status(self, product_id: str, product_status: ProductStatus):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
