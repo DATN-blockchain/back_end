@@ -56,6 +56,11 @@ class UserService:
                       statistical_transaction_fm=statistical_transaction_fm)
         return result
 
+    async def get_statistical_me(self, user_id: str):
+        statistical_product = crud_product.get_statistical_product_me(db=self.db, user_id=user_id)
+        result = dict(statistical_product=statistical_product)
+        return result
+
     async def create_user(self, create_user: UserCreateParams):
 
         email_lower = create_user.email.lower()
