@@ -42,6 +42,14 @@ async def get_statistical(user: User = Depends(oauth2.admin),
     return make_response_object(user_response)
 
 
+@router.get("/user/statistical/me")
+async def get_statistical(user: User = Depends(oauth2.get_current_user),
+                          db: Session = Depends(get_db)):
+    user_service = UserService(db=db)
+    user_response = await user_service.get_statistical_me(user_id=user.id)
+    return make_response_object(user_response)
+
+
 @router.get("/user/list_users_request")
 async def list_users_request(skip=0,
                              limit=10,

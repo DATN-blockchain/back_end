@@ -38,6 +38,14 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
         return result
 
     @staticmethod
+    def get_statistical_product_me(db: Session, user_id: str):
+        db_query = db.query(Product).filter(Product.created_by == user_id)
+        total_sales = db.query(func.sum(Product.number_of_sales)).filter(Product.created_by == user_id).scalar()
+        total_product = db_query.count()
+        result = dict(total_product=total_product, total_sales=total_sales)
+        return result
+
+    @staticmethod
     def get_product_by_me(db: Session, user_id: str, name: str = None,
                           skip: int = None, limit: int = None):
         db_query = db.query(Product).filter(Product.created_by == user_id)
