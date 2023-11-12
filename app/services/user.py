@@ -77,6 +77,7 @@ class UserService:
             result = crud_user.create_user(db=self.db, create_user=UserCreate(
                 id=str(uuid.uuid4()),
                 username=username_lower,
+                full_name=username_lower,
                 email=email_lower))
         await self.get_verification_code(email=email_lower, action="is_active")
         return UserResponse.from_orm(result)
