@@ -3,6 +3,7 @@ from enum import Enum
 
 class NotificationTemplate(Enum):
     CRUD_PRODUCT_NOTIFICATION_MSG = lambda product_type, product_name, action, user_name: f"The {product_name} {product_type} has just been {action} by {user_name}"
+    ERROR_TRANSACTION_OF_BLOCKCHAIN_NOTIFICATION_MSG = "Transaction failed with blockchain."
 
 class ActivityTemplate(Enum):
     Activity_MSG = lambda username, action, entity, entity_name, children_name: f"{username} has {action} the {entity} {children_name} - <span style=\"background: linear-gradient(to right, #7AF4AE 0%, #3262DD 100%);\

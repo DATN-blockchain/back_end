@@ -39,7 +39,11 @@ class Settings(BaseSettings):
 
     # blockchain
     WEB3_PROVIDER: Optional[str] = None
-    WEB3_FACTORY_ADDRESS: Optional[str] = None
+    ADDRESS_CONTRACT_SUPPLY_CHAIN: Optional[str] = None
+    ADDRESS_CONTRACT_ACTOR_MANAGER: Optional[str] = None
+    ADDRESS_CONTRACT_PRODUCT_MANAGER: Optional[str] = None
+    PRIVATE_KEY_SYSTEM: str
+    CHAIN_ID: str
     HASH_KEY: str
 
     @property

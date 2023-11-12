@@ -1,6 +1,12 @@
 [
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "ad_Actor",
+          "type": "address"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "constructor"
     },
@@ -65,9 +71,14 @@
               "internalType": "enum SupplyChainLib.ProductStatus",
               "name": "status",
               "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "hash_info",
+              "type": "string"
             }
           ],
-          "internalType": "struct ProductInfo",
+          "internalType": "struct SupplyChainLib.ProductInfo",
           "name": "",
           "type": "tuple"
         }
@@ -130,6 +141,11 @@
           "internalType": "string",
           "name": "owner",
           "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "hash_info",
+          "type": "string"
         }
       ],
       "name": "create",
@@ -180,9 +196,14 @@
               "internalType": "enum SupplyChainLib.ProductStatus",
               "name": "status",
               "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "hash_info",
+              "type": "string"
             }
           ],
-          "internalType": "struct ProductInfo",
+          "internalType": "struct SupplyChainLib.ProductInfo",
           "name": "",
           "type": "tuple"
         }
@@ -207,120 +228,28 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "",
+          "name": "id",
           "type": "string"
         }
       ],
-      "name": "products",
+      "name": "getGrowUpProduct",
       "outputs": [
         {
-          "internalType": "string",
-          "name": "product_id",
-          "type": "string"
-        },
-        {
-          "internalType": "enum SupplyChainLib.ProductType",
-          "name": "product_type",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "quantity",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "created_at",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "updated_at",
-          "type": "uint256"
-        },
-        {
-          "internalType": "string",
-          "name": "owner_id",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "transaction_id",
-          "type": "string"
-        },
-        {
-          "internalType": "enum SupplyChainLib.ProductStatus",
-          "name": "status",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
+          "components": [
+            {
+              "internalType": "string",
+              "name": "url",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "date_update",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct SupplyChainLib.GrowUpDetail[]",
           "name": "",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "name": "products_in_company",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "product_id",
-          "type": "string"
-        },
-        {
-          "internalType": "enum SupplyChainLib.ProductType",
-          "name": "product_type",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "quantity",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "created_at",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "updated_at",
-          "type": "uint256"
-        },
-        {
-          "internalType": "string",
-          "name": "owner_id",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "transaction_id",
-          "type": "string"
-        },
-        {
-          "internalType": "enum SupplyChainLib.ProductStatus",
-          "name": "status",
-          "type": "uint8"
+          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",
@@ -382,9 +311,14 @@
               "internalType": "enum SupplyChainLib.ProductStatus",
               "name": "status",
               "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "hash_info",
+              "type": "string"
             }
           ],
-          "internalType": "struct ProductInfo",
+          "internalType": "struct SupplyChainLib.ProductInfo",
           "name": "",
           "type": "tuple"
         }
@@ -413,6 +347,11 @@
           "internalType": "uint256",
           "name": "quantity",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "hash_info",
+          "type": "string"
         }
       ],
       "name": "update",
@@ -463,13 +402,36 @@
               "internalType": "enum SupplyChainLib.ProductStatus",
               "name": "status",
               "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "hash_info",
+              "type": "string"
             }
           ],
-          "internalType": "struct ProductInfo",
+          "internalType": "struct SupplyChainLib.ProductInfo",
           "name": "",
           "type": "tuple"
         }
       ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "url",
+          "type": "string"
+        }
+      ],
+      "name": "updateGrowUpProduct",
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     }

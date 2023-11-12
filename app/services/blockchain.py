@@ -1,12 +1,14 @@
-from app.blockchain_web3.router import SupplyChainRouterProvider
+from app.blockchain_web3.supply_chain_provider import SupplyChainRouterProvider
 
 
 class BlockchainService:
 
     @staticmethod
-    def create_product(product_id, product_type, price, quantity, transaction_id, status, owner, private_key):
+    async def create_product(product_id, product_type, price, quantity, transaction_id, status, owner, private_key):
         route = SupplyChainRouterProvider()
         try:
-            route.create_product(product_id, product_type, price, quantity, transaction_id, status, owner, private_key)
+            result = route.create_product(product_id, product_type, price, quantity, transaction_id, status, owner,
+                                          private_key)
+            return True
         except Exception as err:
-            pass
+            return False

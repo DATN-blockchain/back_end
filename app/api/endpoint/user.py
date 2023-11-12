@@ -3,6 +3,7 @@ import logging
 from fastapi import APIRouter
 from fastapi import Depends, UploadFile, File
 from sqlalchemy.orm import Session
+from starlette.background import BackgroundTasks
 
 from app.api.depend import oauth2
 from app.api.depend.oauth2 import create_access_token, create_refresh_token, verify_refresh_token
@@ -166,13 +167,14 @@ async def update_survey(survey_param: SurveyCreateParam,
 
 
 @router.put("/user/{user_id}/confirm_user")
-async def confirm_user(user_id: str, confirm: ConfirmUser,
+async def confirm_user(user_id: str, confirm: ConfirmUser, background_task: BackgroundTasks,
                        user: User = Depends(oauth2.admin),
                        db: Session = Depends(get_db)):
     user_service = UserService(db=db)
     logger.info(f"Endpoints: confirm_user with uid {user.id} called.")
 
     user_response = await user_service.confirm_user(user_id=user_id, confirm=confirm)
+
     logger.info("Endpoints: confirm_user called successfully.")
     return make_response_object(user_response)
 

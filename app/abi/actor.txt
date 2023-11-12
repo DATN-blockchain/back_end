@@ -7,64 +7,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "actors",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "id",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "internalType": "enum SupplyChainLib.Role",
-          "name": "role",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "name": "actors_ms",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "id",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "internalType": "enum SupplyChainLib.Role",
-          "name": "role",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "string",
           "name": "id",
           "type": "string"
@@ -119,48 +61,12 @@
               "type": "uint8"
             }
           ],
-          "internalType": "struct ActorInfo",
+          "internalType": "struct SupplyChainLib.ActorInfo",
           "name": "",
           "type": "tuple"
         }
       ],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "address_Actor",
-          "type": "address"
-        }
-      ],
-      "name": "get_Actor_by_address",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "id",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
-            },
-            {
-              "internalType": "enum SupplyChainLib.Role",
-              "name": "role",
-              "type": "uint8"
-            }
-          ],
-          "internalType": "struct ActorInfo",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -191,7 +97,7 @@
               "type": "uint8"
             }
           ],
-          "internalType": "struct ActorInfo",
+          "internalType": "struct SupplyChainLib.ActorInfo",
           "name": "",
           "type": "tuple"
         }
@@ -200,59 +106,19 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "get_list_Actor",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "id",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
-            },
-            {
-              "internalType": "enum SupplyChainLib.Role",
-              "name": "role",
-              "type": "uint8"
-            }
-          ],
-          "internalType": "struct ActorInfo[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "list_Actor",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "id",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
         {
           "internalType": "enum SupplyChainLib.Role",
           "name": "role",
           "type": "uint8"
+        }
+      ],
+      "name": "get_ids_by_role",
+      "outputs": [
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
         }
       ],
       "stateMutability": "view",
