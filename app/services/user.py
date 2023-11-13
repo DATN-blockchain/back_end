@@ -42,7 +42,7 @@ class UserService:
                                       limit=limit)
         return result
 
-    async def list_users_request(self, email: str, username: str,  skip: int, limit: int):
+    async def list_users_request(self, email: str, username: str, skip: int, limit: int):
         result = crud_user.list_users_request(db=self.db, email=email, username=username, skip=skip, limit=limit)
         return result
 
@@ -57,9 +57,13 @@ class UserService:
         return result
 
     async def get_statistical_me(self, user_id: str):
-        statistical_product = crud_product.get_statistical_product_me(db=self.db, user_id=user_id)
+        statistical_product = crud_user.get_statistical_product_me(db=self.db, user_id=user_id)
         result = dict(statistical_product=statistical_product)
         return result
+
+    async def get_survey_by_user(self, user_id: str):
+        user_survey = crud_product.get_survey_by_user(db=self.db, user_id=user_id)
+        return user_survey
 
     async def create_user(self, create_user: UserCreateParams):
 
