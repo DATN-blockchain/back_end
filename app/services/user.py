@@ -105,17 +105,23 @@ class UserService:
         characters = string.ascii_letters + string.digits
         verify_code = ''.join(secrets.choice(characters) for _ in range(8))
         receiver_email = email
-
         if action == "forget_password":
-            subject = "[FULL STACK] Verification code to change your password"
+            subject = "[SupplyChainDurian] Please reset password"
+            title = "Verification code to change your password"
         elif action == "is_active":
-            subject = "[FULL STACK] Verification code to user authentication"
+            subject = "Welcome to Supply Chain Durian"
+            title_tmp = "Welcome to Supply Chain Durian"
+            address_img = "https://icon-library.com/images/celebration-icon-png/celebration-icon-png-7.jpg"
+            title = f'<img src="{address_img}" alt="celebration icon" style="width:30px;height:30px;"> {title_tmp}'
+        else:
+            title = None
+            subject = None
 
-        title = subject.replace("[FULL STACK]", "")
         html = """
         <html>
             <body>
                 <h1>{}</h1>
+                <p>Thank you for joining Supply Chain Durian! We are grateful to have you as a part of our community.</p>
                 <p>Your verification code is <strong>{}</strong>. Please do not share it with anyone.</p>
             </body>
         </html>
