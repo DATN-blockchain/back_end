@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -9,7 +9,7 @@ class TransactionSF(Base):
     __tablename__ = 'transaction_sf'
 
     id = Column(String(255), primary_key=True, nullable=False)
-    hashed_data = Column(String(255), nullable=True)
+    tx_hash = Column(Text(), nullable=True)
     status = Column(String(255), nullable=True)
     price = Column(Integer, nullable=True)
     quantity = Column(Integer, nullable=True)

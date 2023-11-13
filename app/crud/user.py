@@ -115,6 +115,14 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return current_user
 
     @staticmethod
+    def get_survey_by_user(db: Session, user_id: str):
+        logger.info("CRUD_user: get_survey_by_user called.")
+        db_query = db.query(User).filter(User.id == user_id).first()
+        user_survey = db_query.survey_data
+        logger.info("CRUD_user: get_survey_by_user called successfully.")
+        return user_survey
+
+    @staticmethod
     def update_account_balance(db: Session, current_user: dict, product_price: int):
         logger.info("CRUD_user: change_password called.")
         account_balance = current_user.account_balance - product_price

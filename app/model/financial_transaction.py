@@ -1,4 +1,4 @@
-from sqlalchemy import (Column, String, text, Integer, func, TIMESTAMP, ForeignKey, DateTime)
+from sqlalchemy import (Column, String, text, Integer, func, TIMESTAMP, ForeignKey, Text)
 from sqlalchemy.orm import relationship
 
 from app.model.base import Base, FinancialStatus
@@ -10,6 +10,7 @@ class FinancialTransaction(Base):
     id = Column(String(255), primary_key=True, nullable=False)
     amount = Column(Integer, nullable=False)
     status = Column(String(255), nullable=False, default=FinancialStatus.PENDING)
+    tx_hash = Column(Text(), nullable=True)
     transaction_code = Column(String(255), nullable=False)
     type_transaction = Column(String(255), nullable=False)
     user_id = Column(String(255), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)

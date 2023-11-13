@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Boolean, text
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Boolean, text, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -15,7 +15,7 @@ class Product(Base):
     description = Column(String(255), nullable=True)
     price = Column(Integer, nullable=True)
     quantity = Column(Integer, nullable=True)
-    hashed_data = Column(String(255), nullable=True)
+    tx_hash = Column(Text(), nullable=True)
     product_status = Column(String(255), nullable=False)
     product_type = Column(String(255), nullable=False)
     number_of_sales = Column(Integer, nullable=False, default=0)

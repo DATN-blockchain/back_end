@@ -1,4 +1,4 @@
-from sqlalchemy import (Boolean, Column, Date, String, text, JSON, func, TIMESTAMP, Float)
+from sqlalchemy import (Boolean, Column, Date, String, text, Text, JSON, func, TIMESTAMP, Float)
 from sqlalchemy.orm import relationship
 
 from app.model.base import Base, UserSystemRole, ConfirmStatusUser
@@ -17,7 +17,7 @@ class User(Base):
     is_active = Column(Boolean, nullable=False, server_default=text("false"))
     private_key = Column(String(255), nullable=True)
     address_real = Column(String(255), nullable=True)
-    hashed_data = Column(String(255), nullable=True)
+    tx_hash = Column(Text(), nullable=True)
     birthday = Column(Date, nullable=True)
     hashed_password = Column(String(255), nullable=True)
     verify_code = Column(String(255), nullable=True)
