@@ -1,8 +1,6 @@
 import json
 import logging
 
-from web3.auto import w3
-
 from app.blockchain_web3.provider import Web3Provider
 from app.core.settings import settings
 
@@ -25,40 +23,20 @@ class SupplyChainProvider(Web3Provider):
 
     def listing_product_to_marketplace(self, item_id, product_id, owner, status):
         function = self.contract.functions.listing_product(item_id, product_id, owner, status)
-
-        return self.sign_and_send_transaction(function)
+        tx_hash = self.sign_and_send_transaction(self.conn, function)
+        self.wait_for_transaction_confirmation(self.conn, tx_hash)
+        return tx_hash
 
     def buy_product_in_market(self, item_id, id_trans, buyer, quantity):
         function = self.contract.functions.buy_product_in_market(item_id, quantity, buyer, id_trans)
-        return self.sign_and_send_transaction(function)
+        tx_hash = self.sign_and_send_transaction(self.conn, function)
+        self.wait_for_transaction_confirmation(self.conn, tx_hash)
+        return tx_hash
 
     def update_status_item_on_marketplace(self, item_id, status):
         function = self.contract.functions.update_item_on_marketplance(item_id, status)
-        return self.sign_and_send_transaction(function)
-
-    def sign_and_send_transaction(self, func):
-        account = w3.eth.account.privateKeyToAccount(settings.PRIVATE_KEY_SYSTEM)
-        nonce = self.conn.eth.getTransactionCount(account.address)
-        gas = 3000000
-        gas_price = self.conn.eth.gasPrice
-
-        tx_data = func.buildTransaction(
-            {'chainId': self.chain_id, 'gas': gas, 'gasPrice': gas_price, 'nonce': nonce})
-
-        # Tạo một đối tượng giao dịch
-        transaction = {
-            'to': settings.WEB3_FACTORY_ADDRESS,
-            'value': 0,  # Số Ether bạn muốn chuyển đi (0 trong trường hợp này)
-            'gas': gas,
-            'gasPrice': gas_price,
-            'nonce': nonce,
-            'data': tx_data['data']
-        }
-
-        signed_transaction = self.conn.eth.account.signTransaction(transaction, settings.PRIVATE_KEY_SYSTEM)
-
-        tx_hash = self.conn.eth.sendRawTransaction(signed_transaction.rawTransaction)
-
+        tx_hash = self.sign_and_send_transaction(self.conn, function)
+        self.wait_for_transaction_confirmation(self.conn, tx_hash)
         return tx_hash
 
     def get_transaction_by_id(self, trans_id):
