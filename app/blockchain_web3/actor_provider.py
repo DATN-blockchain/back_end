@@ -13,13 +13,12 @@ class ActorProvider(Web3Provider):
         factory_abi = json.loads(abi)
         super().__init__(settings.WEB3_PROVIDER)
         self.chain_id = settings.CHAIN_ID
-        self.contract = self.conn.eth.contract(address=settings.ADDRESS_CONTRACT_ACTOR_MANAGER, abi=factory_abi)
+        self.contract = self.w3.eth.contract(address=settings.ADDRESS_CONTRACT_ACTOR_MANAGER, abi=factory_abi)
 
     def create_actor(self, user_id: str, address, role):
         function = self.contract.functions.create(user_id, address, role)
 
-        tx_hash = self.sign_and_send_transaction(self.conn, function)
-        self.wait_for_transaction_confirmation(self.conn, tx_hash)
+        tx_hash = self.sign_and_send_transaction(function)
         return tx_hash
 
     def get_actor_by_id(self, user_id):
