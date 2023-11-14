@@ -3,25 +3,27 @@ import smtplib
 import logging
 import string
 import secrets
-import random
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 from fastapi import UploadFile
+from eth_account import Account
 from sqlalchemy.orm import Session
+
 from app.constant.app_status import AppStatus
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 from app.core.settings import settings
 from ..crud import crud_product, crud_transaction_sf, crud_transaction_fm
+from ..blockchain_web3.actor_provider import ActorProvider
 from ..model import User
 from ..model.base import ConfirmStatusUser, ConfirmUser, UserSystemRole
-import cloudinary
 from cloudinary.uploader import upload
 
 from ..schemas import UserCreate, UserCreateParams, UserUpdateParams, LoginUser, UserResponse, ChangePassword, UserBase, \
     SurveyCreateParam
+from ..blockchain_web3.hash_code import hash_code_private_key
 from ..crud.user import crud_user
 
 logger = logging.getLogger(__name__)
@@ -200,6 +202,10 @@ class UserService:
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
         if not current_user:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
+        if user_role in ["FARMER", 'SEEDLING_COMPANY', 'MANUFACTURER']:
+            actor_provider = ActorProvider()
+            map_role = {"SEEDLING_COMPANY": 0, "FARMER": 1, "MANUFACTURER": 2}
+            actor_provider.create_actor(user_id=user_id, address=current_user.address_wallet, role=map_role[user_role])
 
         result = crud_user.update_user_role(self.db, current_user=current_user, user_role=user_role)
         return UserResponse.from_orm(result)
@@ -236,10 +242,20 @@ class UserService:
         elif new_password != password_confirm:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CONFIRM_PASSWORD_DOES_NOT_MATCH)
 
-        result = crud_user.verify_code(self.db, current_user=current_user, new_password=new_password)
+        # Generate a new account
+        account = Account.create()
+        private_key = account.privateKey
+        address = account.address
+
+        # result = crud_user.verify_code(self.db, current_user=current_user, new_password=new_password)
+
+        private_key = hash_code_private_key(str(private_key))
+        data_update = dict(hashed_password=hash_lib.hash_password(new_password), is_active=True, address_wallet=address,
+                           private_key=private_key)
+        result = crud_user.update(db=self.db, db_obj=current_user, obj_in=data_update)
         return UserResponse.from_orm(result)
 
-    async def change_password(self, current_user: dict, obj_in: ChangePassword):
+    async def change_password(self, current_user: any, obj_in: ChangePassword):
         logger.info("Service_user: change_password called")
 
         if not hash_lib.verify_password(obj_in.old_password, current_user.hashed_password):
