@@ -13,7 +13,7 @@ class TransactionSFBase(BaseModel):
     user_id: Optional[str] = None
     price: Optional[int] = None
     quantity: Optional[int] = None
-    hashed_data: Optional[int] = None
+    tx_hash: Optional[int] = None
     status: Optional[int] = None
 
 
@@ -22,7 +22,7 @@ class TransactionSFCreate(TransactionSFBase):
 
 
 class TransactionSFUpdate(BaseModel):
-    hashed_data: Optional[int] = None
+    tx_hash: Optional[int] = None
     status: Optional[int] = None
 
 

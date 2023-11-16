@@ -39,7 +39,7 @@ class ProductUpdate(BaseModel):
     banner: Optional[str] = None
     price: Optional[str] = None
     quantity: Optional[str] = None
-    hashed_data: Optional[str] = None
+    tx_hash: Optional[str] = None
 
 
 class ProductResponseChart(ProductBase):

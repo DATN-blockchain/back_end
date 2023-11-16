@@ -199,7 +199,7 @@ async def change_password(
 ):
     logger.info("Endpoints: change_password called.")
     user_service = UserService(db=db)
-    await user_service.change_password(current_user=user, obj_in=request)
+    await user_service.change_password_user(current_user=user, obj_in=request)
     logger.info("Endpoints: change_password called successfully.")
     return dict(message_code=AppStatus.SUCCESS.message)
 
