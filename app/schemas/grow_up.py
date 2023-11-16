@@ -13,7 +13,7 @@ class GrowUpBase(BaseModel):
     description: Optional[str] = None
     image: Optional[str] = None
     video: Optional[str] = None
-    hashed_data: Optional[int] = None
+    tx_hash: Optional[int] = None
 
 
 class GrowUpCreate(GrowUpBase):
@@ -28,7 +28,7 @@ class GrowUpCreateParam(GrowUpBase):
 
 
 class GrowUpUpdate(BaseModel):
-    hashed_data: Optional[int] = None
+    tx_hash: Optional[int] = None
 
 
 class GrowUpResponse(GrowUpBase):

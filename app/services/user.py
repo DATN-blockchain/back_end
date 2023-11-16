@@ -64,7 +64,7 @@ class UserService:
         return result
 
     async def get_survey_by_user(self, user_id: str):
-        user_survey = crud_product.get_survey_by_user(db=self.db, user_id=user_id)
+        user_survey = crud_user.get_survey_by_user(db=self.db, user_id=user_id)
         return user_survey
 
     async def create_user(self, create_user: UserCreateParams):
@@ -192,9 +192,15 @@ class UserService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
         if confirm == ConfirmUser.ACCEPT:
             system_role = current_user.survey_data["user_role"]
+            actor_provider = ActorProvider()
+            map_role = {"SEEDLING_COMPANY": 0, "FARMER": 1, "MANUFACTURER": 2}
+            tx_hash = actor_provider.create_actor(user_id=user_id,
+                                                  address=current_user.address_wallet,
+                                                  role=map_role[system_role])
         else:
             system_role = current_user.system_role
-        user_update = dict(system_role=system_role, confirm_status=ConfirmStatusUser.DONE)
+            tx_hash = None
+        user_update = dict(system_role=system_role, confirm_status=ConfirmStatusUser.DONE, tx_hash=tx_hash)
         result = crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
         return UserResponse.from_orm(result)
 
@@ -221,7 +227,7 @@ class UserService:
 
         hashed_password = hash_lib.hash_password(obj_in.new_password)
 
-        result = crud_user.change_password(db=self.db, id_user=current_user.id, new_password=hashed_password)
+        result = crud_user.change_password_user(db=self.db, id_user=current_user.id, new_password=hashed_password)
         logger.info("UserService: change_password called successfully.")
 
     async def verify_code(self, email: str,
@@ -255,7 +261,7 @@ class UserService:
         result = crud_user.update(db=self.db, db_obj=current_user, obj_in=data_update)
         return UserResponse.from_orm(result)
 
-    async def change_password(self, current_user: any, obj_in: ChangePassword):
+    async def change_password_user(self, current_user: any, obj_in: ChangePassword):
         logger.info("Service_user: change_password called")
 
         if not hash_lib.verify_password(obj_in.old_password, current_user.hashed_password):

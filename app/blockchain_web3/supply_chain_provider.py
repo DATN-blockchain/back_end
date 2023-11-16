@@ -14,7 +14,7 @@ class SupplyChainProvider(Web3Provider):
             abi = f.read()
 
         factory_abi = json.loads(abi)
-        super().__init__(settings.WEB3_PROVIDER)
+        super().__init__(settings.WEB3_PROVIDER, settings.ADDRESS_CONTRACT_SUPPLY_CHAIN)
         self.chain_id = settings.CHAIN_ID
         self.contract = self.w3.eth.contract(address=settings.ADDRESS_CONTRACT_SUPPLY_CHAIN, abi=factory_abi)
 

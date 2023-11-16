@@ -14,7 +14,7 @@ class MarketplaceBase(BaseModel):
     order_type: Optional[ProductType] = None
     order_id: Optional[str] = None
     order_by: Optional[str] = None
-    hash_data: Optional[str] = None
+    tx_hash: Optional[str] = None
 
 
 class MarketplaceCreate(BaseModel):
@@ -25,7 +25,7 @@ class MarketplaceCreate(BaseModel):
 
 
 class MarketplaceUpdate(BaseModel):
-    hash_data: Optional[str] = None
+    tx_hash: Optional[str] = None
 
 
 class MarketplaceResponse(MarketplaceBase):
