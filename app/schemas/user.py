@@ -74,9 +74,11 @@ class UserInfo(BaseModel):
     id: str
     avatar: Optional[str] = None
     username: Optional[str] = None
+    full_name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
     system_role: Optional[str] = None
+    address_wallet: Optional[str] = None
 
     class Config:
         allow_population_by_field_name = True

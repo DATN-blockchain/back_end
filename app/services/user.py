@@ -25,6 +25,7 @@ from ..schemas import UserCreate, UserCreateParams, UserUpdateParams, LoginUser,
     SurveyCreateParam
 from ..blockchain_web3.hash_code import hash_code_private_key
 from ..crud.user import crud_user
+from app.constant.mapping_enum import USER_TYPE
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ class UserService:
         return result
 
     async def get_statistical_me(self, user_id: str):
-        statistical_product = crud_user.get_statistical_product_me(db=self.db, user_id=user_id)
+        statistical_product = crud_product.get_statistical_product_me(db=self.db, user_id=user_id)
         result = dict(statistical_product=statistical_product)
         return result
 
@@ -193,10 +194,10 @@ class UserService:
         if confirm == ConfirmUser.ACCEPT:
             system_role = current_user.survey_data["user_role"]
             actor_provider = ActorProvider()
-            map_role = {"SEEDLING_COMPANY": 0, "FARMER": 1, "MANUFACTURER": 2}
+            role = USER_TYPE[system_role]
             tx_hash = actor_provider.create_actor(user_id=user_id,
                                                   address=current_user.address_wallet,
-                                                  role=map_role[system_role])
+                                                  role=role)
         else:
             system_role = current_user.system_role
             tx_hash = None

@@ -83,6 +83,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.commit()
         return obj
 
+    def soft_remove(self, db: Session, *, entry_id: str) -> ModelType:
+        obj = db.query(self.model).get(entry_id)
+        obj.soft_delete = True
+        db.commit()
+        return obj
+
     def bulk_save_objects(self, db: Session, obj_ins: List[CreateSchemaType]):
         logger.info("CRUDBase: bulk_save_objects called.")
         objects = []

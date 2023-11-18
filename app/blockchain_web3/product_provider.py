@@ -15,7 +15,7 @@ class ProductProvider(Web3Provider):
         self.chain_id = settings.CHAIN_ID
         self.contract = self.w3.eth.contract(address=settings.ADDRESS_CONTRACT_PRODUCT_MANAGER, abi=factory_abi)
 
-    def create_product(self, product_id, product_type, price, quantity, trans_id, status, owner, hash_info):
+    def create_product(self, product_id, product_type, price, quantity, status, owner, hash_info, trans_id=None):
         function = self.contract.functions.create(product_id, product_type, price, quantity, trans_id, status, owner,
                                                   hash_info)
         tx_hash = self.sign_and_send_transaction(function)

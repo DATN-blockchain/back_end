@@ -1,8 +1,7 @@
 import logging
-import uuid
 
-from typing import Dict, Optional
-from sqlalchemy.orm import Session, joinedload
+from typing import Optional
+from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from .base import CRUDBase
 from ..model import Marketplace, Product
@@ -28,7 +27,7 @@ class CRUDMarketplace(CRUDBase[Marketplace, MarketplaceCreate, MarketplaceUpdate
     def list_marketplace(db: Session, skip: int, limit: int, order_type: ProductType = None,
                          product_id: str = None, name_product: str = None):
         db_query = db.query(Marketplace).join(Product, Marketplace.order_id == Product.id).filter(
-            Product.product_status == ProductStatus.PUBLISH)
+            Product.product_status == ProductStatus.PUBLISH, Product.soft_delete == False)
         if order_type is not None:
             db_query = db_query.filter(Marketplace.order_type == order_type)
         if product_id is not None:
