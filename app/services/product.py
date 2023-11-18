@@ -12,10 +12,13 @@ from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
     ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse, LeaderboardUpdate, \
-    LeaderboardCreate, ProductResponseChart
+    LeaderboardCreate
+from ..blockchain_web3.product_provider import ProductProvider
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
     crud_product_manufacturer, crud_grow_up, crud_leaderboard, crud_cart
 from ..model.base import ProductStatus, UserSystemRole
+from app.utils.encode_decode_json import encode_json
+from app.constant.mapping_enum import PRODUCT_TYPE
 
 
 class ProductService:
@@ -26,9 +29,8 @@ class ProductService:
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
         if not current_product:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
-
+        crud_product.update_product_view(db=self.db, current_product=current_product)
         result = ProductResponse.from_orm(current_product)
-        # result = [ProductResponse.from_orm(item) for item in current_product]
         return result
 
     async def get_product_top_selling(self, product_type: str):
@@ -74,13 +76,12 @@ class ProductService:
                                               app_status=AppStatus.ERROR_FARMER_PRODUCT_NOT_FOUND)
             result = ProductFarmerHistoryResponse.from_orm(current_product_farmer)
         elif current_product.product_type == ProductType.MANUFACTURER:
-            current_product_manufacturer = crud_product_manufacturer.get_product_manufacturer_by_product_id(db=self.db,
-                                                                                                            product_id=product_id)
+            current_product_manufacturer = (crud_product_manufacturer.
+                                            get_product_manufacturer_by_product_id(db=self.db, product_id=product_id))
             if not current_product_manufacturer:
                 raise error_exception_handler(error=Exception(),
                                               app_status=AppStatus.ERROR_MANUFACTURER_PRODUCT_NOT_FOUND)
             result = ProductManufacturerHistoryResponse.from_orm(current_product_manufacturer)
-            # result = current_product_manufacturer
         else:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
         return result
@@ -104,12 +105,13 @@ class ProductService:
         current_product_farmer = crud_product_farmer.get_product_farmer_by_product_id(db=self.db, product_id=product_id)
         if current_product_farmer is None:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_FARMER_NOT_FOUND)
-        total_grow_up, list_grow_up = crud_grow_up.get_grow_up_by_product_farmer_id(db=self.db,
-                                                                                    product_farmer_id=current_product_farmer.id,
-                                                                                    from_date=from_date,
-                                                                                    to_date=to_date,
-                                                                                    skip=skip,
-                                                                                    limit=limit)
+        total_grow_up, list_grow_up = (crud_grow_up.
+                                       get_grow_up_by_product_farmer_id(db=self.db,
+                                                                        product_farmer_id=current_product_farmer.id,
+                                                                        from_date=from_date,
+                                                                        to_date=to_date,
+                                                                        skip=skip,
+                                                                        limit=limit))
         list_grow_up = [GrowUpResponse.from_orm(item) for item in list_grow_up]
         result = dict(total_grow_up=total_grow_up, list_grow_up=list_grow_up)
         return result
@@ -117,6 +119,7 @@ class ProductService:
     async def create_product(self, current_user: User, product_create: ProductCreate, banner: UploadFile = File(...)):
         banner = cloudinary.uploader.upload(banner.file, folder="banner")
         banner_url = banner.get("secure_url")
+        product_provider = ProductProvider()
         product_create = ProductCreate(
             id=str(uuid.uuid4()),
             name=product_create.name,
@@ -127,6 +130,19 @@ class ProductService:
             quantity=product_create.quantity,
             product_status=ProductStatus.PRIVATE,
             created_by=current_user.id)
+        # info = dict(name=product_create.name,
+        #             description=product_create.description,
+        #             banner=product_create.banner)
+        # hash_info = encode_json(data=info)
+        #
+        # tx_hash = product_provider.create_product(product_id=product_create.id,
+        #                                           product_type=PRODUCT_TYPE[product_create.product_type],
+        #                                           price=product_create.price,
+        #                                           quantity=product_create.quantity,
+        #                                           status=product_create.product_status,
+        #                                           owner=product_create.created_by,
+        #                                           hash_info=hash_info)
+        # product_create.tx_hash = tx_hash
         result = crud_product.create(db=self.db, obj_in=product_create)
         return result
 
@@ -142,17 +158,21 @@ class ProductService:
 
         if image:
             image = cloudinary.uploader.upload(image.file, folder="image_grow_up")
-            image = image.get("secure_url")
+            entity_url = image.get("secure_url")
         else:
             try:
                 upload_result = cloudinary.uploader.upload(video.file, resource_type='video', folder="video_grow_up")
-                video = upload_result['url']
+                entity_url = upload_result['url']
             except Exception as error:
                 raise error_exception_handler(error=error, app_status=AppStatus.ERROR_BAD_REQUEST)
+        product_provider = ProductProvider()
         grow_up_create = GrowUpCreate(
             id=str(uuid.uuid4()),
             product_farmer_id=current_product_farmer.id,
-            description=description, image=image, video=video)
+            description=description, image=entity_url, video=entity_url)
+        # tx_hash = product_provider.update_grow_up_product(product_id=grow_up_create.product_farmer_id,
+        #                                                   url_image=entity_url)
+        # grow_up_create.tx_hash = tx_hash
 
         result = crud_grow_up.create(db=self.db, obj_in=grow_up_create)
         return result
@@ -355,5 +375,5 @@ class ProductService:
         if not current_product:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
 
-        result = crud_product.remove(db=self.db, entry_id=product_id)
+        result = crud_product.soft_remove(db=self.db, entry_id=product_id)
         return result

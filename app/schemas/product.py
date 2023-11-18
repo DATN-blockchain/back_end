@@ -20,6 +20,8 @@ class ProductBase(BaseModel):
     is_sale: Optional[bool] = None
     banner: Optional[str] = None
     created_by: Optional[str] = None
+    tx_hash: Optional[str] = None
+    view: Optional[int] = None
 
 
 class ProductCreateParams(BaseModel):

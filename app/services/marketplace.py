@@ -5,6 +5,7 @@ from app.core.exceptions import error_exception_handler
 
 from ..schemas import ProductType, MarketplaceCreate, MarketplaceUpdate, MarketplaceResponse
 from ..crud import crud_marketplace, crud_product
+from ..blockchain_web3.supply_chain_provider import SupplyChainProvider
 
 
 class MarketplaceService:
@@ -35,7 +36,7 @@ class MarketplaceService:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
 
         current_marketplace = crud_marketplace.get_marketplace_by_product_id(db=self.db, product_id=product_id)
-        # return current_marketplace
+        supply_chain_provider = SupplyChainProvider()
         if current_marketplace:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_ALREADY_POSTED_FOR_SALE)
         marketplace_create = MarketplaceCreate(
@@ -43,7 +44,11 @@ class MarketplaceService:
             order_type=current_product.product_type,
             order_id=current_product.id,
             order_by=user_id)
-
+        # tx_hash = supply_chain_provider.listing_product_to_marketplace(item_id=marketplace_create.id,
+        #                                                                product_id=marketplace_create.order_id,
+        #                                                                owner=marketplace_create.order_by,
+        #                                                                status=current_product.product_status)
+        # marketplace_create.tx_hash = tx_hash
         result = crud_marketplace.create(db=self.db, obj_in=marketplace_create)
         crud_product.update_is_sale(db=self.db, current_product=current_product, is_sale=True)
         return result

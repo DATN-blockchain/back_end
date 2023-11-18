@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime, timedelta
 
-from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, func, extract
 from .base import CRUDBase
@@ -39,16 +38,17 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
 
     @staticmethod
     def get_statistical_product_me(db: Session, user_id: str):
-        db_query = db.query(Product).filter(Product.created_by == user_id)
+        db_query = db.query(Product).filter(Product.created_by == user_id, Product.soft_delete == False)
         total_sales = db.query(func.sum(Product.number_of_sales)).filter(Product.created_by == user_id).scalar()
+        total_view = db.query(func.sum(Product.view)).filter(Product.created_by == user_id).scalar()
         total_product = db_query.count()
-        result = dict(total_product=total_product, total_sales=total_sales)
+        result = dict(total_product=total_product, total_sales=total_sales, total_view=total_view)
         return result
 
     @staticmethod
     def get_product_by_me(db: Session, user_id: str, name: str = None,
                           skip: int = None, limit: int = None):
-        db_query = db.query(Product).filter(Product.created_by == user_id)
+        db_query = db.query(Product).filter(Product.created_by == user_id, Product.soft_delete == False)
         if name is not None:
             db_query = db_query.filter(Product.name.ilike(f'%{name}%'))
         total_product = db_query.count()
@@ -95,7 +95,8 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
 
     @staticmethod
     def list_product(db: Session, skip: int, limit: int, name: str = None, user_id: str = None):
-        db_query = db.query(Product).filter(Product.product_status == ProductStatus.PUBLISH)
+        db_query = db.query(Product).filter(Product.product_status == ProductStatus.PUBLISH,
+                                            Product.soft_delete == False)
         if name is not None:
             db_query = db_query.filter(Product.name.ilike(f'%{name}%'))
         if user_id is not None:
@@ -107,6 +108,13 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
     @staticmethod
     def update_product_status(db: Session, current_product: Product, product_status: ProductStatus):
         current_product.product_status = product_status
+        db.commit()
+        db.refresh(current_product)
+        return current_product
+
+    @staticmethod
+    def update_product_view(db: Session, current_product: Product):
+        current_product.view += 1
         db.commit()
         db.refresh(current_product)
         return current_product
