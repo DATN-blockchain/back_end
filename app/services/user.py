@@ -251,7 +251,7 @@ class UserService:
 
         # Generate a new account
         account = Account.create()
-        private_key = account.privateKey
+        private_key = account.key.hex()
         address = account.address
 
         # result = crud_user.verify_code(self.db, current_user=current_user, new_password=new_password)

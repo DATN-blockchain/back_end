@@ -8,6 +8,7 @@ import cloudinary
 from cloudinary.uploader import upload
 from datetime import date
 
+from ..blockchain_web3.product_provider import ProductProvider
 from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \

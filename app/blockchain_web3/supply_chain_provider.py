@@ -26,8 +26,8 @@ class SupplyChainProvider(Web3Provider):
         tx_hash = self.sign_and_send_transaction(function)
         return tx_hash
 
-    def buy_product_in_market(self, item_id, id_trans, buyer, quantity):
-        function = self.contract.functions.buy_product_in_market(item_id, quantity, buyer, id_trans)
+    def buy_product_in_market(self, product_id, id_trans, buyer, quantity, type_product):
+        function = self.contract.functions.buy_product_in_market(product_id, quantity, buyer, id_trans, type_product)
         tx_hash = self.sign_and_send_transaction(function)
         return tx_hash
 
