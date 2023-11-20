@@ -33,3 +33,19 @@ class ProductProvider(Web3Provider):
         function = self.contract.functions.updateGrowUpProduct(product_id, url_image)
         tx_hash = self.sign_and_send_transaction(function)
         return tx_hash
+
+    def create_price_detail_for_product(self, product_id: str, type_product: str, price: int, quantity: int):
+        function = self.contract.functions.create_price_detail_of_type(product_id, type_product, price, quantity)
+        tx_hash = self.sign_and_send_transaction(function)
+        return tx_hash
+
+    def update_price_detail_for_product(self, product_id: str, type_product: str, price: int, quantity: int):
+        function = self.contract.functions.update_price_and_type_of_type(product_id, type_product, price, quantity)
+        tx_hash = self.sign_and_send_transaction(function)
+        return tx_hash
+
+    def get_price_detail_of_product(self, product_id, type_product: str):
+        return self.contract.functions.get_price_detail_of_product(product_id, type_product).call()
+
+    def get_list_type_product(self, product_id:str):
+        return self.contract.functions.get_list_type_product(product_id).call()
