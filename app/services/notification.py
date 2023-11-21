@@ -6,6 +6,7 @@ from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 from app.core.pusher.pusher_client import PusherClient
 from app.core.settings import settings
+from ..constant.template import PurchaseProduct
 
 from ..crud import crud_notification, crud_user
 from ..model.base import NotificationType
@@ -39,11 +40,14 @@ class NotificationService:
         return notification.data
 
     async def notify_entity_status(self, entity, notification_type,
-                                   message_template, action, current_user=None, owner=None):
+                                   message_template, action, current_user=None, owner=None, price=None):
         data_push = self.create_data_notification(action, message_template,
-                                                  notification_type, entity, current_user)
+                                                  notification_type, entity,
+                                                  current_user, price=price)
         if notification_type == NotificationType.COMMENT_NOTIFICATION:
             user_id = owner.id
+        elif message_template == PurchaseProduct.Purchase_MSG:
+            user_id = owner
         else:
             user_id = current_user.id
 
@@ -90,7 +94,7 @@ class NotificationService:
         }
         return data_push
 
-    def create_data_notification(self, action, message_template, notification_type, entity, current_user):
+    def create_data_notification(self, action, message_template, notification_type, entity, current_user, price=None):
         if action in ['created', 'updated', 'deleted']:
             message = message_template(product_type=notification_type[:-13].lower(),
                                        product_name=entity.name,
@@ -104,6 +108,11 @@ class NotificationService:
                                        entity_name=entity.product.name)
             data_push = self.creted_data_push_comment(message=message, notification_type=notification_type,
                                                       entity=entity, action=action)
+        elif action in ["purchase"]:
+            message = message_template(username=current_user.username, action=action,
+                                       product_name=entity.name, price=price)
+            data_push = self.creted_data_push(message=message, notification_type=notification_type,
+                                              entity=entity, action=action)
         else:
             data_push = []
         return data_push

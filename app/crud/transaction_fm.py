@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from .base import CRUDBase
 from ..model import TransactionFM
+from ..model.base import ConfirmStatusProduct
 
 from ..schemas import TransactionFMCreate, TransactionFMUpdate
 
@@ -23,6 +24,16 @@ class CRUDTransactionFM(CRUDBase[TransactionFM, TransactionFMCreate, Transaction
     def get_transaction_fm_by_id(db: Session, transaction_fm_id: str) -> Optional[TransactionFM]:
         current_transaction_fm = db.query(TransactionFM).get(transaction_fm_id)
         return current_transaction_fm
+
+    @staticmethod
+    def get_product_order_by_user(db: Session, user_id: str, skip: int, limit: int,
+                                  status: ConfirmStatusProduct = None):
+        db_query = db.query(TransactionFM).filter(TransactionFM.order_by == user_id)
+        if status:
+            db_query = db_query.filter(TransactionFM.status == status)
+        total_transaction = db_query.count()
+        list_transaction = db_query.order_by(desc(TransactionFM.created_at)).offset(skip).limit(limit).all()
+        return total_transaction, list_transaction
 
     @staticmethod
     def list_transaction_fm(db: Session, skip: int, limit: int, user_id: str, product_id: str = None):

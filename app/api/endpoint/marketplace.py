@@ -29,7 +29,6 @@ async def list_marketplace(
         product_id: str = None,
         order_type: ProductType = None,
         name_product: str = None,
-        user: User = Depends(oauth2.get_current_user),
         db: Session = Depends(get_db),
         skip=0,
         limit=10):

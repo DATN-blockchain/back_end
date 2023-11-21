@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from app.schemas.detail_description import DetailDescriptionResponse
+from app.schemas.classify_goods import ClassifyGoodsResponse
 from ..model.base import ProductType, ProductStatus
 from app.schemas.user import UserInfo
 
@@ -15,6 +16,7 @@ class ProductBase(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[int] = None
+    last_price: Optional[int] = None
     quantity: Optional[int] = None
     number_of_sales: Optional[int] = None
     is_sale: Optional[bool] = None
@@ -27,7 +29,8 @@ class ProductBase(BaseModel):
 class ProductCreateParams(BaseModel):
     name: str
     description: Optional[str] = None
-    price: Optional[str] = None
+    price: Optional[int] = None
+    last_price: Optional[int] = None
     quantity: Optional[str] = None
 
 
@@ -39,9 +42,11 @@ class ProductUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     banner: Optional[str] = None
-    price: Optional[str] = None
-    quantity: Optional[str] = None
+    price: Optional[int] = None
+    last_price: Optional[int] = None
+    quantity: Optional[int] = None
     tx_hash: Optional[str] = None
+    data: Optional[dict] = None
 
 
 class ProductResponseChart(ProductBase):
@@ -60,6 +65,7 @@ class ProductResponse(ProductBase):
         arbitrary_types_allowed = True
 
     detail_description: Optional[list[DetailDescriptionResponse]] = None
+    classify_goods: Optional[list[ClassifyGoodsResponse]] = None
     user: Optional[UserInfo] = None
 
 

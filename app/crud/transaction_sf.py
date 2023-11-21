@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from .base import CRUDBase
 from ..model import TransactionSF, Product
-from ..model.base import ProductType, ProductStatus
+from ..model.base import ProductType, ProductStatus, ConfirmStatusProduct
 
 from ..schemas import TransactionSFCreate, TransactionSFUpdate
 
@@ -29,6 +29,16 @@ class CRUDTransactionSF(CRUDBase[TransactionSF, TransactionSFCreate, Transaction
     def get_transaction_sf_by_id(db: Session, transaction_sf_id: str) -> Optional[TransactionSF]:
         current_transaction_sf = db.query(TransactionSF).get(transaction_sf_id)
         return current_transaction_sf
+
+    @staticmethod
+    def get_product_order_by_user(db: Session, user_id: str, skip: int, limit: int,
+                                  status: ConfirmStatusProduct = None):
+        db_query = db.query(TransactionSF).filter(TransactionSF.order_by == user_id)
+        if status:
+            db_query = db_query.filter(TransactionSF.status == status)
+        total_transaction = db_query.count()
+        list_transaction = db_query.order_by(desc(TransactionSF.created_at)).offset(skip).limit(limit).all()
+        return total_transaction, list_transaction
 
     @staticmethod
     def list_transaction_sf(db: Session, skip: int, limit: int, user_id: str, product_id: str = None):

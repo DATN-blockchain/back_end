@@ -12,7 +12,8 @@ async def send_notification(
         message_template: NotificationTemplate,
         action: str,
         current_user: Any = None,
-        owner: Any = None
+        owner: Any = None,
+        price: int = None,
 ):
     await notification_service.notify_entity_status(
         entity=entity,
@@ -21,4 +22,5 @@ async def send_notification(
         action=action,
         current_user=current_user,
         owner=owner,
+        price=price,
     )

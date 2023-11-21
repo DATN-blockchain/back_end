@@ -42,7 +42,23 @@ class ConfirmStatusUser(str, Enum):
     DONE = "DONE"
 
 
+class ChooseProduct(str, Enum):
+    NONE = "NONE"
+    DONE = "DONE"
+
+
+class ConfirmStatusProduct(str, Enum):
+    PENDING = "PENDING"
+    DONE = "DONE"
+    REJECT = "REJECT"
+
+
 class ConfirmUser(str, Enum):
+    ACCEPT = "ACCEPT"
+    REJECT = "REJECT"
+
+
+class ConfirmProduct(str, Enum):
     ACCEPT = "ACCEPT"
     REJECT = "REJECT"
 

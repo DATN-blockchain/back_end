@@ -251,10 +251,8 @@ class UserService:
 
         # Generate a new account
         account = Account.create()
-        private_key = account.privateKey
+        private_key = account.key.hex()
         address = account.address
-
-        # result = crud_user.verify_code(self.db, current_user=current_user, new_password=new_password)
 
         private_key = hash_code_private_key(str(private_key))
         data_update = dict(hashed_password=hash_lib.hash_password(new_password), is_active=True, address_wallet=address,
