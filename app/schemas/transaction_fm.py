@@ -13,8 +13,13 @@ class TransactionFMBase(BaseModel):
     user_id: Optional[str] = None
     price: Optional[int] = None
     quantity: Optional[int] = None
-    tx_hash: Optional[int] = None
-    status: Optional[int] = None
+    tx_hash: Optional[str] = None
+    status: Optional[str] = None
+    is_choose: Optional[str] = None
+    receiver: Optional[str] = None
+    phone_number: Optional[str] = None
+    address: Optional[str] = None
+    order_by: Optional[str] = None
 
 
 class TransactionFMCreate(TransactionFMBase):
@@ -22,8 +27,8 @@ class TransactionFMCreate(TransactionFMBase):
 
 
 class TransactionFMUpdate(BaseModel):
-    tx_hash: Optional[int] = None
-    status: Optional[int] = None
+    tx_hash: Optional[str] = None
+    status: Optional[str] = None
 
 
 class TransactionFMResponse(BaseModel):
@@ -31,8 +36,12 @@ class TransactionFMResponse(BaseModel):
     product_id: Optional[str] = None
     user_id: Optional[str] = None
     status: Optional[str] = None
+    is_choose: Optional[str] = None
     price: Optional[int] = None
     quantity: Optional[int] = None
+    receiver: Optional[str] = None
+    phone_number: Optional[str] = None
+    address: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

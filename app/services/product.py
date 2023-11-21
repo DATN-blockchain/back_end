@@ -1,4 +1,5 @@
 import uuid
+
 from fastapi import UploadFile, File
 
 from sqlalchemy.orm import Session
@@ -13,11 +14,11 @@ from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
     ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse, LeaderboardUpdate, \
-    LeaderboardCreate
+    LeaderboardCreate, ClassifyGoodsCreate, ClassifyGoodsCreateParam, TransactionSFResponse
 from ..blockchain_web3.product_provider import ProductProvider
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
-    crud_product_manufacturer, crud_grow_up, crud_leaderboard, crud_cart
-from ..model.base import ProductStatus, UserSystemRole
+    crud_product_manufacturer, crud_grow_up, crud_leaderboard, crud_cart, crud_classify_goods
+from ..model.base import ProductStatus, UserSystemRole, ConfirmStatusProduct, ChooseProduct, ConfirmProduct
 from app.utils.encode_decode_json import encode_json
 from app.constant.mapping_enum import PRODUCT_TYPE
 
@@ -45,22 +46,82 @@ class ProductService:
         data_chart = crud_product.get_chart_product(db=self.db, product_id=product_id)
         return data_chart
 
-    async def get_product_seedling_company_history(self, product_id: str):
-        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
-        if not (current_product and current_product.product_type == ProductType.SEEDLING_COMPANY):
-            raise error_exception_handler(error=Exception(),
-                                          app_status=AppStatus.ERROR_SEEDLING_COMPANY_PRODUCT_NOT_FOUND)
-        result = ProductResponse.from_orm(current_product)
+    async def get_product_trace_origin(self, product_id: str):
+        trace_origin = await self.get_product_manufacturer_history(product_id=product_id)
+        # grow_up = trace_origin["farmer"].product_id
+        if "farmer" in trace_origin:
+            grow_up = await self.get_grow_up_trace_origin(product_id=trace_origin["farmer"].product_id)
+        else:
+            grow_up = None
+        result = dict(trace_origin=trace_origin, grow_up=grow_up)
 
         return result
 
-    async def get_product_farmer_history(self, product_id: str):
-        current_product_farmer = crud_product_farmer.get_product_farmer_by_product_id(db=self.db, product_id=product_id)
+    async def get_product_order_by_user(self, current_user: User, skip: int, limit: int,
+                                        status: ConfirmStatusProduct = None):
+        if current_user.system_role == UserSystemRole.SEEDLING_COMPANY:
+            total_transaction, list_transaction = (crud_transaction_sf.
+                                                   get_product_order_by_user(db=self.db,
+                                                                             user_id=current_user.id,
+                                                                             skip=skip, limit=limit,
+                                                                             status=status))
+            list_transaction = [TransactionSFResponse.from_orm(item) for item in list_transaction]
+        elif current_user.system_role == UserSystemRole.FARMER:
+            total_transaction, list_transaction = (crud_transaction_fm.
+                                                   get_product_order_by_user(db=self.db,
+                                                                             user_id=current_user.id,
+                                                                             skip=skip, limit=limit,
+                                                                             status=status))
+        else:
+            total_transaction = None
+            list_transaction = None
+        result = dict(total_transaction=total_transaction, list_transaction=list_transaction)
+        return result
+
+    async def get_product_manufacturer_history(self, product_id: str):
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        if current_product is None:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+
+        if current_product.product_type == ProductType.SEEDLING_COMPANY:
+            result = self.history_for_seedling_company(current_product=current_product)
+        elif current_product.product_type == ProductType.FARMER:
+            result = self.history_for_farmer(product_id=product_id)
+        elif current_product.product_type == ProductType.MANUFACTURER:
+            result = self.history_for_manufacturer(product_id=product_id)
+        else:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+        return result
+
+    @staticmethod
+    def history_for_seedling_company(current_product):
+        seedling_company = ProductResponse.from_orm(current_product)
+        result = dict(owner=seedling_company)
+        return result
+
+    def history_for_farmer(self, product_id):
+        current_product_farmer = crud_product_farmer.get_product_farmer_by_product_id(db=self.db,
+                                                                                      product_id=product_id)
         if not current_product_farmer:
             raise error_exception_handler(error=Exception(),
                                           app_status=AppStatus.ERROR_FARMER_PRODUCT_NOT_FOUND)
-        result = ProductFarmerHistoryResponse.from_orm(current_product_farmer)
+        farmer = ProductFarmerHistoryResponse.from_orm(current_product_farmer)
+        result = dict(owner=farmer)
+        return result
 
+    def history_for_manufacturer(self, product_id):
+        current_product_manufacturer = (crud_product_manufacturer.
+                                        get_product_manufacturer_by_product_id(db=self.db, product_id=product_id))
+        if not current_product_manufacturer:
+            raise error_exception_handler(error=Exception(),
+                                          app_status=AppStatus.ERROR_MANUFACTURER_PRODUCT_NOT_FOUND)
+        manufacturer = ProductManufacturerHistoryResponse.from_orm(current_product_manufacturer)
+        current_product_farmer = (crud_product_farmer.
+                                  get_product_farmer_by_product_id(db=self.db,
+                                                                   product_id=current_product_manufacturer.
+                                                                   transactions_fm.product.id))
+        farmer = ProductFarmerHistoryResponse.from_orm(current_product_farmer)
+        result = dict(owner=manufacturer, farmer=farmer)
         return result
 
     async def get_product_history(self, product_id: str):
@@ -102,6 +163,14 @@ class ProductService:
         result = dict(total_product=total_product, list_product=list_product)
         return result
 
+    async def get_grow_up_trace_origin(self, product_id: str):
+        current_product_farmer = crud_product_farmer.get_product_farmer_by_product_id(db=self.db, product_id=product_id)
+        _, list_grow_up = (crud_grow_up.
+                           get_grow_up_by_product_farmer_id(db=self.db,
+                                                            product_farmer_id=current_product_farmer.id))
+        list_grow_up = [GrowUpResponse.from_orm(item) for item in list_grow_up]
+        return list_grow_up
+
     async def get_product_grow_up(self, product_id: str, from_date: date, to_date: date, skip: int, limit: int):
         current_product_farmer = crud_product_farmer.get_product_farmer_by_product_id(db=self.db, product_id=product_id)
         if current_product_farmer is None:
@@ -117,35 +186,57 @@ class ProductService:
         result = dict(total_grow_up=total_grow_up, list_grow_up=list_grow_up)
         return result
 
-    async def create_product(self, current_user: User, product_create: ProductCreate, banner: UploadFile = File(...)):
+    async def create_product(self, current_user: User,
+                             product_create: ProductCreate,
+                             data: dict = None,
+                             banner: UploadFile = File(...)):
         banner = cloudinary.uploader.upload(banner.file, folder="banner")
         banner_url = banner.get("secure_url")
-        product_provider = ProductProvider()
-        product_create = ProductCreate(
+        obj_in = ProductCreate(
             id=str(uuid.uuid4()),
             name=product_create.name,
             description=product_create.description,
             banner=banner_url,
             product_type=current_user.system_role,
             price=product_create.price,
+            last_price=product_create.last_price,
             quantity=product_create.quantity,
             product_status=ProductStatus.PRIVATE,
             created_by=current_user.id)
-        # info = dict(name=product_create.name,
-        #             description=product_create.description,
-        #             banner=product_create.banner)
-        # hash_info = encode_json(data=info)
-        #
-        # tx_hash = product_provider.create_product(product_id=product_create.id,
-        #                                           product_type=PRODUCT_TYPE[product_create.product_type],
-        #                                           price=product_create.price,
-        #                                           quantity=product_create.quantity,
-        #                                           status=product_create.product_status,
-        #                                           owner=product_create.created_by,
-        #                                           hash_info=hash_info)
-        # product_create.tx_hash = tx_hash
-        result = crud_product.create(db=self.db, obj_in=product_create)
+
+        result = crud_product.create(db=self.db, obj_in=obj_in)
         return result
+
+    @staticmethod
+    def permission_data(data: dict, quantity: int):
+        quantity_value = 0
+        for k, v in data.items():
+            quantity_value += v["quantity"]
+        if quantity_value != quantity:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_INVALID_QUANTITY)
+        return quantity
+
+    async def create_classify_goods(self, current_user: User, product_id: str,
+                                    data: dict):
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        if not current_product:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+        if current_user.system_role != UserSystemRole.FARMER:
+            raise error_exception_handler(error=Exception(),
+                                          app_status=AppStatus.ERROR_CLASSIFY_GOODS_METHOD_NOT_ALLOWED)
+        current_classify_goods = (crud_classify_goods.
+                                  get_classify_goods_by_product_id(db=self.db,
+                                                                   product_id=product_id))
+        if current_classify_goods:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_CLASSIFY_GOODS_CONFLICT)
+        self.permission_data(data=data, quantity=current_product.quantity)
+        classify_goods = ClassifyGoodsCreate(
+            id=str(uuid.uuid4()),
+            product_id=product_id,
+            data=data
+        )
+        crud_classify_goods.create(db=self.db, obj_in=classify_goods)
+        return AppStatus.SUCCESS
 
     async def create_grow_up(self, product_id: str, description: str, image: UploadFile = File(...),
                              video: UploadFile = File(...)):
@@ -166,14 +257,10 @@ class ProductService:
                 entity_url = upload_result['url']
             except Exception as error:
                 raise error_exception_handler(error=error, app_status=AppStatus.ERROR_BAD_REQUEST)
-        product_provider = ProductProvider()
         grow_up_create = GrowUpCreate(
             id=str(uuid.uuid4()),
             product_farmer_id=current_product_farmer.id,
             description=description, image=entity_url, video=entity_url)
-        # tx_hash = product_provider.update_grow_up_product(product_id=grow_up_create.product_farmer_id,
-        #                                                   url_image=entity_url)
-        # grow_up_create.tx_hash = tx_hash
 
         result = crud_grow_up.create(db=self.db, obj_in=grow_up_create)
         return result
@@ -187,9 +274,48 @@ class ProductService:
         result = crud_grow_up.update(db=self.db, db_obj=current_grow_up, obj_in=grow_up_update)
         return result
 
+    async def update_confirm_order(self, current_user: User, transaction_id: str, status: ConfirmProduct):
+        if current_user.system_role == UserSystemRole.SEEDLING_COMPANY:
+            current_transaction = crud_transaction_sf.get_transaction_sf_by_id(db=self.db,
+                                                                               transaction_sf_id=transaction_id)
+            if not current_transaction:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_SF_NOT_FOUND)
+
+            obj_in_transaction = dict(status=status)
+            if status == ConfirmProduct.ACCEPT:
+                current_balance_user = current_user.account_balance + current_transaction.price
+                obj_in_user = dict(account_balance=current_balance_user)
+                crud_user.update(db=self.db, db_obj=current_user, obj_in=obj_in_user)
+            else:
+                buyer = crud_user.get_user_by_id(db=self.db, user_id=current_transaction.user_id)
+                current_balance_user = buyer.account_balance + current_transaction.price
+                obj_in_user = dict(account_balance=current_balance_user)
+                crud_user.update(db=self.db, db_obj=buyer, obj_in=obj_in_user)
+            result = crud_transaction_sf.update(db=self.db, db_obj=current_transaction, obj_in=obj_in_transaction)
+        elif current_user.system_role == UserSystemRole.FARMER:
+            current_transaction = crud_transaction_fm.get_transaction_fm_by_id(db=self.db,
+                                                                               transaction_fm_id=transaction_id)
+            if not current_transaction:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_FM_NOT_FOUND)
+
+            current_balance_user = current_user.account_balance + current_transaction.price
+            obj_in_transaction = dict(status=status)
+            if status == ConfirmProduct.ACCEPT:
+                obj_in_user = dict(account_balance=current_balance_user)
+                crud_user.update(db=self.db, db_obj=current_user, obj_in=obj_in_user)
+            else:
+                buyer = crud_user.get_user_by_id(db=self.db, user_id=current_transaction.user_id)
+                current_balance_user = buyer.account_balance + current_transaction.price
+                obj_in_user = dict(account_balance=current_balance_user)
+                crud_user.update(db=self.db, db_obj=buyer, obj_in=obj_in_user)
+            result = crud_transaction_sf.update(db=self.db, db_obj=current_transaction, obj_in=obj_in_transaction)
+        else:
+            result = None
+
+        return result
+
     async def create_product_entity(self, user_id: str, transaction_id: str,
                                     product_create: ProductCreate, banner: UploadFile = File(...)):
-
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
         if current_user.system_role == UserSystemRole.MEMBER:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
@@ -210,7 +336,7 @@ class ProductService:
             if current_transaction is None:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_SF_NOT_FOUND)
 
-            if current_transaction.user_id != user_id:
+            if current_transaction.user_id != user_id or current_transaction.status != ConfirmStatusProduct.DONE:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
 
             product_create = await self.create_product(current_user=current_user,
@@ -229,10 +355,10 @@ class ProductService:
             if current_transaction is None:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_FM_NOT_FOUND)
 
-            if current_transaction.user_id != user_id:
+            if current_transaction.user_id != user_id or current_transaction.status != ConfirmStatusProduct.DONE:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
 
-            if current_transaction.status == False:
+            if current_transaction.is_choose == ChooseProduct.DONE:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_FM_CONFLICT)
 
             product_create = await self.create_product(current_user=current_user,
@@ -240,7 +366,7 @@ class ProductService:
             product_manufacturer = ProductManufacturerCreate(id=str(uuid.uuid4()),
                                                              product_id=product_create.id,
                                                              transaction_fm_id=transaction_id)
-            update_status = dict(status=False)
+            update_status = dict(is_choose=ChooseProduct.DONE)
             crud_transaction_fm.update(db=self.db, db_obj=current_transaction, obj_in=update_status)
             crud_product_manufacturer.create(db=self.db, obj_in=product_manufacturer)
 
@@ -257,6 +383,17 @@ class ProductService:
 
     async def update_product(self, product_id: str, product_update: ProductUpdate):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        if current_product.product_type == ProductType.FARMER and (
+                product_update.quantity is not None or product_update.price is not None):
+            classify_goods = crud_classify_goods.get_classify_goods_by_product_id(db=self.db, product_id=product_id)
+            if classify_goods and not product_update.data:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_DATA)
+            if product_update.quantity is not None:
+                self.permission_data(data=product_update.data, quantity=product_update.quantity)
+            if product_update.price is not None and not product_update.quantity:
+                self.permission_data(data=product_update.data, quantity=current_product.quantity)
+            crud_classify_goods.update_data(db=self.db, current_classify_goods=classify_goods, data=product_update.data)
+
         result = crud_product.update(db=self.db, db_obj=current_product, obj_in=product_update)
         return result
 
@@ -285,7 +422,11 @@ class ProductService:
         if value <= 0:
             raise error_exception_handler(error=Exception(), app_status=error_message)
 
-    async def purchase_product(self, user_id: str, product_id: str, price: int, quantity: int, cart_id: str = None):
+    async def purchase_product(self, user_id: str, product_id: str,
+                               buy_all: bool, price: int,
+                               quantity: int, kg_type: int,
+                               receiver: str, phone_number: str,
+                               address: str, cart_id: str = None):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
 
@@ -309,6 +450,10 @@ class ProductService:
             if current_product.product_type != ProductType.SEEDLING_COMPANY:
                 raise error_exception_handler(error=Exception(),
                                               app_status=AppStatus.ERROR_PURCHASE_PRODUCT_TYPE_INVALID)
+
+            if buy_all:
+                quantity = current_product.quantity
+                price = current_product.price * quantity
             self.check_positive_value(price, AppStatus.ERROR_INVALID_PRICE)
             self.check_positive_value(quantity, AppStatus.ERROR_INVALID_QUANTITY)
 
@@ -317,7 +462,12 @@ class ProductService:
                 user_id=user_id,
                 product_id=product_id,
                 price=price,
-                quantity=quantity
+                quantity=quantity,
+                status=ConfirmStatusProduct.PENDING,
+                receiver=receiver,
+                phone_number=phone_number,
+                address=address,
+                order_by=current_product.created_by
             )
             result = crud_transaction_sf.create(db=self.db, obj_in=create_transaction_sf)
 
@@ -328,13 +478,28 @@ class ProductService:
                                               app_status=AppStatus.ERROR_PURCHASE_PRODUCT_TYPE_INVALID)
             self.check_positive_value(price, AppStatus.ERROR_INVALID_PRICE)
             self.check_positive_value(quantity, AppStatus.ERROR_INVALID_QUANTITY)
+            if buy_all:
+                quantity, price = self.total_price(current_product=current_product)
+                self.update_data_by_product(current_product=current_product)
+            else:
+                if not kg_type:
+                    raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_KG_TYPE)
+                self.update_classify_goods_by_kg(product_id=product_id, quantity=quantity, kg=kg_type)
+
             create_transaction_fm = TransactionFMCreate(
                 id=str(uuid.uuid4()),
                 user_id=user_id,
                 product_id=product_id,
                 price=price,
-                quantity=quantity
+                quantity=quantity,
+                status=ConfirmStatusProduct.PENDING,
+                is_choose=ChooseProduct.NONE,
+                receiver=receiver,
+                phone_number=phone_number,
+                address=address,
+                order_by=current_product.created_by
             )
+
             result = crud_transaction_fm.create(db=self.db, obj_in=create_transaction_fm)
         else:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_YOU_ARE_NOT_ALLOWED)
@@ -353,6 +518,35 @@ class ProductService:
 
         self.db.refresh(result)
         return result, current_product
+
+    def total_price(self, current_product):
+        current_classify_goods = crud_classify_goods.get_classify_goods_by_product_id(db=self.db,
+                                                                                      product_id=current_product.id)
+        data = current_classify_goods.data
+        quantity = current_product.quantity
+        price = 0
+        for k, v in data.items():
+            total_amount_tmp = (v["quantity"] * v["price"])
+            price += total_amount_tmp
+        return quantity, price
+
+    def update_classify_goods_by_kg(self, product_id: str, quantity: int, kg: int):
+        current_classify_goods = crud_classify_goods.get_classify_goods_by_product_id(db=self.db, product_id=product_id)
+        data = current_classify_goods.data
+        current_quantity = data[str(kg)]["quantity"]
+        if current_quantity < quantity:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_INVALID_QUANTITY)
+        data[str(kg)]["quantity"] = current_quantity - quantity
+        crud_classify_goods.update_data(db=self.db, current_classify_goods=current_classify_goods, data=data)
+
+    def update_data_by_product(self, current_product):
+        current_classify_goods = crud_classify_goods.get_classify_goods_by_product_id(db=self.db,
+                                                                                      product_id=current_product.id)
+        data = current_classify_goods.data
+        for key in data:
+            data[key]["quantity"] = 0
+        crud_classify_goods.update_data(db=self.db, current_classify_goods=current_classify_goods, data=data)
+        return data
 
     def create_leader_board(self, user_id, quantity_sales):
         current_leaderboard = crud_leaderboard.get_leaderboard_by_user_id(db=self.db, user_id=user_id)

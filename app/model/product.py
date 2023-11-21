@@ -14,6 +14,7 @@ class Product(Base):
     banner = Column(String(255), nullable=True)
     description = Column(String(255), nullable=True)
     price = Column(Integer, nullable=True)
+    last_price = Column(Integer, nullable=True)
     quantity = Column(Integer, nullable=True)
     tx_hash = Column(Text(), nullable=True)
     product_status = Column(String(255), nullable=False)
@@ -34,3 +35,4 @@ class Product(Base):
     marketplace = relationship('Marketplace', back_populates='product', passive_deletes=True)
     carts = relationship('Cart', back_populates='product', passive_deletes=True)
     detail_description = relationship('DetailDescription', back_populates='product', passive_deletes=True)
+    classify_goods = relationship('ClassifyGoods', back_populates='product', passive_deletes=True)

@@ -148,7 +148,7 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
             count_number_of_sale = db.query(Product, item.created_at).join(item, Product.id == item.product_id).filter(
                 Product.id == product_id, extract('year', item.created_at) == year,
                 extract('month', item.created_at) == month).count()
-            total_quantity = db.query(func.coalesce(func.sum(TransactionSF.quantity), 0)) \
+            total_quantity = db.query(func.coalesce(func.sum(item.quantity), 0)) \
                 .join(Product, Product.id == item.product_id) \
                 .filter(Product.id == product_id, extract('year', item.created_at) == year,
                         extract('month', item.created_at) == month) \
