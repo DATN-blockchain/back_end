@@ -6,6 +6,7 @@ from app.db.database import get_db
 from app.api.depend import oauth2
 from typing import Optional, Any
 from datetime import date
+from starlette.responses import StreamingResponse
 
 from app.schemas import GrowUpUpdate, ClassifyGoodsCreateParam
 from app.utils.background_tasks import send_notification
@@ -144,6 +145,14 @@ async def get_product_grow_up(product_id: str,
     return make_response_object(product_response)
 
 
+@router.get("/product/{product_id}/qr_code")
+async def get_qr_code(product_id: str, db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    product_response = await product_service.get_qr_code(product_id=product_id)
+    return StreamingResponse(product_response, media_type="image/jpeg")
+
+
 @router.post("/product/create")
 async def create_product(name: str,
                          background_tasks: BackgroundTasks,
@@ -192,6 +201,16 @@ async def create_classify_goods(product_id: str,
     # authorization
     product_response = await product_service.create_classify_goods(current_user=user, product_id=product_id,
                                                                    data=data)
+
+    return make_response_object(product_response)
+
+
+@router.post("/product/{product_id}/qr_code")
+async def create_qr_code(product_id: str,
+                         user: User = Depends(oauth2.get_current_user),
+                         db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+    product_response = await product_service.create_qr_code(product_id=product_id)
 
     return make_response_object(product_response)
 

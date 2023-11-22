@@ -1,13 +1,15 @@
 import uuid
+import qrcode
+import os
 
 from fastapi import UploadFile, File
-
 from sqlalchemy.orm import Session
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 import cloudinary
 from cloudinary.uploader import upload
 from datetime import date
+from starlette.responses import StreamingResponse
 
 from ..blockchain_web3.product_provider import ProductProvider
 from ..model import User
@@ -186,6 +188,15 @@ class ProductService:
         result = dict(total_grow_up=total_grow_up, list_grow_up=list_grow_up)
         return result
 
+    async def get_qr_code(self, product_id: str):
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        if current_product is None:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+        root_folder = os.path.join(os.getcwd(), "img", "qr_code")
+        image_path = os.path.join(root_folder, f"{product_id}.png")
+        file_content = open(image_path, "rb")
+        return file_content
+
     async def create_product(self, current_user: User,
                              product_create: ProductCreate,
                              data: dict = None,
@@ -236,6 +247,18 @@ class ProductService:
             data=data
         )
         crud_classify_goods.create(db=self.db, obj_in=classify_goods)
+        return AppStatus.SUCCESS
+
+    async def create_qr_code(self, product_id: str):
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        if current_product is None:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+        qr_content = f'https://shopee.vn/product/{product_id}'
+        qr = qrcode.make(qr_content)
+        root_folder = os.path.join(os.getcwd(), "img", "qr_code")
+        os.makedirs(root_folder, exist_ok=True)
+        image_path = os.path.join(root_folder, f"{product_id}.png")
+        qr.save(image_path)
         return AppStatus.SUCCESS
 
     async def create_grow_up(self, product_id: str, description: str, image: UploadFile = File(...),
