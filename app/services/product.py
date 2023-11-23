@@ -354,7 +354,7 @@ class ProductService:
             data_hash = dict(name=product_create.name, description=product_create.description,
                              banner=product_create.banner)
             hash_info = base64_encode(data_hash)
-            tx_hash = product_provider.create_product(product_id=product_create.id, product_type=0,
+            tx_hash = product_provider.create_product(product_id=product_create.id, product_type=1,
                                                       price=product_create.price, quantity=product_create.quantity,
                                                       status=1, owner=user_id, hash_info=hash_info, trans_id="")
         # Farmer
@@ -380,9 +380,9 @@ class ProductService:
             data_hash = dict(name=product_create.name, description=product_create.description,
                              banner=product_create.banner)
             hash_info = base64_encode(data_hash)
-            tx_hash = product_provider.create_product(product_id=product_create.id, product_type=0,
+            tx_hash = product_provider.create_product(product_id=product_create.id, product_type=2,
                                                       price=product_create.price, quantity=product_create.quantity,
-                                                      status=2, owner=user_id, hash_info=hash_info,
+                                                      status=1, owner=user_id, hash_info=hash_info,
                                                       trans_id=transaction_id)
 
         # Manufacturer
@@ -411,9 +411,9 @@ class ProductService:
             data_hash = dict(name=product_create.name, description=product_create.description,
                              banner=product_create.banner)
             hash_info = base64_encode(data_hash)
-            tx_hash = product_provider.create_product(product_id=product_create.id, product_type=0,
+            tx_hash = product_provider.create_product(product_id=product_create.id, product_type=3,
                                                       price=product_create.price, quantity=product_create.quantity,
-                                                      status=3, owner=user_id, hash_info=hash_info,
+                                                      status=1, owner=user_id, hash_info=hash_info,
                                                       trans_id=transaction_id)
         if current_user.system_role in [UserSystemRole.MANUFACTURER, UserSystemRole.FARMER,
                                         UserSystemRole.SEEDLING_COMPANY]:
