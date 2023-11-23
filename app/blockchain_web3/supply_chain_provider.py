@@ -21,8 +21,8 @@ class SupplyChainProvider(Web3Provider):
     def get_info_product(self, product_id):
         return self.contract.functions.seek_an_origin(product_id).call()
 
-    def listing_product_to_marketplace(self, item_id, product_id, owner, status):
-        function = self.contract.functions.listing_product(item_id, product_id, owner, status)
+    def listing_product_to_marketplace(self, item_id, product_id, owner):
+        function = self.contract.functions.listing_product(item_id, product_id, owner)
         tx_hash = self.sign_and_send_transaction(function)
         return tx_hash
 

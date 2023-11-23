@@ -33,7 +33,7 @@ class Web3Provider(object):
     def sign_and_send_transaction(self, func):
         account = Account.from_key(settings.PRIVATE_KEY_SYSTEM)
         nonce = self.get_transaction_count(account.address)
-        gas = 500000
+        gas = 5000000
         gas_price = self.w3.eth.gas_price
 
         tx_data = func.build_transaction({'chainId': int(settings.CHAIN_ID), 'gas': gas, 'gasPrice': gas_price})

@@ -89,9 +89,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return current_user
 
     @staticmethod
-    def update_user_role(db: Session, current_user: str, user_role: str):
+    def update_user_role(db: Session, current_user: User, user_role: str, tx_hash: str = None):
         logger.info("CRUD_user: update_user_role called")
         current_user.system_role = user_role
+        if tx_hash:
+            current_user.tx_hash = tx_hash
         db.commit()
         db.refresh(current_user)
         logger.info("CRUD_user: update_user_role called successfully")

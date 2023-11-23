@@ -19,7 +19,7 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "item_id",
+          "name": "product_id",
           "type": "string"
         },
         {
@@ -36,6 +36,11 @@
           "internalType": "uint256",
           "name": "quantity",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "id_type",
+          "type": "string"
         }
       ],
       "name": "buy_item_on_marketplace",
@@ -118,43 +123,10 @@
           "internalType": "string",
           "name": "owner",
           "type": "string"
-        },
-        {
-          "internalType": "enum SupplyChainLib.OrderStatus",
-          "name": "status",
-          "type": "uint8"
         }
       ],
       "name": "listing_product",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "itemId",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "product_id",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "owner_id",
-              "type": "string"
-            },
-            {
-              "internalType": "enum SupplyChainLib.OrderStatus",
-              "name": "status",
-              "type": "uint8"
-            }
-          ],
-          "internalType": "struct SupplyChainLib.MarketplaceItem",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -171,213 +143,128 @@
         {
           "components": [
             {
-              "internalType": "string",
-              "name": "product_id",
-              "type": "string"
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "product_id",
+                  "type": "string"
+                },
+                {
+                  "internalType": "enum SupplyChainLib.ProductType",
+                  "name": "product_type",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "price",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "quantity",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "created_at",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "updated_at",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "string",
+                  "name": "owner_id",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "transaction_id",
+                  "type": "string"
+                },
+                {
+                  "internalType": "enum SupplyChainLib.ProductStatus",
+                  "name": "status",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "string",
+                  "name": "hash_info",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct SupplyChainLib.ProductInfo",
+              "name": "productInfo",
+              "type": "tuple"
             },
             {
-              "internalType": "enum SupplyChainLib.ProductType",
-              "name": "product_type",
-              "type": "uint8"
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "id",
+                  "type": "string"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum SupplyChainLib.Role",
+                  "name": "role",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "string",
+                  "name": "hash_info",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct SupplyChainLib.ActorInfo",
+              "name": "ownerInfo",
+              "type": "tuple"
             },
             {
-              "internalType": "uint256",
-              "name": "price",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "quantity",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "created_at",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "updated_at",
-              "type": "uint256"
-            },
-            {
-              "internalType": "string",
-              "name": "owner_id",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "transaction_id",
-              "type": "string"
-            },
-            {
-              "internalType": "enum SupplyChainLib.ProductStatus",
-              "name": "status",
-              "type": "uint8"
-            },
-            {
-              "internalType": "string",
-              "name": "hash_info",
-              "type": "string"
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "id",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "product_id",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "quantity",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "created_at",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "string",
+                  "name": "buyer_id",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct SupplyChainLib.InfoTransaction",
+              "name": "transactionInfo",
+              "type": "tuple"
             }
           ],
-          "internalType": "struct SupplyChainLib.ProductInfo",
-          "name": "",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "id",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
-            },
-            {
-              "internalType": "enum SupplyChainLib.Role",
-              "name": "role",
-              "type": "uint8"
-            }
-          ],
-          "internalType": "struct SupplyChainLib.ActorInfo",
-          "name": "",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "id",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "product_id",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "quantity",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "created_at",
-              "type": "uint256"
-            },
-            {
-              "internalType": "string",
-              "name": "buyer_id",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct SupplyChainLib.InfoTransaction",
-          "name": "",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "product_id",
-              "type": "string"
-            },
-            {
-              "internalType": "enum SupplyChainLib.ProductType",
-              "name": "product_type",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint256",
-              "name": "price",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "quantity",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "created_at",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "updated_at",
-              "type": "uint256"
-            },
-            {
-              "internalType": "string",
-              "name": "owner_id",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "transaction_id",
-              "type": "string"
-            },
-            {
-              "internalType": "enum SupplyChainLib.ProductStatus",
-              "name": "status",
-              "type": "uint8"
-            },
-            {
-              "internalType": "string",
-              "name": "hash_info",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct SupplyChainLib.ProductInfo",
-          "name": "",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "id",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
-            },
-            {
-              "internalType": "enum SupplyChainLib.Role",
-              "name": "role",
-              "type": "uint8"
-            }
-          ],
-          "internalType": "struct SupplyChainLib.ActorInfo",
-          "name": "",
-          "type": "tuple"
+          "internalType": "struct SupplyChainLib.OriginInfo[]",
+          "name": "originInfos",
+          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "item_id",
-          "type": "string"
-        },
-        {
-          "internalType": "enum SupplyChainLib.OrderStatus",
-          "name": "status",
-          "type": "uint8"
-        }
-      ],
-      "name": "update_item_on_marketplance",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]
