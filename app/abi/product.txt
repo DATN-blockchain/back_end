@@ -21,6 +21,11 @@
           "internalType": "uint256",
           "name": "quantity",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "id_type",
+          "type": "string"
         }
       ],
       "name": "burn",
@@ -215,11 +220,33 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "id",
+          "name": "product_id",
           "type": "string"
+        },
+        {
+          "internalType": "string[]",
+          "name": "id_type",
+          "type": "string[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quantity",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct SupplyChainLib.CountDetail[]",
+          "name": "price_quantity",
+          "type": "tuple[]"
         }
       ],
-      "name": "deleteProduct",
+      "name": "create_price_detail_of_type",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -250,6 +277,61 @@
           "internalType": "struct SupplyChainLib.GrowUpDetail[]",
           "name": "",
           "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "product_id",
+          "type": "string"
+        }
+      ],
+      "name": "get_list_type_product",
+      "outputs": [
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "product_id",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "id_type",
+          "type": "string"
+        }
+      ],
+      "name": "get_price_detail_of_product",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quantity",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct SupplyChainLib.CountDetail",
+          "name": "",
+          "type": "tuple"
         }
       ],
       "stateMutability": "view",
@@ -332,11 +414,6 @@
           "internalType": "string",
           "name": "id",
           "type": "string"
-        },
-        {
-          "internalType": "enum SupplyChainLib.ProductType",
-          "name": "product_type",
-          "type": "uint8"
         },
         {
           "internalType": "uint256",
@@ -431,6 +508,52 @@
         }
       ],
       "name": "updateGrowUpProduct",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "product_id",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "id_type",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
+        }
+      ],
+      "name": "update_price_and_type_of_type",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "internalType": "enum SupplyChainLib.ProductStatus",
+          "name": "status",
+          "type": "uint8"
+        }
+      ],
+      "name": "update_status_product",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

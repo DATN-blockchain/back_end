@@ -11,18 +11,17 @@ from cloudinary.uploader import upload
 from datetime import date
 from starlette.responses import StreamingResponse
 
-from ..blockchain_web3.product_provider import ProductProvider
+from ..blockchain_web3.supply_chain_provider import SupplyChainProvider
 from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
     ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse, LeaderboardUpdate, \
-    LeaderboardCreate, ClassifyGoodsCreate, ClassifyGoodsCreateParam, TransactionSFResponse
+    LeaderboardCreate, ClassifyGoodsCreate, TransactionSFResponse
 from ..blockchain_web3.product_provider import ProductProvider
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
     crud_product_manufacturer, crud_grow_up, crud_leaderboard, crud_cart, crud_classify_goods
 from ..model.base import ProductStatus, UserSystemRole, ConfirmStatusProduct, ChooseProduct, ConfirmProduct
-from app.utils.encode_decode_json import encode_json
-from app.constant.mapping_enum import PRODUCT_TYPE
+from ..utils.hash_lib import base64_encode
 
 
 class ProductService:
@@ -286,6 +285,10 @@ class ProductService:
             description=description, image=entity_url, video=entity_url)
 
         result = crud_grow_up.create(db=self.db, obj_in=grow_up_create)
+        product_provider = ProductProvider()
+        tx_hash = product_provider.update_grow_up_product(product_id=product_id, url_image=entity_url)
+        update_grow_up = dict(tx_hash=tx_hash)
+        result = crud_grow_up.update(self.db, db_obj=result, obj_in=update_grow_up)
         return result
 
     async def update_grow_up(self, product_id: str, grow_up_update: GrowUpUpdate):
@@ -342,12 +345,18 @@ class ProductService:
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
         if current_user.system_role == UserSystemRole.MEMBER:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_METHOD_NOT_ALLOWED)
-
+        product_provider = ProductProvider()
+        tx_hash = None
         # Seedling company
         if current_user.system_role == UserSystemRole.SEEDLING_COMPANY:
             product_create = await self.create_product(current_user=current_user, product_create=product_create,
                                                        banner=banner)
-
+            data_hash = dict(name=product_create.name, description=product_create.description,
+                             banner=product_create.banner)
+            hash_info = base64_encode(data_hash)
+            tx_hash = product_provider.create_product(product_id=product_create.id, product_type=0,
+                                                      price=product_create.price, quantity=product_create.quantity,
+                                                      status=1, owner=user_id, hash_info=hash_info, trans_id="")
         # Farmer
         elif current_user.system_role == UserSystemRole.FARMER:
             if transaction_id is None:
@@ -368,6 +377,13 @@ class ProductService:
                                                  product_id=product_create.id,
                                                  transaction_sf_id=transaction_id)
             crud_product_farmer.create(db=self.db, obj_in=product_farmer)
+            data_hash = dict(name=product_create.name, description=product_create.description,
+                             banner=product_create.banner)
+            hash_info = base64_encode(data_hash)
+            tx_hash = product_provider.create_product(product_id=product_create.id, product_type=0,
+                                                      price=product_create.price, quantity=product_create.quantity,
+                                                      status=2, owner=user_id, hash_info=hash_info,
+                                                      trans_id=transaction_id)
 
         # Manufacturer
         elif current_user.system_role == UserSystemRole.MANUFACTURER:
@@ -392,7 +408,16 @@ class ProductService:
             update_status = dict(is_choose=ChooseProduct.DONE)
             crud_transaction_fm.update(db=self.db, db_obj=current_transaction, obj_in=update_status)
             crud_product_manufacturer.create(db=self.db, obj_in=product_manufacturer)
-
+            data_hash = dict(name=product_create.name, description=product_create.description,
+                             banner=product_create.banner)
+            hash_info = base64_encode(data_hash)
+            tx_hash = product_provider.create_product(product_id=product_create.id, product_type=0,
+                                                      price=product_create.price, quantity=product_create.quantity,
+                                                      status=3, owner=user_id, hash_info=hash_info,
+                                                      trans_id=transaction_id)
+        if current_user.system_role in [UserSystemRole.MANUFACTURER, UserSystemRole.FARMER,
+                                        UserSystemRole.SEEDLING_COMPANY]:
+            crud_product.update(db=self.db, db_obj=product_create, obj_in=dict(tx_hash=tx_hash))
         self.db.refresh(product_create)
         return product_create
 
@@ -418,6 +443,12 @@ class ProductService:
             crud_classify_goods.update_data(db=self.db, current_classify_goods=classify_goods, data=product_update.data)
 
         result = crud_product.update(db=self.db, db_obj=current_product, obj_in=product_update)
+        product_provider = ProductProvider()
+        data_hash = dict(name=result.name, description=result.description,
+                         banner=result.banner)
+        hash_info = base64_encode(data_hash)
+        product_provider.update_product(product_id=result.id, price=result.price, quantity=result.quantity,
+                                        hash_info=hash_info)
         return result
 
     async def update_banner(self, product_id: str, banner: UploadFile):
@@ -433,6 +464,10 @@ class ProductService:
 
         result = crud_product.update_product_status(db=self.db, current_product=current_product,
                                                     product_status=product_status)
+
+        product_provider = ProductProvider()
+        map_status = {"PRIVATE": 1, "PUBLISH": 2, "CLOSE": 3}
+        product_provider.update_status_product(product_id=product_id, status=map_status[product_status])
         return result
 
     @staticmethod
@@ -493,7 +528,11 @@ class ProductService:
                 order_by=current_product.created_by
             )
             result = crud_transaction_sf.create(db=self.db, obj_in=create_transaction_sf)
-
+            supply_chain_provider = SupplyChainProvider()
+            tx_hash = supply_chain_provider.buy_product_in_market(product_id=product_id, id_trans=result.id,
+                                                                  quantity=quantity,
+                                                                  type_product="", buyer=result.user_id)
+            result = crud_transaction_sf.update(db=self.db, db_obj=result, obj_in=dict(tx_hash=tx_hash))
         # Purchase for Manufacturer
         elif current_user.system_role == UserSystemRole.MANUFACTURER:
             if current_product.product_type != ProductType.FARMER:
@@ -524,6 +563,11 @@ class ProductService:
             )
 
             result = crud_transaction_fm.create(db=self.db, obj_in=create_transaction_fm)
+            supply_chain_provider = SupplyChainProvider()
+            tx_hash = supply_chain_provider.buy_product_in_market(product_id=product_id, id_trans=result.id,
+                                                                  quantity=quantity,
+                                                                  type_product="", buyer=result.user_id)
+            result = crud_transaction_fm.update(db=self.db, db_obj=result, obj_in=dict(tx_hash=tx_hash))
         else:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_YOU_ARE_NOT_ALLOWED)
 

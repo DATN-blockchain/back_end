@@ -4,22 +4,22 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     # Postgres
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    POSTGRES_PORT: str
-    POSTGRES_HOST: str
+    POSTGRES_USER: Optional[str] = None
+    POSTGRES_PASSWORD: Optional[str] = None
+    POSTGRES_DB: Optional[str] = None
+    POSTGRES_PORT: Optional[str] = None
+    POSTGRES_HOST: Optional[str] = None
     DEBUG: Optional[bool] = False
 
     # Email
-    COURSE_EMAIl: str
-    COURSE_EMAIL_PASSWORD: str
+    COURSE_EMAIl: Optional[str] = None
+    COURSE_EMAIL_PASSWORD: Optional[str] = None
 
     # Jwt
-    ACCESS_TOKEN_EXPIRES_IN_DAYS: int
-    REFRESH_TOKEN_EXPIRES_IN_DAYS: int
-    JWT_ALGORITHM: str
-    JWT_SECRET_KEY: str
+    ACCESS_TOKEN_EXPIRES_IN_DAYS: int = 30
+    REFRESH_TOKEN_EXPIRES_IN_DAYS: int = 30
+    JWT_ALGORITHM: Optional[str] = None
+    JWT_SECRET_KEY: Optional[str] = None
 
     # Pusher
     PUSHER_APP_ID: Optional[str] = None
@@ -33,18 +33,18 @@ class Settings(BaseSettings):
     ALL_CHANNEL: Optional[str] = "all-channel"
 
     # Cloud
-    CLOUD_NAME: str
-    API_KEY: str
-    API_SECRET: str
+    CLOUD_NAME: Optional[str] = None
+    API_KEY: Optional[str] = None
+    API_SECRET: Optional[str] = None
 
     # blockchain
     WEB3_PROVIDER: Optional[str] = None
-    ADDRESS_CONTRACT_SUPPLY_CHAIN: Optional[str] = None
     ADDRESS_CONTRACT_ACTOR_MANAGER: Optional[str] = None
     ADDRESS_CONTRACT_PRODUCT_MANAGER: Optional[str] = None
-    PRIVATE_KEY_SYSTEM: str
-    CHAIN_ID: str
-    HASH_KEY: str
+    ADDRESS_CONTRACT_SUPPLY_CHAIN: Optional[str] = None
+    PRIVATE_KEY_SYSTEM: Optional[str] = None
+    CHAIN_ID: Optional[str] = 421613
+    HASH_KEY: Optional[str] = None
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:

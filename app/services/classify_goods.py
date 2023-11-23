@@ -3,8 +3,6 @@ import uuid
 from sqlalchemy.orm import Session
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
-from ..model import User
-from ..model.base import UserSystemRole, ProductType
 
 from ..schemas import ClassifyGoodsCreate, ClassifyGoodsResponse
 from ..crud import crud_classify_goods, crud_product
@@ -48,7 +46,6 @@ class ClassifyGoodsService:
         )
         crud_classify_goods.create(db=self.db, obj_in=classify_goods)
         return data
-
 
     async def delete_classify_goods(self, classify_goods_id: str):
         current_classify_goods = crud_classify_goods.get_classify_goods_by_id(db=self.db,

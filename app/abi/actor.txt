@@ -39,6 +39,11 @@
           "internalType": "enum SupplyChainLib.Role",
           "name": "role",
           "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "hash_info",
+          "type": "string"
         }
       ],
       "name": "create",
@@ -59,6 +64,11 @@
               "internalType": "enum SupplyChainLib.Role",
               "name": "role",
               "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "hash_info",
+              "type": "string"
             }
           ],
           "internalType": "struct SupplyChainLib.ActorInfo",
@@ -95,6 +105,11 @@
               "internalType": "enum SupplyChainLib.Role",
               "name": "role",
               "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "hash_info",
+              "type": "string"
             }
           ],
           "internalType": "struct SupplyChainLib.ActorInfo",
@@ -122,6 +137,24 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "hash_info",
+          "type": "string"
+        }
+      ],
+      "name": "update_actor_hash_info",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]
