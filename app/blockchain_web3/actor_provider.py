@@ -10,7 +10,7 @@ class ActorProvider(Web3Provider):
 
     def __init__(self):
         path_abi = os.path.join(os.getcwd(), "app/abi/actor.txt")
-        with open("../abi/actor.txt", 'r', encoding='utf-8') as f:
+        with open(path_abi, 'r', encoding='utf-8') as f:
             abi = f.read()
 
         factory_abi = json.loads(abi)
