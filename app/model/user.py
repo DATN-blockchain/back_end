@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from app.model.base import Base, UserSystemRole, ConfirmStatusUser
 from app.model.product import Product
 
+
 class User(Base):
     __tablename__ = "user"
 

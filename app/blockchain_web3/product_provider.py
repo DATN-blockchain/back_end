@@ -1,4 +1,5 @@
 import json
+import os
 
 from app.blockchain_web3.provider import Web3Provider
 from app.core.settings import settings
@@ -7,7 +8,8 @@ from app.core.settings import settings
 class ProductProvider(Web3Provider):
 
     def __init__(self):
-        with open('./app/abi/product.txt', 'r', encoding='utf-8') as f:
+        path_abi = os.path.join(os.getcwd(), "app/abi/product.txt")
+        with open(path_abi, 'r', encoding='utf-8') as f:
             abi = f.read()
 
         factory_abi = json.loads(abi)
