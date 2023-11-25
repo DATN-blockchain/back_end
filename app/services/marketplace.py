@@ -52,12 +52,15 @@ class MarketplaceService:
             order_type=current_product.product_type,
             order_id=current_product.id,
             order_by=user_id)
-        result = crud_marketplace.create(db=self.db, obj_in=marketplace_create)
+
         crud_product.update_is_sale(db=self.db, current_product=current_product, is_sale=True)
         supply_chain_provider = SupplyChainProvider()
-        tx_hash = supply_chain_provider.listing_product_to_marketplace(item_id=result.id, product_id=result.order_id,
+        tx_hash = supply_chain_provider.listing_product_to_marketplace(item_id=marketplace_create.id,
+                                                                       product_id=marketplace_create.order_id,
                                                                        owner=user_id)
-        crud_marketplace.update(db=self.db, db_obj=result, obj_in=dict(tx_hash=tx_hash))
+        marketplace_create.tx_hash = tx_hash
+        result = crud_marketplace.create(db=self.db, obj_in=marketplace_create)
+
         self.db.refresh(result)
         return result
 

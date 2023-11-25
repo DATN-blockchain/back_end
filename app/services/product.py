@@ -527,12 +527,15 @@ class ProductService:
                 address=address,
                 order_by=current_product.created_by
             )
-            result = crud_transaction_sf.create(db=self.db, obj_in=create_transaction_sf)
+
             supply_chain_provider = SupplyChainProvider()
-            tx_hash = supply_chain_provider.buy_product_in_market(product_id=product_id, id_trans=result.id,
+            tx_hash = supply_chain_provider.buy_product_in_market(product_id=product_id,
+                                                                  id_trans=create_transaction_sf.id,
                                                                   quantity=quantity,
-                                                                  type_product="", buyer=result.user_id)
-            result = crud_transaction_sf.update(db=self.db, db_obj=result, obj_in=dict(tx_hash=tx_hash))
+                                                                  type_product="",
+                                                                  buyer=create_transaction_sf.user_id)
+            create_transaction_sf.tx_hash = tx_hash
+            result = crud_transaction_sf.create(db=self.db, obj_in=create_transaction_sf)
         # Purchase for Manufacturer
         elif current_user.system_role == UserSystemRole.MANUFACTURER:
             if current_product.product_type != ProductType.FARMER:
@@ -562,12 +565,13 @@ class ProductService:
                 order_by=current_product.created_by
             )
 
-            result = crud_transaction_fm.create(db=self.db, obj_in=create_transaction_fm)
             supply_chain_provider = SupplyChainProvider()
-            tx_hash = supply_chain_provider.buy_product_in_market(product_id=product_id, id_trans=result.id,
+            tx_hash = supply_chain_provider.buy_product_in_market(product_id=product_id,
+                                                                  id_trans=create_transaction_fm.id,
                                                                   quantity=quantity,
-                                                                  type_product="", buyer=result.user_id)
-            result = crud_transaction_fm.update(db=self.db, db_obj=result, obj_in=dict(tx_hash=tx_hash))
+                                                                  type_product="", buyer=create_transaction_fm.user_id)
+            create_transaction_fm.tx_hash = tx_hash
+            result = crud_transaction_fm.create(db=self.db, obj_in=create_transaction_fm)
         else:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_YOU_ARE_NOT_ALLOWED)
 

@@ -15,6 +15,7 @@ class FinancialTransactionBase(BaseModel):
     type_transaction: Optional[str] = None
     amount: Optional[int] = None
     transaction_code: Optional[str] = None
+    tx_hash: Optional[str] = None
 
 
 class FinancialTransactionCreate(FinancialTransactionBase):
