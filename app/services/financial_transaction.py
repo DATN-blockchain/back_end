@@ -8,6 +8,7 @@ from ..model import Product
 from ..model.base import ProductStatus, FinancialStatus, TypeTransaction, ConfirmUser
 from ..schemas import ProductType, FinancialTransactionCreate, FinancialTransactionUpdate, FinancialTransactionResponse
 from ..crud import crud_financial_transaction, crud_product, crud_user
+from app.blockchain_web3.actor_provider import ActorProvider
 
 
 class FinancialTransactionService:
@@ -58,6 +59,9 @@ class FinancialTransactionService:
             transaction_code=transaction_code,
             amount=amount)
 
+        actor_provider = ActorProvider()
+        tx_hash = actor_provider.deposited(user_id=user_id, amount=amount)
+        financial_transaction_create.tx_hash = tx_hash
         result = crud_financial_transaction.create(db=self.db, obj_in=financial_transaction_create)
         return result
 
@@ -75,7 +79,7 @@ class FinancialTransactionService:
         current_user = crud_user.get_user_by_id(db=self.db, user_id=current_financial_transaction.user_id)
         if current_financial_transaction.type_transaction == TypeTransaction.DEPOSIT:
             if financial_transaction_update == ConfirmUser.ACCEPT:
-                amount = current_financial_transaction.amount / 22000
+                amount = current_financial_transaction.amount
                 account_balance = current_user.account_balance + amount
                 status = FinancialStatus.DONE
                 update_account_balance = dict(account_balance=account_balance)
