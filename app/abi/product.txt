@@ -31,61 +31,9 @@
       "name": "burn",
       "outputs": [
         {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "product_id",
-              "type": "string"
-            },
-            {
-              "internalType": "enum SupplyChainLib.ProductType",
-              "name": "product_type",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint256",
-              "name": "price",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "quantity",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "created_at",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "updated_at",
-              "type": "uint256"
-            },
-            {
-              "internalType": "string",
-              "name": "owner_id",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "transaction_id",
-              "type": "string"
-            },
-            {
-              "internalType": "enum SupplyChainLib.ProductStatus",
-              "name": "status",
-              "type": "uint8"
-            },
-            {
-              "internalType": "string",
-              "name": "hash_info",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct SupplyChainLib.ProductInfo",
+          "internalType": "uint256",
           "name": "",
-          "type": "tuple"
+          "type": "uint256"
         }
       ],
       "stateMutability": "nonpayable",

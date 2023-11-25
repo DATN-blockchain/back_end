@@ -97,6 +97,11 @@
               "internalType": "string",
               "name": "buyer_id",
               "type": "string"
+            },
+            {
+              "internalType": "enum SupplyChainLib.TransactionStatus",
+              "name": "status",
+              "type": "uint8"
             }
           ],
           "internalType": "struct SupplyChainLib.InfoTransaction",
@@ -220,6 +225,11 @@
                   "internalType": "string",
                   "name": "hash_info",
                   "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "balance",
+                  "type": "uint256"
                 }
               ],
               "internalType": "struct SupplyChainLib.ActorInfo",
@@ -252,6 +262,11 @@
                   "internalType": "string",
                   "name": "buyer_id",
                   "type": "string"
+                },
+                {
+                  "internalType": "enum SupplyChainLib.TransactionStatus",
+                  "name": "status",
+                  "type": "uint8"
                 }
               ],
               "internalType": "struct SupplyChainLib.InfoTransaction",
@@ -265,6 +280,24 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "internalType": "enum SupplyChainLib.TransactionStatus",
+          "name": "status",
+          "type": "uint8"
+        }
+      ],
+      "name": "update_status_transaction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

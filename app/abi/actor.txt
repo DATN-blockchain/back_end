@@ -69,6 +69,11 @@
               "internalType": "string",
               "name": "hash_info",
               "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "balance",
+              "type": "uint256"
             }
           ],
           "internalType": "struct SupplyChainLib.ActorInfo",
@@ -76,6 +81,24 @@
           "type": "tuple"
         }
       ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposited",
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -110,6 +133,11 @@
               "internalType": "string",
               "name": "hash_info",
               "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "balance",
+              "type": "uint256"
             }
           ],
           "internalType": "struct SupplyChainLib.ActorInfo",
@@ -153,6 +181,24 @@
         }
       ],
       "name": "update_actor_hash_info",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw_balance",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
