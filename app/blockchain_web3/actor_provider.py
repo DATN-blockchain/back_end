@@ -34,6 +34,14 @@ class ActorProvider(Web3Provider):
     def get_ids_by_role(self, role):
         return self.contract.functions.get_ids_by_role(role).call()
 
+    def deposited(self, user_id: str, amount: int):
+        function = self.contract.functions.deposited(user_id, amount)
+        return self.sign_and_send_transaction(function)
+
+    def withdraw(self, user_id: str, amount: int):
+        function = self.contract.functions.deposited(user_id, amount)
+        return self.sign_and_send_transaction(function)
+
 
 if __name__ == "__main__":
     actor_provider = ActorProvider()
