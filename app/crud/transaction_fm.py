@@ -45,5 +45,12 @@ class CRUDTransactionFM(CRUDBase[TransactionFM, TransactionFMCreate, Transaction
         list_transaction_fm = db_query.order_by(desc(TransactionFM.created_at)).offset(skip).limit(limit).all()
         return total_transaction_fm, list_transaction_fm
 
+    @staticmethod
+    def update_confirm_order(db: Session, current_transaction: TransactionFM, status: ConfirmStatusProduct):
+        current_transaction.status = status
+        db.commit()
+        db.refresh(current_transaction)
+        return current_transaction
+
 
 crud_transaction_fm = CRUDTransactionFM(TransactionFM)

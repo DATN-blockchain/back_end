@@ -9,7 +9,6 @@ from app.core.exceptions import error_exception_handler
 import cloudinary
 from cloudinary.uploader import upload
 from datetime import date
-from starlette.responses import StreamingResponse
 
 from ..blockchain_web3.supply_chain_provider import SupplyChainProvider
 from ..model import User
@@ -198,7 +197,6 @@ class ProductService:
 
     async def create_product(self, current_user: User,
                              product_create: ProductCreate,
-                             data: dict = None,
                              banner: UploadFile = File(...)):
         banner = cloudinary.uploader.upload(banner.file, folder="banner")
         banner_url = banner.get("secure_url")
@@ -301,44 +299,61 @@ class ProductService:
         return result
 
     async def update_confirm_order(self, current_user: User, transaction_id: str, status: ConfirmProduct):
+        # For Seedling company
+
         if current_user.system_role == UserSystemRole.SEEDLING_COMPANY:
             current_transaction = crud_transaction_sf.get_transaction_sf_by_id(db=self.db,
                                                                                transaction_sf_id=transaction_id)
+            if current_transaction.status != ConfirmStatusProduct.PENDING:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ORDER_IS_COMPLETED)
             if not current_transaction:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_SF_NOT_FOUND)
 
-            obj_in_transaction = dict(status=status)
+            buyer = crud_user.get_user_by_id(db=self.db, user_id=current_transaction.user_id)
             if status == ConfirmProduct.ACCEPT:
                 current_balance_user = current_user.account_balance + current_transaction.price
                 obj_in_user = dict(account_balance=current_balance_user)
+                status_confirm = ConfirmStatusProduct.DONE
                 crud_user.update(db=self.db, db_obj=current_user, obj_in=obj_in_user)
             else:
-                buyer = crud_user.get_user_by_id(db=self.db, user_id=current_transaction.user_id)
                 current_balance_user = buyer.account_balance + current_transaction.price
                 obj_in_user = dict(account_balance=current_balance_user)
+                status_confirm = ConfirmStatusProduct.REJECT
                 crud_user.update(db=self.db, db_obj=buyer, obj_in=obj_in_user)
-            result = crud_transaction_sf.update(db=self.db, db_obj=current_transaction, obj_in=obj_in_transaction)
+            result = crud_transaction_sf.update_confirm_order(db=self.db, current_transaction=current_transaction,
+                                                              status=status_confirm)
+        # For Farmer
         elif current_user.system_role == UserSystemRole.FARMER:
             current_transaction = crud_transaction_fm.get_transaction_fm_by_id(db=self.db,
                                                                                transaction_fm_id=transaction_id)
+            if current_transaction.status != ConfirmStatusProduct.PENDING:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ORDER_IS_COMPLETED)
+            buyer = crud_user.get_user_by_id(db=self.db, user_id=current_transaction.user_id)
             if not current_transaction:
                 raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_TRANSACTION_FM_NOT_FOUND)
+            if current_transaction.status == ConfirmStatusProduct.DONE:
+                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_ORDER_IS_COMPLETED)
 
             current_balance_user = current_user.account_balance + current_transaction.price
-            obj_in_transaction = dict(status=status)
             if status == ConfirmProduct.ACCEPT:
                 obj_in_user = dict(account_balance=current_balance_user)
                 crud_user.update(db=self.db, db_obj=current_user, obj_in=obj_in_user)
+                status_confirm = ConfirmStatusProduct.DONE
             else:
-                buyer = crud_user.get_user_by_id(db=self.db, user_id=current_transaction.user_id)
                 current_balance_user = buyer.account_balance + current_transaction.price
                 obj_in_user = dict(account_balance=current_balance_user)
                 crud_user.update(db=self.db, db_obj=buyer, obj_in=obj_in_user)
-            result = crud_transaction_sf.update(db=self.db, db_obj=current_transaction, obj_in=obj_in_transaction)
+                status_confirm = ConfirmStatusProduct.REJECT
+            result = crud_transaction_sf.update_confirm_order(db=self.db, current_transaction=current_transaction,
+                                                              status=status_confirm)
+
         else:
             result = None
+            current_transaction = None
+            buyer = None
 
-        return result
+        current_product = current_transaction.product
+        return result, current_product, buyer
 
     async def create_product_entity(self, user_id: str, transaction_id: str,
                                     product_create: ProductCreate, banner: UploadFile = File(...)):
@@ -527,6 +542,7 @@ class ProductService:
                 address=address,
                 order_by=current_product.created_by
             )
+            # breakpoint()
 
             supply_chain_provider = SupplyChainProvider()
             tx_hash = supply_chain_provider.buy_product_in_market(product_id=product_id,

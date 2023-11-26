@@ -22,3 +22,19 @@ class CommentTemplate(Enum):
 class PurchaseProduct(Enum):
     Purchase_MSG = (lambda username, action, product_name, price:
                     f"{username} {action}d product {product_name} with a total order value of ${price}")
+
+
+class ConfirmOrder(Enum):
+    OrderComplete_MSG = (lambda product_name:
+                         f"Your order {product_name} has just been completed. You can now create your product.")
+
+    OrderReject_MSG = (lambda product_name:
+                       f"Your order {product_name} has just been cancelled. Please contact the owner.")
+
+
+class FinancialTransactionTemplate(Enum):
+    Deposit_MSG = (lambda username, action, price:
+                   f"{username} request to {action} funds into the system, in the amount of {price}")
+
+    Withdraw_MSG = (lambda username, action, price:
+                    f"{username} requests to {action} money from the system, in the amount of {price}")

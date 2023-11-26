@@ -8,12 +8,12 @@ from typing import Optional, Any
 from datetime import date
 from starlette.responses import StreamingResponse
 
-from app.schemas import GrowUpUpdate, ClassifyGoodsCreateParam
+from app.schemas import GrowUpUpdate
 from app.utils.background_tasks import send_notification
 from app.utils.response import make_response_object
 import cloudinary.uploader
 from app.core.settings import settings
-from app.constant.template import NotificationTemplate, ActivityTemplate, PurchaseProduct
+from app.constant.template import NotificationTemplate, ActivityTemplate, PurchaseProduct, ConfirmOrder
 
 from app.schemas.product import ProductCreateParams, ProductUpdate
 from app.model.base import NotificationType, ProductStatus, ActivityType, ProductType, ConfirmProduct, \
@@ -260,18 +260,29 @@ async def update_product(product_id: str,
 @router.put("/product/{product_id}/confirm_order")
 async def update_confirm_order(transaction_id: str,
                                product_id: str,
+                               background_tasks: BackgroundTasks,
                                status: ConfirmProduct,
                                user: User = Depends(oauth2.get_current_user),
                                db: Session = Depends(get_db)):
     product_service = ProductService(db=db)
+    notification_service = NotificationService(db=db)
 
     # authorization
     await product_service.has_product_permissions(user_id=user.id, product_id=product_id)
 
-    product_response = await product_service.update_confirm_order(current_user=user,
-                                                                  transaction_id=transaction_id,
-                                                                  status=status)
+    product_response, product, buyer = await product_service.update_confirm_order(current_user=user,
+                                                                                  transaction_id=transaction_id,
+                                                                                  status=status)
+    if status == ConfirmProduct.ACCEPT:
+        message_template = ConfirmOrder.OrderComplete_MSG
+    else:
+        message_template = ConfirmOrder.OrderReject_MSG
 
+    background_tasks.add_task(
+        send_notification, notification_service, entity=product,
+        notification_type=NotificationType.TRANSACTION_NOTIFICATION,
+        message_template=message_template, action='confirm_order', current_user=buyer
+    )
     return make_response_object(product_response)
 
 

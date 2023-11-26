@@ -50,5 +50,12 @@ class CRUDTransactionSF(CRUDBase[TransactionSF, TransactionSFCreate, Transaction
         list_transaction_sf = db_query.order_by(desc(TransactionSF.created_at)).offset(skip).limit(limit).all()
         return total_transaction_sf, list_transaction_sf
 
+    @staticmethod
+    def update_confirm_order(db: Session, current_transaction: TransactionSF, status: ConfirmStatusProduct):
+        current_transaction.status = status
+        db.commit()
+        db.refresh(current_transaction)
+        return current_transaction
+
 
 crud_transaction_sf = CRUDTransactionSF(TransactionSF)
