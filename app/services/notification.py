@@ -48,6 +48,8 @@ class NotificationService:
             user_id = owner.id
         elif message_template == PurchaseProduct.Purchase_MSG:
             user_id = owner
+        elif notification_type == NotificationType.TRANSACTION_NOTIFICATION:
+            user_id = current_user.id
         else:
             user_id = current_user.id
 
@@ -67,7 +69,8 @@ class NotificationService:
 
         await self.create_multi_notification(list_request_data=list_request_data, data_push=data_push)
 
-    def creted_data_push(self, message, notification_type, entity, action):
+    @staticmethod
+    def crete_data_push(message, notification_type, entity, action):
         data_push = {
             "message": message,
             "params": {
@@ -81,11 +84,41 @@ class NotificationService:
         }
         return data_push
 
-    def creted_data_push_comment(self, message, notification_type, entity, action):
+    @staticmethod
+    def crete_data_push_comment(message, notification_type, entity, action):
         data_push = {
             "message": message,
             "params": {
                 'marketplace_id': f'{entity.id}',
+                "notification_type": notification_type,
+                "action": action
+            },
+            "data": {
+            }
+        }
+        return data_push
+
+    @staticmethod
+    def crete_data_push_confirm_order(message, notification_type, entity, action):
+        data_push = {
+            "message": message,
+            "params": {
+                'product_id': f'{entity.id}',
+                'product_type': f'{entity.product_type}',
+                "notification_type": notification_type,
+                "action": action
+            },
+            "data": {
+            }
+        }
+        return data_push
+
+    @staticmethod
+    def crete_data_push_financial_transaction(message, notification_type, entity, action):
+        data_push = {
+            "message": message,
+            "params": {
+                'financial_transaction_id': f'{entity.id}',
                 "notification_type": notification_type,
                 "action": action
             },
@@ -100,19 +133,27 @@ class NotificationService:
                                        product_name=entity.name,
                                        action=action,
                                        user_name=current_user.username)
-            data_push = self.creted_data_push(message=message, notification_type=notification_type,
-                                              entity=entity, action=action)
+            data_push = self.crete_data_push(message=message, notification_type=notification_type,
+                                             entity=entity, action=action)
         elif action in ['commented']:
             message = message_template(username=current_user.username,
                                        action=action,
                                        entity_name=entity.product.name)
-            data_push = self.creted_data_push_comment(message=message, notification_type=notification_type,
-                                                      entity=entity, action=action)
+            data_push = self.crete_data_push_comment(message=message, notification_type=notification_type,
+                                                     entity=entity, action=action)
         elif action in ["purchase"]:
             message = message_template(username=current_user.username, action=action,
                                        product_name=entity.name, price=price)
-            data_push = self.creted_data_push(message=message, notification_type=notification_type,
-                                              entity=entity, action=action)
+            data_push = self.crete_data_push(message=message, notification_type=notification_type,
+                                             entity=entity, action=action)
+        elif action in ["confirm_order"]:
+            message = message_template(product_name=entity.name)
+            data_push = self.crete_data_push_confirm_order(message=message, notification_type=notification_type,
+                                                           entity=entity, action=action)
+        elif action in ["deposit", "withdraw"]:
+            message = message_template(username=current_user.username, action=action, price=price)
+            data_push = self.crete_data_push_financial_transaction(message=message, notification_type=notification_type,
+                                                                   entity=entity, action=action)
         else:
             data_push = []
         return data_push

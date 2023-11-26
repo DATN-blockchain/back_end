@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from app.model.base import Base
+from app.model.base import Base, ConfirmStatusProduct
 
 
 class TransactionFM(Base):
@@ -10,7 +10,7 @@ class TransactionFM(Base):
 
     id = Column(String(255), primary_key=True, nullable=False)
     tx_hash = Column(Text(), nullable=True)
-    status = Column(String(255), nullable=True)
+    status = Column(String(255), nullable=True, default=ConfirmStatusProduct.PENDING)
     price = Column(Integer, nullable=True)
     quantity = Column(Integer, nullable=True)
     receiver = Column(String(255), nullable=False)

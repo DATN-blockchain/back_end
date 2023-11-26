@@ -52,6 +52,7 @@ class FinancialTransactionService:
 
     async def create_financial_transaction(self, user_id: str, type_transaction: TypeTransaction,
                                            transaction_code: str, amount: int):
+        current_admin = crud_user.get_admin(db=self.db)
         financial_transaction_create = FinancialTransactionCreate(
             id=str(uuid.uuid4()),
             user_id=user_id,
@@ -63,7 +64,7 @@ class FinancialTransactionService:
         tx_hash = actor_provider.deposited(user_id=user_id, amount=amount)
         financial_transaction_create.tx_hash = tx_hash
         result = crud_financial_transaction.create(db=self.db, obj_in=financial_transaction_create)
-        return result
+        return result, current_admin
 
     async def update_financial_transaction(self, financial_transaction_id: str,
                                            financial_transaction_update: ConfirmUser):

@@ -26,6 +26,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return current_user
 
     @staticmethod
+    def get_admin(db: Session) -> Optional[User]:
+        current_user = db.query(User).filter(User.system_role == UserSystemRole.ADMIN).first()
+        return current_user
+
+    @staticmethod
     def list_users(db: Session, system_role: UserSystemRole = None, email: str = None, username: str = None,
                    skip: int = None, limit: int = None):
         db_query = db.query(User)
