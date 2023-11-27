@@ -14,6 +14,7 @@ class UserBase(BaseModel):
     email: Optional[str] = None
     avatar: Optional[str] = None
     full_name: Optional[str] = None
+    description: Optional[str] = None
     birthday: Optional[date] = None
     phone: Optional[str] = None
     address_wallet: Optional[str] = None
@@ -35,6 +36,7 @@ class UserUpdateParams(BaseModel):
     username: Optional[str] = None
     avatar: Optional[str] = None
     full_name: Optional[str] = None
+    description: Optional[str] = None
     birthday: Optional[date] = None
     phone: Optional[str] = None
 
@@ -54,6 +56,7 @@ class UserUpdate(BaseModel):
     username: Optional[str] = None
     avatar: Optional[str] = None
     full_name: Optional[str] = None
+    description: Optional[str] = None
     birthday: Optional[date] = None
     phone: Optional[str] = None
     is_activate: Optional[bool] = True
