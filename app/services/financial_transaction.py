@@ -80,10 +80,14 @@ class FinancialTransactionService:
         current_user = crud_user.get_user_by_id(db=self.db, user_id=current_financial_transaction.user_id)
         if current_financial_transaction.type_transaction == TypeTransaction.DEPOSIT:
             if financial_transaction_update == ConfirmUser.ACCEPT:
-                amount = current_financial_transaction.amount
+                amount = current_financial_transaction.amount / 1000
                 account_balance = current_user.account_balance + amount
                 status = FinancialStatus.DONE
                 update_account_balance = dict(account_balance=account_balance)
+
+                actor_provider = ActorProvider()
+                tx_hash = actor_provider.deposited(user_id=current_user.id, amount=amount)
+                update_account_balance["tx_hash"] = tx_hash
                 crud_user.update(db=self.db, db_obj=current_user, obj_in=update_account_balance)
             else:
                 status = FinancialStatus.FAIL
@@ -91,6 +95,7 @@ class FinancialTransactionService:
             crud_financial_transaction.update_status_financial_transaction(db=self.db,
                                                                            db_obj=current_financial_transaction,
                                                                            status=status)
+
         else:
             pass
         # breakpoint()
