@@ -35,6 +35,7 @@ class AppStatus(Enum):
                                                        'YOU_ONLY_HAVE_PERMISSION_TO_CHOOSE_THE_SEEDLING_COMPANY')
     ERROR_PERMISSION_TO_CHOOSE_FARMER = (status.HTTP_400_BAD_REQUEST, 400,
                                          'YOU_ONLY_HAVE_PERMISSION_TO_CHOOSE_FARMER')
+    ERROR_PROCESS_CLOSE_BLOCK = status.HTTP_400_BAD_REQUEST, 400, "The process of closing the block encountered an error"
 
     ERROR_UNAUTHORIZED = status.HTTP_401_UNAUTHORIZED, 401, 'UNAUTHORIZED'
     ERROR_INVALID_PRICE = status.HTTP_401_UNAUTHORIZED, 401, 'INVALID_PRICE'

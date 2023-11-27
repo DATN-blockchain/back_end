@@ -170,8 +170,7 @@ class UserService:
         if not current_user:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
         result = crud_user.update(db=self.db, db_obj=current_user, obj_in=update_user)
-        data_hash = dict(name=result.full_name, avatar=result.avatar, phone=result.phone,
-                         address_real=result.address_real)
+        data_hash = dict(name=result.full_name, phone=result.phone)
         hash_info = base64_encode(data_hash)
         actor_provider = ActorProvider()
         actor_provider.update_actor(result.id, hash_info=hash_info)
@@ -182,12 +181,7 @@ class UserService:
         uploaded_banner = upload(avatar.file)
         avatar_url = uploaded_banner['secure_url']
         user_update = dict(avatar=avatar_url)
-        result = crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
-        data_hash = dict(name=result.full_name, avatar=result.avatar, phone=result.phone,
-                         address_real=result.address_real)
-        hash_info = base64_encode(data_hash)
-        actor_provider = ActorProvider()
-        actor_provider.update_actor(result.id, hash_info=hash_info)
+        crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
         return avatar_url
 
     async def update_qr_code(self, user_id: str, qr_code: UploadFile):
@@ -206,8 +200,7 @@ class UserService:
             system_role = current_user.survey_data["user_role"]
             actor_provider = ActorProvider()
             role = USER_TYPE[system_role]
-            data_hash = dict(name=current_user.full_name, avatar=current_user.avatar, phone=current_user.phone,
-                             address_real=current_user.address_real)
+            data_hash = dict(name=current_user.full_name, phone=current_user.phone)
             hash_info = base64_encode(data_hash)
             tx_hash = actor_provider.create_actor(user_id=user_id,
                                                   address=current_user.address_wallet,
@@ -227,8 +220,7 @@ class UserService:
         if user_role in ["FARMER", 'SEEDLING_COMPANY', 'MANUFACTURER']:
             actor_provider = ActorProvider()
             map_role = {"SEEDLING_COMPANY": 0, "FARMER": 1, "MANUFACTURER": 2}
-            data_hash = dict(name=current_user.full_name, avatar=current_user.avatar, phone=current_user.phone,
-                             address_real=current_user.address_real)
+            data_hash = dict(name=current_user.full_name, phone=current_user.phone)
             hash_info = base64_encode(data_hash)
             tx_hash = actor_provider.create_actor(user_id=user_id, address=current_user.address_wallet,
                                                   role=map_role[user_role], hash_info=hash_info)

@@ -366,8 +366,7 @@ class ProductService:
         if current_user.system_role == UserSystemRole.SEEDLING_COMPANY:
             product_create = await self.create_product(current_user=current_user, product_create=product_create,
                                                        banner=banner)
-            data_hash = dict(name=product_create.name, description=product_create.description,
-                             banner=product_create.banner)
+            data_hash = dict(name=product_create.name, banner=product_create.banner)
             hash_info = base64_encode(data_hash)
             tx_hash = product_provider.create_product(product_id=product_create.id, product_type=1,
                                                       price=product_create.price, quantity=product_create.quantity,
@@ -392,8 +391,7 @@ class ProductService:
                                                  product_id=product_create.id,
                                                  transaction_sf_id=transaction_id)
             crud_product_farmer.create(db=self.db, obj_in=product_farmer)
-            data_hash = dict(name=product_create.name, description=product_create.description,
-                             banner=product_create.banner)
+            data_hash = dict(name=product_create.name, banner=product_create.banner)
             hash_info = base64_encode(data_hash)
             tx_hash = product_provider.create_product(product_id=product_create.id, product_type=2,
                                                       price=product_create.price, quantity=product_create.quantity,
@@ -423,8 +421,7 @@ class ProductService:
             update_status = dict(is_choose=ChooseProduct.DONE)
             crud_transaction_fm.update(db=self.db, db_obj=current_transaction, obj_in=update_status)
             crud_product_manufacturer.create(db=self.db, obj_in=product_manufacturer)
-            data_hash = dict(name=product_create.name, description=product_create.description,
-                             banner=product_create.banner)
+            data_hash = dict(name=product_create.name, banner=product_create.banner)
             hash_info = base64_encode(data_hash)
             tx_hash = product_provider.create_product(product_id=product_create.id, product_type=3,
                                                       price=product_create.price, quantity=product_create.quantity,
@@ -459,8 +456,7 @@ class ProductService:
 
         result = crud_product.update(db=self.db, db_obj=current_product, obj_in=product_update)
         product_provider = ProductProvider()
-        data_hash = dict(name=result.name, description=result.description,
-                         banner=result.banner)
+        data_hash = dict(name=result.name, banner=result.banner)
         hash_info = base64_encode(data_hash)
         product_provider.update_product(product_id=result.id, price=result.price, quantity=result.quantity,
                                         hash_info=hash_info)
