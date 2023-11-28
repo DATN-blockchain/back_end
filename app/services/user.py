@@ -16,14 +16,15 @@ from app.constant.app_status import AppStatus
 from app.utils import hash_lib
 from app.core.exceptions import error_exception_handler
 from app.core.settings import settings
-from ..crud import crud_product, crud_transaction_sf, crud_transaction_fm
+from ..crud import crud_product, crud_transaction_sf, crud_transaction_fm, crud_financial_transaction
 from ..blockchain_web3.actor_provider import ActorProvider
 from ..model import User
-from ..model.base import ConfirmStatusUser, ConfirmUser, UserSystemRole, BankCode, LanguageEnum
+from ..model.base import ConfirmStatusUser, ConfirmUser, UserSystemRole, BankCode, LanguageEnum, TypeTransaction, \
+    FinancialStatus
 from cloudinary.uploader import upload
 
 from ..schemas import UserCreate, UserCreateParams, UserUpdateParams, LoginUser, UserResponse, ChangePassword, UserBase, \
-    SurveyCreateParam
+    SurveyCreateParam, FinancialTransactionCreate
 from ..blockchain_web3.hash_code import hash_code_private_key
 from ..crud.user import crud_user
 from app.constant.mapping_enum import USER_TYPE
@@ -293,11 +294,25 @@ class UserService:
 
     async def payment_return_in_user(self, request):
         result = payment_return(request=request)
+        amount = result["amount"]
         current_user = crud_user.get(db=self.db, entry_id=result.get("order_desc"))
-        actor_provider = ActorProvider().deposited(user_id=current_user.id, amount=int(int(result.get("amount"))/100))
-        data_update = crud_user.update(db=self.db, db_obj=current_user,
-                                       obj_in=dict(account_balance=current_user.account_balance + result.get("amount")))
-        return data_update
+        tx_hash = ActorProvider().deposited(user_id=current_user.id,
+                                            amount=int(int(amount) / 1000))
+        crud_user.update(db=self.db, db_obj=current_user,
+                         obj_in=dict(
+                             account_balance=current_user.account_balance + int(
+                                 int(amount) / 1000)))
+        financial_transaction_create = FinancialTransactionCreate(
+            id=str(uuid.uuid4()),
+            user_id=result["order_desc"],
+            status=FinancialStatus.DONE,
+            type_transaction=TypeTransaction.DEPOSIT,
+            amount=result["amount"],
+            tx_hash=tx_hash)
+        result_transaction = crud_financial_transaction.create(db=self.db, obj_in=financial_transaction_create)
+        current_admin = crud_user.get_admin(db=self.db)
+        current_user = crud_user.get_user_by_id(db=self.db, user_id=result["order_desc"])
+        return result_transaction, current_user, current_admin, amount
 
     async def payment(self, request, amount: int, user_id: str, bank_code: BankCode,
                       language: LanguageEnum = LanguageEnum.VIETNAMESE,

@@ -21,7 +21,6 @@ router = APIRouter()
 async def list_financial_transaction(
         status: FinancialStatus = None,
         type_transaction: TypeTransaction = None,
-        transaction_code: str = None,
         user: User = Depends(oauth2.admin),
         db: Session = Depends(get_db),
         skip=0,
@@ -29,10 +28,26 @@ async def list_financial_transaction(
     financial_transaction_service = FinancialTransactionService(db=db)
 
     financial_transaction_response = await financial_transaction_service.list_financial_transaction(
-        transaction_code=transaction_code,
         status=status,
         type_transaction=type_transaction,
         skip=skip, limit=limit)
+    return make_response_object(financial_transaction_response)
+
+
+@router.get("/financial_transaction/me")
+async def list_financial_transaction_me(
+        status: FinancialStatus = None,
+        type_transaction: TypeTransaction = None,
+        user: User = Depends(oauth2.get_current_user),
+        db: Session = Depends(get_db),
+        skip=0,
+        limit=10):
+    financial_transaction_service = FinancialTransactionService(db=db)
+
+    financial_transaction_response = await financial_transaction_service.list_financial_transaction(
+        status=status,
+        type_transaction=type_transaction,
+        skip=skip, limit=limit, user_id=user.id)
     return make_response_object(financial_transaction_response)
 
 

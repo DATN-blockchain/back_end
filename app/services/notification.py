@@ -49,7 +49,7 @@ class NotificationService:
         elif message_template == PurchaseProduct.Purchase_MSG:
             user_id = owner
         elif notification_type == NotificationType.TRANSACTION_NOTIFICATION:
-            user_id = current_user.id
+            user_id = owner.id
         else:
             user_id = current_user.id
 
