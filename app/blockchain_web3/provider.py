@@ -4,6 +4,9 @@ from time import sleep
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 from eth_account import Account
+
+from app.constant.app_status import AppStatus
+from app.core.exceptions import error_exception_handler
 from app.core.settings import settings
 
 
@@ -51,15 +54,20 @@ class Web3Provider(object):
         signed_transaction = self.w3.eth.account.sign_transaction(transaction, settings.PRIVATE_KEY_SYSTEM)
         tx_hash = self.w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
 
+        receipt = self.wait_for_transaction_receipt(tx_hash)
+        print(receipt)
+        if receipt['status'] == 0:
+            raise error_exception_handler(error=Exception, app_status=AppStatus.ERROR_PROCESS_CLOSE_BLOCK)
+
+        print("Transaction confirmed in block", receipt['blockNumber'])
+        return tx_hash.hex()
+
+    def wait_for_transaction_receipt(self, tx_hash):
         while True:
             try:
                 receipt = self.w3.eth.get_transaction_receipt(tx_hash)
                 if receipt is not None:
-                    print("Transaction confirmed in block", receipt['blockNumber'])
-                    break
+                    return receipt
             except Exception as e:
                 print("Error checking transaction receipt:", e)
-
             sleep(0.1)
-
-        return tx_hash.hex()

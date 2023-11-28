@@ -29,7 +29,12 @@ aiofiles = "^23.1.0"
 pillow = "^9.5.0"
 cloudinary = "^1.30.0"
 qrcode = "^7.4"
-
+asgiref="3.3.4"
+cffi="^1.14.5"
+milksnake="0.1.5"
+pycparser="2.20"
+sqlparse="0.4.1"
+urlquote="1.1.4"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 

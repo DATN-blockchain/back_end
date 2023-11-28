@@ -1,3 +1,4 @@
+import datetime
 import uuid
 import smtplib
 import logging
@@ -18,7 +19,7 @@ from app.core.settings import settings
 from ..crud import crud_product, crud_transaction_sf, crud_transaction_fm
 from ..blockchain_web3.actor_provider import ActorProvider
 from ..model import User
-from ..model.base import ConfirmStatusUser, ConfirmUser, UserSystemRole
+from ..model.base import ConfirmStatusUser, ConfirmUser, UserSystemRole, BankCode, LanguageEnum
 from cloudinary.uploader import upload
 
 from ..schemas import UserCreate, UserCreateParams, UserUpdateParams, LoginUser, UserResponse, ChangePassword, UserBase, \
@@ -27,6 +28,7 @@ from ..blockchain_web3.hash_code import hash_code_private_key
 from ..crud.user import crud_user
 from app.constant.mapping_enum import USER_TYPE
 from ..utils.hash_lib import base64_encode
+from ..utils.payment import payment, payment_return
 
 logger = logging.getLogger(__name__)
 
@@ -170,8 +172,7 @@ class UserService:
         if not current_user:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
         result = crud_user.update(db=self.db, db_obj=current_user, obj_in=update_user)
-        data_hash = dict(name=result.full_name, avatar=result.avatar, phone=result.phone,
-                         address_real=result.address_real)
+        data_hash = dict(name=result.full_name, phone=result.phone)
         hash_info = base64_encode(data_hash)
         actor_provider = ActorProvider()
         actor_provider.update_actor(result.id, hash_info=hash_info)
@@ -182,12 +183,7 @@ class UserService:
         uploaded_banner = upload(avatar.file)
         avatar_url = uploaded_banner['secure_url']
         user_update = dict(avatar=avatar_url)
-        result = crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
-        data_hash = dict(name=result.full_name, avatar=result.avatar, phone=result.phone,
-                         address_real=result.address_real)
-        hash_info = base64_encode(data_hash)
-        actor_provider = ActorProvider()
-        actor_provider.update_actor(result.id, hash_info=hash_info)
+        crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
         return avatar_url
 
     async def update_qr_code(self, user_id: str, qr_code: UploadFile):
@@ -206,8 +202,7 @@ class UserService:
             system_role = current_user.survey_data["user_role"]
             actor_provider = ActorProvider()
             role = USER_TYPE[system_role]
-            data_hash = dict(name=current_user.full_name, avatar=current_user.avatar, phone=current_user.phone,
-                             address_real=current_user.address_real)
+            data_hash = dict(name=current_user.full_name, phone=current_user.phone)
             hash_info = base64_encode(data_hash)
             tx_hash = actor_provider.create_actor(user_id=user_id,
                                                   address=current_user.address_wallet,
@@ -227,8 +222,7 @@ class UserService:
         if user_role in ["FARMER", 'SEEDLING_COMPANY', 'MANUFACTURER']:
             actor_provider = ActorProvider()
             map_role = {"SEEDLING_COMPANY": 0, "FARMER": 1, "MANUFACTURER": 2}
-            data_hash = dict(name=current_user.full_name, avatar=current_user.avatar, phone=current_user.phone,
-                             address_real=current_user.address_real)
+            data_hash = dict(name=current_user.full_name, phone=current_user.phone)
             hash_info = base64_encode(data_hash)
             tx_hash = actor_provider.create_actor(user_id=user_id, address=current_user.address_wallet,
                                                   role=map_role[user_role], hash_info=hash_info)
@@ -296,3 +290,23 @@ class UserService:
         result = crud_user.change_password(db=self.db, current_user=current_user, new_password=hashed_password)
         logger.info("Service_user: change_password called successfully")
         return UserResponse.from_orm(result)
+
+    async def payment_return_in_user(self, request):
+        result = payment_return(request=request)
+        current_user = crud_user.get(db=self.db, entry_id=result.get("order_desc"))
+        actor_provider = ActorProvider().deposited(user_id=current_user.id, amount=int(int(result.get("amount"))/100))
+        data_update = crud_user.update(db=self.db, db_obj=current_user,
+                                       obj_in=dict(account_balance=current_user.account_balance + result.get("amount")))
+        return data_update
+
+    async def payment(self, request, amount: int, user_id: str, bank_code: BankCode,
+                      language: LanguageEnum = LanguageEnum.VIETNAMESE,
+                      order_type: str = "billpayment"):
+        current_user = crud_user.get(db=self.db, entry_id=user_id)
+        if not current_user:
+            raise error_exception_handler(error=Exception, app_status=AppStatus.ERROR_USER_NOT_FOUND)
+        order_id = int(datetime.datetime.now().timestamp())
+
+        return payment(request=request, order_id=order_id, order_type=order_type, amount=amount,
+                       language=language.value,
+                       order_desc=user_id, bank_code=bank_code.value)
