@@ -33,17 +33,16 @@ class FinancialTransactionService:
 
         return current_financial_transaction
 
-    async def list_financial_transaction(self, transaction_code: str,
-                                         status: FinancialStatus,
+    async def list_financial_transaction(self, status: FinancialStatus,
                                          type_transaction: TypeTransaction,
-                                         skip: int, limit: int):
+                                         skip: int, limit: int, user_id: str = None, ):
         total_financial_transaction, list_financial_transaction = crud_financial_transaction.list_financial_transaction(
             db=self.db,
-            transaction_code=transaction_code,
             status=status,
             type_transaction=type_transaction,
             skip=skip,
-            limit=limit)
+            limit=limit,
+            user_id=user_id)
         list_financial_transaction = [FinancialTransactionResponse.from_orm(item) for item in
                                       list_financial_transaction]
         result = dict(total_financial_transaction=total_financial_transaction,

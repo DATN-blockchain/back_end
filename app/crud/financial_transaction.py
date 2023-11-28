@@ -19,17 +19,11 @@ class CRUDFinancialTransaction(CRUDBase[FinancialTransaction, FinancialTransacti
         return current_financial_transaction
 
     @staticmethod
-    def get_financial_transaction_by_transaction_code(db: Session, transaction_code: str):
-        result = db.query(FinancialTransaction).filter(
-            FinancialTransaction.transaction_code == transaction_code).first()
-        return result
-
-    @staticmethod
-    def list_financial_transaction(db: Session, skip: int, limit: int, transaction_code: str = None,
-                                   status: str = None, type_transaction: str = None):
+    def list_financial_transaction(db: Session, skip: int, limit: int,
+                                   status: str = None, type_transaction: str = None, user_id: str = None):
         db_query = db.query(FinancialTransaction)
-        if transaction_code is not None:
-            db_query = db_query.filter(FinancialTransaction.transaction_code == transaction_code)
+        if user_id is not None:
+            db_query = db_query.filter(FinancialTransaction.user_id == user_id)
         if status is not None:
             db_query = db_query.filter(FinancialTransaction.status == status)
         if type_transaction is not None:

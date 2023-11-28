@@ -34,7 +34,7 @@ class ConfirmOrder(Enum):
 
 class FinancialTransactionTemplate(Enum):
     Deposit_MSG = (lambda username, action, price:
-                   f"{username} request to {action} funds into the system, in the amount of {price}")
+                   f"{username} successfully {action}ed funds into the system, in the amount of {price}")
 
     Withdraw_MSG = (lambda username, action, price:
                     f"{username} requests to {action} money from the system, in the amount of {price}")

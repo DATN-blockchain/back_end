@@ -11,7 +11,6 @@ class FinancialTransaction(Base):
     amount = Column(Integer, nullable=False)
     status = Column(String(255), nullable=False, default=FinancialStatus.PENDING)
     tx_hash = Column(Text(), nullable=True)
-    transaction_code = Column(String(255), nullable=False)
     type_transaction = Column(String(255), nullable=False)
     user_id = Column(String(255), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
