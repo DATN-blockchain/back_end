@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from app.api.endpoint import (user, product, marketplace, transaction_sf,
                               transaction_fm, comment, reply_comment,
                               notification, activity, financial_transaction,
-                              leaderboard, cart, detail_description)
+                              leaderboard, cart, detail_description, payment)
 
 route = APIRouter()
 
@@ -20,3 +20,4 @@ route.include_router(financial_transaction.router, tags=["financial_transactions
 route.include_router(notification.router, tags=["notifications"])
 route.include_router(activity.router, tags=["activities"])
 route.include_router(leaderboard.router, tags=["leaderboards"])
+route.include_router(payment.router, tags=["payment"])

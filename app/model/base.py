@@ -106,3 +106,33 @@ class AmountMoney(str, Enum):
     _1000000 = '1000000'
     _5000000 = '5000000'
     _10000000 = '10000000'
+
+
+class LanguageEnum(str, Enum):
+    VIETNAMESE = 'vn'
+    ENGLISH = 'en'
+
+
+class BankCode(str, Enum):
+    NCB = "NCB"
+    AGRIBANK = "AGRIBANK"
+    SCB = "SCB"
+    SACOMBANK = "SACOMBANK"
+    EXIMBANK = "EXIMBANK"
+    MSBANK = "MSBANK"
+    NAMABANK = "NAMABANK"
+    VNMART = "VNMART"
+    VIETINBANK = "VIETINBANK"
+    VIETCOMBANK = "VIETCOMBANK"
+    HDBANK = "HDBANK"
+    DONGABANK = 'DONGABANK'
+    TPBANK = 'TPBANK'
+    OJB = 'OJB'
+    BIDV = 'BIDV'
+    TECHCOMBANK = 'TECHCOMBANK'
+    VPBANK = 'VPBANK'
+    MBBANK = 'MBBANK'
+    ACB = 'ACB'
+    OCB = 'OCB'
+    IVB = 'IVB'
+    VISA = 'VISA'

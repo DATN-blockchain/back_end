@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     CHAIN_ID: Optional[str] = 421613
     HASH_KEY: Optional[str] = None
 
+    # VNPAY CONFIG
+    VNPAY_RETURN_URL: Optional[str] = None  # get from config
+    VNPAY_PAYMENT_URL: Optional[str] = None  # get from config
+    VNPAY_API_URL: Optional[str] = None
+    VNPAY_TMN_CODE: Optional[str] = None  # Website ID in VNPAY System, get from config
+    VNPAY_HASH_SECRET_KEY: Optional[str] = None  # Secret key for create checksum,get from config
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}/{self.POSTGRES_DB}"
