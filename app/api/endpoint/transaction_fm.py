@@ -3,7 +3,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.api.depend import oauth2
-from app.model.base import ProductStatus, ProductType
+from app.model.base import ProductStatus, ProductType, ConfirmStatusProduct
 from app.utils.response import make_response_object
 
 from app.schemas.transaction_fm import TransactionFMUpdate
@@ -27,6 +27,7 @@ async def get_transaction_fm_by_product_id(
 @router.get("/transaction_fm/list")
 async def list_transaction_fm(
         product_id: str = None,
+        status: ConfirmStatusProduct = None,
         user: User = Depends(oauth2.get_current_user),
         db: Session = Depends(get_db),
         skip=0,
@@ -34,6 +35,7 @@ async def list_transaction_fm(
     transaction_fm_service = TransactionFMService(db=db)
 
     transaction_fm_response = await transaction_fm_service.list_transaction_fm(product_id=product_id,
+                                                                               status=status,
                                                                                user_id=user.id,
                                                                                skip=skip, limit=limit)
     return make_response_object(transaction_fm_response)

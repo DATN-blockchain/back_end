@@ -48,10 +48,13 @@ class CRUDTransactionSF(CRUDBase[TransactionSF, TransactionSFCreate, Transaction
         return total_transaction, list_transaction
 
     @staticmethod
-    def list_transaction_sf(db: Session, skip: int, limit: int, user_id: str, product_id: str = None):
+    def list_transaction_sf(db: Session, skip: int, limit: int, user_id: str, product_id: str = None,
+                            status: ConfirmStatusProduct = None):
         db_query = db.query(TransactionSF).filter(TransactionSF.user_id == user_id)
         if product_id is not None:
             db_query = db_query.filter(TransactionSF.product_id == product_id)
+        if status is not None:
+            db_query = db_query.filter(TransactionSF.status == status)
 
         total_transaction_sf = db_query.count()
         list_transaction_sf = db_query.order_by(desc(TransactionSF.created_at)).offset(skip).limit(limit).all()
