@@ -15,7 +15,8 @@ from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
     ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse, LeaderboardUpdate, \
-    LeaderboardCreate, ClassifyGoodsCreate, TransactionSFResponse
+    LeaderboardCreate, ClassifyGoodsCreate, TransactionSFResponse, TransactionFMHistoryResponse, \
+    TransactionSFHistoryResponse
 from ..blockchain_web3.product_provider import ProductProvider
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
     crud_product_manufacturer, crud_grow_up, crud_leaderboard, crud_cart, crud_classify_goods
@@ -56,6 +57,23 @@ class ProductService:
         result = dict(trace_origin=trace_origin, grow_up=grow_up)
 
         return result
+
+    async def get_product_history_sale(self, current_user: User, skip: int, limit: int):
+        if current_user.system_role == UserSystemRole.SEEDLING_COMPANY:
+            total_transaction, list_transaction = crud_transaction_sf.get_history_sale(db=self.db,
+                                                                                       user_id=current_user.id,
+                                                                                       skip=skip, limit=limit)
+            result = [TransactionSFHistoryResponse.from_orm(item) for item in list_transaction]
+        elif current_user.system_role == UserSystemRole.FARMER:
+            total_transaction, list_transaction = crud_transaction_fm.get_history_sale(db=self.db,
+                                                                                       user_id=current_user.id,
+                                                                                       skip=skip, limit=limit)
+            result = [TransactionFMHistoryResponse.from_orm(item) for item in list_transaction]
+        else:
+            total_transaction = None
+            result = None
+        result_history = dict(total_transaction=total_transaction, list_transaction=result)
+        return result_history
 
     async def get_product_order_by_user(self, current_user: User, skip: int, limit: int,
                                         status: ConfirmStatusProduct = None):

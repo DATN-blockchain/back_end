@@ -31,6 +31,13 @@ class CRUDTransactionSF(CRUDBase[TransactionSF, TransactionSFCreate, Transaction
         return current_transaction_sf
 
     @staticmethod
+    def get_history_sale(db: Session, user_id: str, skip: int, limit: int):
+        db_query = db.query(TransactionSF).filter(TransactionSF.order_by == user_id)
+        total_transaction = db_query.count()
+        list_transaction = db_query.order_by(desc(TransactionSF.created_at)).offset(skip).limit(limit).all()
+        return total_transaction, list_transaction
+
+    @staticmethod
     def get_product_order_by_user(db: Session, user_id: str, skip: int, limit: int,
                                   status: ConfirmStatusProduct = None):
         db_query = db.query(TransactionSF).filter(TransactionSF.order_by == user_id)

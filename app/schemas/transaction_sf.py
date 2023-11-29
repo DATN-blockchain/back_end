@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from app.schemas import UserInfo
+from app.schemas import UserInfo, ProductHistoryResponse
 from app.schemas.product import ProductResponse
 
 
@@ -49,4 +49,15 @@ class TransactionSFResponse(BaseModel):
         arbitrary_types_allowed = True
 
     product: Optional[ProductResponse] = None
+    user: Optional[UserInfo] = None
+
+
+class TransactionSFHistoryResponse(BaseModel):
+    id: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+    product: Optional[ProductHistoryResponse] = None
     user: Optional[UserInfo] = None

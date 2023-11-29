@@ -36,6 +36,13 @@ class CRUDTransactionFM(CRUDBase[TransactionFM, TransactionFMCreate, Transaction
         return total_transaction, list_transaction
 
     @staticmethod
+    def get_history_sale(db: Session, user_id: str, skip: int, limit: int):
+        db_query = db.query(TransactionFM).filter(TransactionFM.order_by == user_id)
+        total_transaction = db_query.count()
+        list_transaction = db_query.order_by(desc(TransactionFM.created_at)).offset(skip).limit(limit).all()
+        return total_transaction, list_transaction
+
+    @staticmethod
     def list_transaction_fm(db: Session, skip: int, limit: int, user_id: str, product_id: str = None):
         db_query = db.query(TransactionFM).filter(TransactionFM.user_id == user_id)
         if product_id:
