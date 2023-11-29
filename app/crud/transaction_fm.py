@@ -43,10 +43,13 @@ class CRUDTransactionFM(CRUDBase[TransactionFM, TransactionFMCreate, Transaction
         return total_transaction, list_transaction
 
     @staticmethod
-    def list_transaction_fm(db: Session, skip: int, limit: int, user_id: str, product_id: str = None):
+    def list_transaction_fm(db: Session, skip: int, limit: int, user_id: str, product_id: str = None,
+                            status: ConfirmStatusProduct = None):
         db_query = db.query(TransactionFM).filter(TransactionFM.user_id == user_id)
         if product_id:
             db_query = db_query.filter(TransactionFM.product_id == product_id)
+        if status is not None:
+            db_query = db_query.filter(TransactionFM.status == status)
 
         total_transaction_fm = db_query.count()
         list_transaction_fm = db_query.order_by(desc(TransactionFM.created_at)).offset(skip).limit(limit).all()

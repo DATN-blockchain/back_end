@@ -5,7 +5,7 @@ from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
 
 from ..model import Product
-from ..model.base import ProductStatus
+from ..model.base import ProductStatus, ConfirmStatusProduct
 from ..schemas import ProductType, TransactionFMCreate, TransactionFMUpdate, TransactionFMResponse
 from ..crud import crud_transaction_fm, crud_product
 
@@ -31,10 +31,12 @@ class TransactionFMService:
         list_transaction_fm = [TransactionFMResponse.from_orm(item) for item in list_transaction_fm]
         return list_transaction_fm
 
-    async def list_transaction_fm(self, product_id: str, user_id, skip: int, limit: int):
+    async def list_transaction_fm(self, product_id: str, status: ConfirmStatusProduct,
+                                  user_id: str, skip: int, limit: int):
         total_transaction_fm, list_transaction_fm = crud_transaction_fm.list_transaction_fm(db=self.db,
                                                                                             user_id=user_id,
                                                                                             product_id=product_id,
+                                                                                            status=status,
                                                                                             skip=skip,
                                                                                             limit=limit)
         list_transaction_fm = [TransactionFMResponse.from_orm(item) for item in list_transaction_fm]
