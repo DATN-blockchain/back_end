@@ -53,9 +53,7 @@ class TransactionFMResponse(BaseModel):
     user: Optional[UserInfo] = None
 
 
-class TransactionFMHistoryResponse(BaseModel):
-    id: Optional[str] = None
-
+class TransactionFMHistoryResponse(TransactionFMBase):
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True

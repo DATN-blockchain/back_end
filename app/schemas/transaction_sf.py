@@ -52,8 +52,7 @@ class TransactionSFResponse(BaseModel):
     user: Optional[UserInfo] = None
 
 
-class TransactionSFHistoryResponse(BaseModel):
-    id: Optional[str] = None
+class TransactionSFHistoryResponse(TransactionSFBase):
 
     class Config:
         orm_mode = True
