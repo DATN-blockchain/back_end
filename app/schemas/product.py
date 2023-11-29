@@ -69,6 +69,12 @@ class ProductResponse(ProductBase):
     user: Optional[UserInfo] = None
 
 
+class ProductHistoryResponse(ProductBase):
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+
 class ProductResponseDetail(ProductBase):
     created_at: Optional[datetime] = None
 

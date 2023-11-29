@@ -101,6 +101,16 @@ async def get_product_order(skip=0, limit=10,
     return make_response_object(product_response)
 
 
+@router.get("/product/order_product/history_sale")
+async def get_product_history_sale(skip=0, limit=10,
+                                   user: User = Depends(oauth2.get_current_user),
+                                   db: Session = Depends(get_db)):
+    product_service = ProductService(db=db)
+
+    product_response = await product_service.get_product_history_sale(current_user=user, skip=skip, limit=limit)
+    return make_response_object(product_response)
+
+
 @router.get("/product/{product_id}/manufacturer_history")
 async def get_product_manufacturer_history(product_id: str,
                                            user: User = Depends(oauth2.get_current_user),
