@@ -29,7 +29,7 @@ class SupplyChainProvider(Web3Provider):
         return self.sign_and_send_transaction(function)
 
     def buy_product_in_market(self, product_id, id_trans, buyer, quantity, type_product):
-        function = self.contract.functions.buy_item_on_marketplace(product_id, buyer, id_trans, quantity, type_product)
+        function = self.contract.functions.buy_item_on_marketplace(product_id, id_trans, buyer, quantity, type_product)
         return self.sign_and_send_transaction(function)
 
     def update_transaction_status(self, item_id, status):
@@ -42,8 +42,9 @@ class SupplyChainProvider(Web3Provider):
 
 if __name__ == "__main__":
     provider = SupplyChainProvider()
-    product = provider.get_info_product(product_id="3b9fc13a-4bd6-4ed8-a761-67e404d53dcd")
+    product = provider.get_info_product(product_id="1dbc3a9c-e7b8-4b7c-9b02-56861e28f0d7")
     print(product)
-    tx_hash = provider.listing_product_to_marketplace(uuid.uuid4().__str__(), "3b9fc13a-4bd6-4ed8-a761-67e404d53dcd",
-                                                      "a98c4ce8-2fee-4ad4-9652-8848f3afe50d")
+    tx_hash = provider.buy_product_in_market(product_id="1dbc3a9c-e7b8-4b7c-9b02-56861e28f0d7",
+                                             id_trans=uuid.uuid4().__str__(),
+                                             buyer="a98c4ce8-2fee-4ad4-9652-8848f3afe50d", quantity=10, type_product="")
     print(tx_hash)

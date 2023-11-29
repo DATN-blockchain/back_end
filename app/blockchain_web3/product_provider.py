@@ -51,8 +51,22 @@ class ProductProvider(Web3Provider):
         tx_hash = self.sign_and_send_transaction(function)
         return tx_hash
 
+    def burn(self, product_id: str, quantity: int, type_product: str):
+        function = self.contract.functions.burn(product_id, quantity, type_product)
+        tx_hash = self.sign_and_send_transaction(function)
+        return tx_hash
+
     def get_price_detail_of_product(self, product_id, type_product: str):
         return self.contract.functions.get_price_detail_of_product(product_id, type_product).call()
 
     def get_list_type_product(self, product_id: str):
         return self.contract.functions.get_list_type_product(product_id).call()
+
+    def get_price_product_by_id(self, product_id, product_type):
+        return self.contract.functions.get_price_product_by_id(product_id, product_type).call()
+
+
+if __name__ == "__main__":
+    # ProductProvider().burn("1dbc3a9c-e7b8-4b7c-9b02-56861e28f0d7", 10, "")
+    product = ProductProvider().get_price_product_by_id("5cd680c0-58f0-4948-9825-00f6df7c058b", "")
+    print(product)

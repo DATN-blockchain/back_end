@@ -289,6 +289,30 @@
       "inputs": [
         {
           "internalType": "string",
+          "name": "product_id",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "product_type",
+          "type": "string"
+        }
+      ],
+      "name": "get_price_product_by_id",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
           "name": "id",
           "type": "string"
         }

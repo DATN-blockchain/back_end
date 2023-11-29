@@ -39,12 +39,16 @@ class ActorProvider(Web3Provider):
         return self.sign_and_send_transaction(function)
 
     def withdraw(self, user_id: str, amount: int):
-        function = self.contract.functions.deposited(user_id, amount)
+        function = self.contract.functions.withdraw_balance(user_id, amount)
         return self.sign_and_send_transaction(function)
 
 
 if __name__ == "__main__":
-    actor_provider = ActorProvider()
-    tx_hash = actor_provider.create_actor(user_id=uuid.uuid4().__str__(),
-                                          address='0xe75DB3f37A05858507D469f896A4A982F7E1C302', role=0,
-                                          hash_info="eyduYW1lJzogTm9uZSwgJ2F2YXRhcic6IE5vbmUsICdwaG9uZSc6IE5vbmUsICdhZGRyZXNzX3JlYWwnOiBOb25lfQ")
+    # actor_provider = ActorProvider().get_actor_by_id("e1bd3c7b-07b6-407b-afa3-041edf3bfe91")
+    # print(actor_provider)
+    # ActorProvider().deposited(user_id="d3bb161f-d3ec-4141-8302-6800f8eb3d70", amount=100000)
+    actor_provider = ActorProvider().get_actor_by_id("d3bb161f-d3ec-4141-8302-6800f8eb3d70")
+    print(actor_provider)
+    # tx_hash = actor_provider.create_actor(user_id=uuid.uuid4().__str__(),
+    #                                       address='0xe75DB3f37A05858507D469f896A4A982F7E1C302', role=0,
+    #                                       hash_info="eyduYW1lJzogTm9uZSwgJ2F2YXRhcic6IE5vbmUsICdwaG9uZSc6IE5vbmUsICdhZGRyZXNzX3JlYWwnOiBOb25lfQ")
