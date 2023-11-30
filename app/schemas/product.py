@@ -16,7 +16,6 @@ class ProductBase(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[int] = None
-    last_price: Optional[int] = None
     quantity: Optional[int] = None
     number_of_sales: Optional[int] = None
     is_sale: Optional[bool] = None
@@ -30,7 +29,6 @@ class ProductCreateParams(BaseModel):
     name: str
     description: Optional[str] = None
     price: Optional[int] = None
-    last_price: Optional[int] = None
     quantity: Optional[str] = None
 
 
@@ -43,7 +41,6 @@ class ProductUpdate(BaseModel):
     description: Optional[str] = None
     banner: Optional[str] = None
     price: Optional[int] = 0
-    last_price: Optional[int] = 0
     quantity: Optional[int] = 0
     tx_hash: Optional[str] = None
     data: Optional[dict] = None
