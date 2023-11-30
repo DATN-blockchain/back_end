@@ -236,7 +236,7 @@ class ProductService:
     def permission_data(data: dict, quantity: int):
         quantity_value = 0
         for k, v in data.items():
-            quantity_value += v["quantity"]
+            quantity_value += int(v["quantity"])
         if quantity_value != quantity:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_INVALID_QUANTITY)
         return quantity
@@ -463,13 +463,23 @@ class ProductService:
         if current_product.product_type == ProductType.FARMER and (
                 product_update.quantity is not None or product_update.price is not None):
             classify_goods = crud_classify_goods.get_classify_goods_by_product_id(db=self.db, product_id=product_id)
-            if classify_goods and not product_update.data:
-                raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_DATA)
             if product_update.quantity is not None:
                 self.permission_data(data=product_update.data, quantity=product_update.quantity)
             if product_update.price is not None and not product_update.quantity:
                 self.permission_data(data=product_update.data, quantity=current_product.quantity)
-            crud_classify_goods.update_data(db=self.db, current_classify_goods=classify_goods, data=product_update.data)
+            if classify_goods:
+                if not product_update.data:
+                    raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_DATA)
+                crud_classify_goods.update_data(db=self.db,
+                                                current_classify_goods=classify_goods,
+                                                data=product_update.data)
+            else:
+                classify_goods = ClassifyGoodsCreate(
+                    id=str(uuid.uuid4()),
+                    product_id=product_id,
+                    data=product_update.data
+                )
+                crud_classify_goods.create(db=self.db, obj_in=classify_goods)
 
         result = crud_product.update(db=self.db, db_obj=current_product, obj_in=product_update)
         product_provider = ProductProvider()
