@@ -167,7 +167,6 @@ async def get_qr_code(product_id: str, db: Session = Depends(get_db)):
 async def create_product(name: str,
                          background_tasks: BackgroundTasks,
                          price: int = None,
-                         last_price: int = None,
                          quantity: int = None,
                          description: str = None,
                          transaction_id: str = None,
@@ -178,8 +177,7 @@ async def create_product(name: str,
     notification_service = NotificationService(db=db)
     activity_service = ActivityService(db=db)
 
-    product_create = ProductCreateParams(name=name, description=description, price=price,
-                                         last_price=last_price, quantity=quantity)
+    product_create = ProductCreateParams(name=name, description=description, price=price, quantity=quantity)
 
     product_response = await product_service.create_product_entity(user_id=user.id,
                                                                    transaction_id=transaction_id,

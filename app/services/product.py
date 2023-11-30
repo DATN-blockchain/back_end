@@ -225,7 +225,6 @@ class ProductService:
             banner=banner_url,
             product_type=current_user.system_role,
             price=product_create.price,
-            last_price=product_create.last_price,
             quantity=product_create.quantity,
             product_status=ProductStatus.PRIVATE,
             created_by=current_user.id)
