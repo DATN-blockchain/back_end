@@ -24,19 +24,33 @@ class MessengerService:
 
         return current_messenger
 
-    async def list_messenger(self, sender_id: str, receiver_id: str):
+    async def list_messenger_detail(self, sender_id: str, receiver_id: str):
         current_receiver = crud_user.get_user_by_id(db=self.db, user_id=receiver_id)
         if not current_receiver:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
-        list_messenger, is_read = crud_messenger.list_messenger(db=self.db,
-                                                                sender_id=sender_id,
-                                                                receiver_id=receiver_id)
+        list_messenger = crud_messenger.list_messenger_detail(db=self.db,
+                                                              sender_id=sender_id,
+                                                              receiver_id=receiver_id)
         list_messenger = [MessengerResponse.from_orm(item) for item in list_messenger]
-        if is_read:
-            is_read = 0
-        else:
-            is_read = 1
-        result = dict(is_read=is_read, list_messenger=list_messenger)
+
+        result = dict(list_messenger=list_messenger)
+        return result
+
+    async def list_messenger_contacts(self, user_id: str):
+        list_user_id = crud_messenger.list_messenger_contacts(db=self.db, user_id=user_id)
+        result = []
+        for receiver_id in list_user_id:
+            user_details = crud_user.get_user_by_id(db=self.db, user_id=receiver_id)
+            last_message = crud_messenger.last_message(db=self.db, sender_id=user_id, receiver_id=receiver_id)
+
+            user_info = dict(user=dict(username=user_details.username,
+                                       avatar=user_details.avatar,
+                                       user_id=user_details.id),
+                             last_message=last_message)
+            result.append(user_info)
+
+        result.sort(key=lambda x: x['last_message'].create_at, reverse=True)
+
         return result
 
     async def create_messenger(self, user_id: str, messenger_create: MessengerCreateParam):
