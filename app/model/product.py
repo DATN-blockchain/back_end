@@ -14,7 +14,6 @@ class Product(Base):
     banner = Column(String(255), nullable=True)
     description = Column(String(255), nullable=True)
     price = Column(Integer, nullable=True)
-    last_price = Column(Integer, nullable=True)
     quantity = Column(Integer, nullable=True)
     tx_hash = Column(Text(), nullable=True)
     product_status = Column(String(255), nullable=False)
