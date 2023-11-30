@@ -16,3 +16,4 @@ from .leaderboard import Leaderboard
 from .cart import Cart
 from .detail_description import DetailDescription
 from .classify_goods import ClassifyGoods
+from .messenger import Messenger

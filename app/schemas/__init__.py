@@ -15,3 +15,4 @@ from .leaderboard import *
 from .cart import *
 from .detail_description import *
 from .classify_goods import *
+from .messenger import *

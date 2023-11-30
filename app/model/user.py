@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 
 from app.model.base import Base, UserSystemRole, ConfirmStatusUser
 from app.model.product import Product
+from app.model.messenger import Messenger
 
 
 class User(Base):
@@ -41,4 +42,8 @@ class User(Base):
     carts = relationship("Cart", back_populates="user", passive_deletes=True)
     transaction_fm = relationship("TransactionFM", back_populates="user", passive_deletes=True)
     transaction_sf = relationship("TransactionSF", back_populates="user", passive_deletes=True)
+    sent_messages = relationship("Messenger", back_populates="sender", passive_deletes=True,
+                                 foreign_keys="Messenger.sender_id")
+    received_messages = relationship("Messenger", back_populates="receiver", passive_deletes=True,
+                                     foreign_keys="Messenger.receiver_id")
     # marketplace = relationship("Marketplace", back_populates="user", passive_deletes=True)

@@ -12,3 +12,4 @@ from .leaderboard import LeaderboardService
 from .cart import CartService
 from .detail_description import DetailDescriptionService
 from .classify_goods import ClassifyGoodsService
+from .messenger import MessengerService
