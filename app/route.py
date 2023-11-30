@@ -3,11 +3,12 @@ from fastapi import APIRouter
 from app.api.endpoint import (user, product, marketplace, transaction_sf,
                               transaction_fm, comment, reply_comment,
                               notification, activity, financial_transaction,
-                              leaderboard, cart, detail_description, payment)
+                              leaderboard, cart, detail_description, payment, messenger)
 
 route = APIRouter()
 
 route.include_router(user.router, tags=["users"])
+route.include_router(messenger.router, tags=["messenger"])
 route.include_router(product.router, tags=["products"])
 route.include_router(detail_description.router, tags=["detail_descriptions"])
 route.include_router(marketplace.router, tags=["marketplaces"])
