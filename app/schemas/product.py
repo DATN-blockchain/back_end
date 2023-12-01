@@ -56,6 +56,7 @@ class ProductResponseChart(ProductBase):
 
 class ProductResponse(ProductBase):
     created_at: Optional[datetime] = None
+    marketplace_id: Optional[str] = None
 
     class Config:
         orm_mode = True
