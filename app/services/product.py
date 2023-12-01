@@ -179,8 +179,11 @@ class ProductService:
                                                                 skip=skip, limit=limit)
         result = [ProductResponse.from_orm(item) for item in list_product]
         for item in result:
-            marketplace_id = crud_marketplace.get_marketplace_by_product_id(db=self.db, product_id=item.id).id
-            item.marketplace_id = marketplace_id
+            marketplace = crud_marketplace.get_marketplace_by_product_id(db=self.db, product_id=item.id)
+            if marketplace:
+                item.marketplace_id = marketplace.id
+            else:
+                item.marketplace_id = None
         result = dict(total_product=total_product, list_product=result)
         return result
 
