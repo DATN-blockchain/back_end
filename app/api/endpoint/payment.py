@@ -1,5 +1,6 @@
 import logging
 from fastapi import APIRouter, Request, Depends
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from starlette.background import BackgroundTasks
 
@@ -38,4 +39,4 @@ async def payments_return(request: Request, background_tasks: BackgroundTasks, d
         message_template=message_template, action="deposit",
         current_user=current_user, owner=current_admin, price=amount
     )
-    return financial_response
+    return RedirectResponse(url='https://www.facebook.com/')
