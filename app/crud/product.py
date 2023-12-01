@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, func, extract
 from .base import CRUDBase
-from ..model import Product, TransactionSF, ProductFarmer, ProductManufacturer, TransactionFM
+from ..model import Product, TransactionSF, ProductFarmer, ProductManufacturer, TransactionFM, Marketplace
 from ..model.base import ProductStatus, ProductType
 
 from ..schemas import ProductCreate, ProductUpdate

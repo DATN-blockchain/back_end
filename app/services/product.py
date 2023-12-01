@@ -19,7 +19,7 @@ from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse
     TransactionSFHistoryResponse
 from ..blockchain_web3.product_provider import ProductProvider
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
-    crud_product_manufacturer, crud_grow_up, crud_leaderboard, crud_cart, crud_classify_goods
+    crud_product_manufacturer, crud_grow_up, crud_leaderboard, crud_cart, crud_classify_goods, crud_marketplace
 from ..model.base import ProductStatus, UserSystemRole, ConfirmStatusProduct, ChooseProduct, ConfirmProduct
 from ..utils.hash_lib import base64_encode
 
@@ -177,8 +177,11 @@ class ProductService:
     async def list_product(self, name: str, user_id: str, skip: int, limit: int):
         total_product, list_product = crud_product.list_product(db=self.db, name=name, user_id=user_id,
                                                                 skip=skip, limit=limit)
-        list_product = [ProductResponse.from_orm(item) for item in list_product]
-        result = dict(total_product=total_product, list_product=list_product)
+        result = [ProductResponse.from_orm(item) for item in list_product]
+        for item in result:
+            marketplace_id = crud_marketplace.get_marketplace_by_product_id(db=self.db, product_id=item.id).id
+            item.marketplace_id = marketplace_id
+        result = dict(total_product=total_product, list_product=result)
         return result
 
     async def get_grow_up_trace_origin(self, product_id: str):
