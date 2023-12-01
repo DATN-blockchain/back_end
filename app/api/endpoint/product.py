@@ -183,12 +183,12 @@ async def create_product(name: str,
                                                                    transaction_id=transaction_id,
                                                                    product_create=product_create,
                                                                    banner=banner)
-    message_template = NotificationTemplate.CRUD_PRODUCT_NOTIFICATION_MSG
-    background_tasks.add_task(
-        send_notification, notification_service, entity=product_response,
-        notification_type=NotificationType.PRODUCT_NOTIFICATION,
-        message_template=message_template, action='created', current_user=user
-    )
+    # message_template = NotificationTemplate.CRUD_PRODUCT_NOTIFICATION_MSG
+    # background_tasks.add_task(
+    #     send_notification, notification_service, entity=product_response,
+    #     notification_type=NotificationType.PRODUCT_NOTIFICATION,
+    #     message_template=message_template, action='created', current_user=user
+    # )
     activity_msg = ActivityTemplate.Activity_MSG
     activity_template = ActivityType.PRODUCT
     await activity_service.create_activity(user_id=user.id, activity_msg=activity_msg,
