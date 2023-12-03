@@ -45,6 +45,7 @@ class UserCreate(BaseModel):
     id: str
     email: str
     username: str
+    full_name: Optional[str] = None
 
 
 class SurveyCreateParam(BaseModel):

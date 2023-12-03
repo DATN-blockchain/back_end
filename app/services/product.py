@@ -650,9 +650,9 @@ class ProductService:
         current_classify_goods = crud_classify_goods.get_classify_goods_by_product_id(db=self.db, product_id=product_id)
         data = current_classify_goods.data
         current_quantity = data[str(kg)]["quantity"]
-        if current_quantity < quantity:
+        if int(current_quantity) < int(quantity):
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_INVALID_QUANTITY)
-        data[str(kg)]["quantity"] = current_quantity - quantity
+        data[str(kg)]["quantity"] = int(current_quantity) - int(quantity)
         crud_classify_goods.update_data(db=self.db, current_classify_goods=current_classify_goods, data=data)
 
     def update_data_by_product(self, current_product):

@@ -46,9 +46,13 @@ class ActorProvider(Web3Provider):
 if __name__ == "__main__":
     # actor_provider = ActorProvider().get_actor_by_id("e1bd3c7b-07b6-407b-afa3-041edf3bfe91")
     # print(actor_provider)
-    # ActorProvider().deposited(user_id="d3bb161f-d3ec-4141-8302-6800f8eb3d70", amount=100000)
-    actor_provider = ActorProvider().get_actor_by_id("d3bb161f-d3ec-4141-8302-6800f8eb3d70")
+    # ActorProvider().deposited(user_id="68e144e4-9667-4187-98d3-2738c8a2927e", amount=100000)
+    actor_provider = ActorProvider().get_actor_by_id("60b96988-dcb0-4afc-8f6d-a65f99a06995")
+    # actor_provider = ActorProvider()
     print(actor_provider)
-    # tx_hash = actor_provider.create_actor(user_id=uuid.uuid4().__str__(),
+    # id = uuid.uuid4().__str__()
+    # tx_hash = actor_provider.create_actor(user_id=id,
     #                                       address='0xe75DB3f37A05858507D469f896A4A982F7E1C302', role=0,
     #                                       hash_info="eyduYW1lJzogTm9uZSwgJ2F2YXRhcic6IE5vbmUsICdwaG9uZSc6IE5vbmUsICdhZGRyZXNzX3JlYWwnOiBOb25lfQ")
+    # actor_provider = ActorProvider().get_actor_by_id(id)
+    # print(actor_provider)
