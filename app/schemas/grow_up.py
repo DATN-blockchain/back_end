@@ -13,7 +13,7 @@ class GrowUpBase(BaseModel):
     description: Optional[str] = None
     image: Optional[str] = None
     video: Optional[str] = None
-    tx_hash: Optional[int] = None
+    tx_hash: Optional[str] = None
 
 
 class GrowUpCreate(GrowUpBase):
@@ -23,12 +23,12 @@ class GrowUpCreate(GrowUpBase):
 class GrowUpCreateParam(GrowUpBase):
     product_farmer_id: Optional[str] = None
     description: Optional[str] = None
-    image: Optional[int] = None
-    video: Optional[int] = None
+    image: Optional[str] = None
+    video: Optional[str] = None
 
 
 class GrowUpUpdate(BaseModel):
-    tx_hash: Optional[int] = None
+    tx_hash: Optional[str] = None
 
 
 class GrowUpResponse(GrowUpBase):

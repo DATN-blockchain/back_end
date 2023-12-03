@@ -22,8 +22,8 @@ class CRUDMessenger(CRUDBase[Messenger, MessengerCreate, MessengerUpdate]):
             and_(Messenger.sender_id == sender_id, Messenger.receiver_id == receiver_id),
             and_(Messenger.sender_id == receiver_id, Messenger.receiver_id == sender_id),
         ))
-        list_messenger = db_query.order_by(desc(Messenger.create_at))
-        return list_messenger.all()
+        # list_messenger = db_query.order_by(desc(Messenger.create_at))
+        return db_query.all()
 
     @staticmethod
     def last_message(db: Session, sender_id: str, receiver_id: str):
