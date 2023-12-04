@@ -28,7 +28,7 @@ class User(Base):
     confirm_status = Column(String(255), nullable=False, default=ConfirmStatusUser.NONE)
     survey_data = Column(JSON())
     qr_code = Column(String(255), nullable=True)
-    account_balance = Column(Float(), default=5)
+    account_balance = Column(Float(), default=0)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
     updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"),
                         onupdate=func.current_timestamp())

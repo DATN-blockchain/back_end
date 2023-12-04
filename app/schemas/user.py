@@ -83,6 +83,7 @@ class UserInfo(BaseModel):
     phone: Optional[str] = None
     system_role: Optional[str] = None
     address_wallet: Optional[str] = None
+    tx_hash: Optional[str] = None
 
     class Config:
         allow_population_by_field_name = True

@@ -16,7 +16,7 @@ from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
     ProductManufacturerHistoryResponse, GrowUpCreate, GrowUpUpdate, GrowUpResponse, LeaderboardUpdate, \
     LeaderboardCreate, ClassifyGoodsCreate, TransactionSFResponse, TransactionFMHistoryResponse, \
-    TransactionSFHistoryResponse
+    TransactionSFHistoryResponse, TransactionFMResponse
 from ..blockchain_web3.product_provider import ProductProvider
 from ..crud import crud_product, crud_user, crud_transaction_sf, crud_transaction_fm, crud_product_farmer, \
     crud_product_manufacturer, crud_grow_up, crud_leaderboard, crud_cart, crud_classify_goods, crud_marketplace
@@ -90,6 +90,7 @@ class ProductService:
                                                                              user_id=current_user.id,
                                                                              skip=skip, limit=limit,
                                                                              status=status))
+            list_transaction = [TransactionFMResponse.from_orm(item) for item in list_transaction]
         else:
             total_transaction = None
             list_transaction = None
@@ -114,7 +115,7 @@ class ProductService:
     @staticmethod
     def history_for_seedling_company(current_product):
         seedling_company = ProductResponse.from_orm(current_product)
-        result = dict(owner=seedling_company)
+        result = dict(seedling_company=seedling_company.user)
         return result
 
     def history_for_farmer(self, product_id):
@@ -124,7 +125,8 @@ class ProductService:
             raise error_exception_handler(error=Exception(),
                                           app_status=AppStatus.ERROR_FARMER_PRODUCT_NOT_FOUND)
         farmer = ProductFarmerHistoryResponse.from_orm(current_product_farmer)
-        result = dict(owner=farmer)
+        seedling_company = farmer.transactions_sf.product.user
+        result = dict(farmer=farmer.product.user, seedling_company=seedling_company)
         return result
 
     def history_for_manufacturer(self, product_id):
@@ -138,8 +140,14 @@ class ProductService:
                                   get_product_farmer_by_product_id(db=self.db,
                                                                    product_id=current_product_manufacturer.
                                                                    transactions_fm.product.id))
+
         farmer = ProductFarmerHistoryResponse.from_orm(current_product_farmer)
-        result = dict(owner=manufacturer, farmer=farmer)
+
+        _manufacturer = manufacturer.product.user
+        _farmer = farmer.product.user
+        _seedling_company = farmer.transactions_sf.product.user
+
+        result = dict(manufacturer=_manufacturer, farmer=_farmer, seedling_company=_seedling_company)
         return result
 
     async def get_product_history(self, product_id: str):
@@ -367,7 +375,7 @@ class ProductService:
                 obj_in_user = dict(account_balance=current_balance_user)
                 crud_user.update(db=self.db, db_obj=buyer, obj_in=obj_in_user)
                 status_confirm = ConfirmStatusProduct.REJECT
-            result = crud_transaction_sf.update_confirm_order(db=self.db, current_transaction=current_transaction,
+            result = crud_transaction_fm.update_confirm_order(db=self.db, current_transaction=current_transaction,
                                                               status=status_confirm)
 
         else:
@@ -466,27 +474,31 @@ class ProductService:
 
     async def update_product(self, product_id: str, product_update: ProductUpdate):
         current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
-        if current_product.product_type == ProductType.FARMER and (
-                product_update.quantity is not None or product_update.price is not None):
-            classify_goods = crud_classify_goods.get_classify_goods_by_product_id(db=self.db, product_id=product_id)
-            if product_update.quantity is not None:
-                self.permission_data(data=product_update.data, quantity=product_update.quantity)
-            if product_update.price is not None and not product_update.quantity:
-                self.permission_data(data=product_update.data, quantity=current_product.quantity)
-            if classify_goods:
-                if not product_update.data:
-                    raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_DATA)
-                crud_classify_goods.update_data(db=self.db,
-                                                current_classify_goods=classify_goods,
-                                                data=product_update.data)
-            else:
-                classify_goods = ClassifyGoodsCreate(
-                    id=str(uuid.uuid4()),
-                    product_id=product_id,
-                    data=product_update.data
-                )
-                crud_classify_goods.create(db=self.db, obj_in=classify_goods)
-
+        if product_update.data:
+            if current_product.product_type == ProductType.FARMER and (
+                    product_update.quantity is not None or product_update.price is not None):
+                classify_goods = crud_classify_goods.get_classify_goods_by_product_id(db=self.db, product_id=product_id)
+                if product_update.quantity is not None:
+                    self.permission_data(data=product_update.data, quantity=product_update.quantity)
+                if product_update.price is not None and not product_update.quantity:
+                    self.permission_data(data=product_update.data, quantity=current_product.quantity)
+                if classify_goods:
+                    if not product_update.data:
+                        raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PLEASE_ADD_DATA)
+                    crud_classify_goods.update_data(db=self.db,
+                                                    current_classify_goods=classify_goods,
+                                                    data=product_update.data)
+                else:
+                    classify_goods = ClassifyGoodsCreate(
+                        id=str(uuid.uuid4()),
+                        product_id=product_id,
+                        data=product_update.data
+                    )
+                    crud_classify_goods.create(db=self.db, obj_in=classify_goods)
+                    crud_product.update(db=self.db, db_obj=current_product, obj_in=product_update)
+        else:
+            pass
+        del product_update.data
         result = crud_product.update(db=self.db, db_obj=current_product, obj_in=product_update)
         product_provider = ProductProvider()
         data_hash = dict(name=result.name, banner=result.banner)
