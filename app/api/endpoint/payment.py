@@ -39,4 +39,4 @@ async def payments_return(request: Request, background_tasks: BackgroundTasks, d
         message_template=message_template, action="deposit",
         current_user=current_user, owner=current_admin, price=amount
     )
-    return RedirectResponse(url='https://www.facebook.com/')
+    return RedirectResponse(url='http://localhost:3000/cms')
