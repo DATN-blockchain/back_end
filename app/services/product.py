@@ -48,14 +48,15 @@ class ProductService:
         return data_chart
 
     async def get_product_trace_origin(self, product_id: str):
-        trace_origin = await self.get_product_manufacturer_history(product_id=product_id)
-        # grow_up = trace_origin["farmer"].product_id
-        if "farmer" in trace_origin:
-            grow_up = await self.get_grow_up_trace_origin(product_id=trace_origin["farmer"].product_id)
+        current_product = crud_product.get_product_by_id(db=self.db, product_id=product_id)
+        product = ProductResponse.from_orm(current_product)
+        chain = await self.get_product_manufacturer_history(product_id=product_id)
+        if "farmer" in chain:
+            product_id = chain["farmer"]["product_id"]
+            grow_up = await self.get_grow_up_trace_origin(product_id=product_id)
         else:
             grow_up = None
-        result = dict(trace_origin=trace_origin, grow_up=grow_up)
-
+        result = dict(chain=chain, product=product, grow_up=grow_up)
         return result
 
     async def get_product_history_sale(self, current_user: User, skip: int, limit: int):
@@ -105,17 +106,21 @@ class ProductService:
         if current_product.product_type == ProductType.SEEDLING_COMPANY:
             result = self.history_for_seedling_company(current_product=current_product)
         elif current_product.product_type == ProductType.FARMER:
-            result = self.history_for_farmer(product_id=product_id)
+            result, product_farmer = self.history_for_farmer(product_id=product_id)
         elif current_product.product_type == ProductType.MANUFACTURER:
             result = self.history_for_manufacturer(product_id=product_id)
         else:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PRODUCT_NOT_FOUND)
+
         return result
 
     @staticmethod
     def history_for_seedling_company(current_product):
         seedling_company = ProductResponse.from_orm(current_product)
-        result = dict(seedling_company=seedling_company.user)
+        seedling_company_dict = seedling_company.user.dict()
+        seedling_company_dict["product_id"] = seedling_company.id
+        result = dict(seedling_company=seedling_company_dict)
+
         return result
 
     def history_for_farmer(self, product_id):
@@ -125,9 +130,12 @@ class ProductService:
             raise error_exception_handler(error=Exception(),
                                           app_status=AppStatus.ERROR_FARMER_PRODUCT_NOT_FOUND)
         farmer = ProductFarmerHistoryResponse.from_orm(current_product_farmer)
-        seedling_company = farmer.transactions_sf.product.user
-        result = dict(farmer=farmer.product.user, seedling_company=seedling_company)
-        return result
+        farmer_dict = farmer.product.user.dict()
+        farmer_dict["product_id"] = farmer.product.id
+
+        seedling_company_dict = self.history_for_seedling_company(farmer.transactions_sf.product)
+        result = dict(farmer=farmer_dict, seedling_company=seedling_company_dict["seedling_company"])
+        return result, current_product_farmer
 
     def history_for_manufacturer(self, product_id):
         current_product_manufacturer = (crud_product_manufacturer.
@@ -136,18 +144,12 @@ class ProductService:
             raise error_exception_handler(error=Exception(),
                                           app_status=AppStatus.ERROR_MANUFACTURER_PRODUCT_NOT_FOUND)
         manufacturer = ProductManufacturerHistoryResponse.from_orm(current_product_manufacturer)
-        current_product_farmer = (crud_product_farmer.
-                                  get_product_farmer_by_product_id(db=self.db,
-                                                                   product_id=current_product_manufacturer.
-                                                                   transactions_fm.product.id))
-
-        farmer = ProductFarmerHistoryResponse.from_orm(current_product_farmer)
-
-        _manufacturer = manufacturer.product.user
-        _farmer = farmer.product.user
-        _seedling_company = farmer.transactions_sf.product.user
-
-        result = dict(manufacturer=_manufacturer, farmer=_farmer, seedling_company=_seedling_company)
+        manufacturer_dict = manufacturer.product.user.dict()
+        manufacturer_dict["product_id"] = manufacturer.product.id
+        product = self.history_for_farmer(current_product_manufacturer.transactions_fm.product.id)
+        result = dict(manufacturer=manufacturer_dict,
+                      farmer=product[0]["farmer"],
+                      seedling_company=product[0]["seedling_company"])
         return result
 
     async def get_product_history(self, product_id: str):
@@ -200,7 +202,6 @@ class ProductService:
         _, list_grow_up = (crud_grow_up.
                            get_grow_up_by_product_farmer_id(db=self.db,
                                                             product_farmer_id=current_product_farmer.id))
-        list_grow_up = [GrowUpResponse.from_orm(item) for item in list_grow_up]
         return list_grow_up
 
     async def get_product_grow_up(self, product_id: str, from_date: date, to_date: date, skip: int, limit: int):
