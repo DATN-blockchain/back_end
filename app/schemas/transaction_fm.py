@@ -37,6 +37,7 @@ class TransactionFMResponse(BaseModel):
     user_id: Optional[str] = None
     status: Optional[str] = None
     is_choose: Optional[str] = None
+    tx_hash: Optional[str] = None
     price: Optional[int] = None
     quantity: Optional[int] = None
     receiver: Optional[str] = None
