@@ -211,7 +211,8 @@ class UserService:
         else:
             system_role = current_user.system_role
             tx_hash = None
-        user_update = dict(system_role=system_role, confirm_status=ConfirmStatusUser.DONE, tx_hash=tx_hash)
+        user_update = dict(system_role=system_role, confirm_status=ConfirmStatusUser.DONE,
+                           tx_hash=f'{settings.BLOCK_EXPLORER}{tx_hash}')
         result = crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
         return UserResponse.from_orm(result)
 
@@ -228,7 +229,8 @@ class UserService:
             tx_hash = actor_provider.create_actor(user_id=user_id, address=current_user.address_wallet,
                                                   role=map_role[user_role], hash_info=hash_info)
 
-        result = crud_user.update_user_role(self.db, current_user=current_user, user_role=user_role, tx_hash=tx_hash)
+        result = crud_user.update_user_role(self.db, current_user=current_user, user_role=user_role,
+                                            tx_hash=f'{settings.BLOCK_EXPLORER}{tx_hash}')
         return UserResponse.from_orm(result)
 
     async def change_password(self, current_user: User, obj_in: ChangePassword):
@@ -308,7 +310,7 @@ class UserService:
             status=FinancialStatus.DONE,
             type_transaction=TypeTransaction.DEPOSIT,
             amount=result["amount"],
-            tx_hash=tx_hash)
+            tx_hash=f'{settings.BLOCK_EXPLORER}{tx_hash}')
         result_transaction = crud_financial_transaction.create(db=self.db, obj_in=financial_transaction_create)
         current_admin = crud_user.get_admin(db=self.db)
         current_user = crud_user.get_user_by_id(db=self.db, user_id=result["order_desc"])

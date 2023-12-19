@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy.orm import Session
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
+from ..core.settings import settings
 from ..model.base import UserSystemRole
 
 from ..schemas import ProductType, MarketplaceCreate, MarketplaceUpdate, MarketplaceResponse
@@ -58,7 +59,7 @@ class MarketplaceService:
         tx_hash = supply_chain_provider.listing_product_to_marketplace(item_id=marketplace_create.id,
                                                                        product_id=marketplace_create.order_id,
                                                                        owner=user_id)
-        marketplace_create.tx_hash = tx_hash
+        marketplace_create.tx_hash = f'{settings.BLOCK_EXPLORER}{tx_hash}'
         result = crud_marketplace.create(db=self.db, obj_in=marketplace_create)
 
         self.db.refresh(result)

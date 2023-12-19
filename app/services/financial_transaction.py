@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy.orm import Session
 from app.constant.app_status import AppStatus
 from app.core.exceptions import error_exception_handler
+from ..core.settings import settings
 
 from ..model import Product
 from ..model.base import ProductStatus, FinancialStatus, TypeTransaction, ConfirmUser
@@ -61,7 +62,7 @@ class FinancialTransactionService:
 
         actor_provider = ActorProvider()
         tx_hash = actor_provider.deposited(user_id=user_id, amount=amount)
-        financial_transaction_create.tx_hash = tx_hash
+        financial_transaction_create.tx_hash = f'{settings.BLOCK_EXPLORER}{tx_hash}'
         result = crud_financial_transaction.create(db=self.db, obj_in=financial_transaction_create)
         return result, current_admin
 
@@ -86,7 +87,7 @@ class FinancialTransactionService:
 
                 actor_provider = ActorProvider()
                 tx_hash = actor_provider.deposited(user_id=current_user.id, amount=amount)
-                update_account_balance["tx_hash"] = tx_hash
+                update_account_balance["tx_hash"] = f'{settings.BLOCK_EXPLORER}{tx_hash}'
                 crud_user.update(db=self.db, db_obj=current_user, obj_in=update_account_balance)
             else:
                 status = FinancialStatus.FAIL

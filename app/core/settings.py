@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     ADDRESS_CONTRACT_PRODUCT_MANAGER: Optional[str] = None
     ADDRESS_CONTRACT_SUPPLY_CHAIN: Optional[str] = None
     PRIVATE_KEY_SYSTEM: Optional[str] = None
+    BLOCK_EXPLORER: Optional[str] = None
     CHAIN_ID: Optional[str] = 421613
     HASH_KEY: Optional[str] = None
     # WEB3_PROVIDER = "https://goerli-rollup.arbitrum.io/rpc"
@@ -58,6 +59,7 @@ class Settings(BaseSettings):
     VNPAY_API_URL: Optional[str] = None
     VNPAY_TMN_CODE: Optional[str] = None  # Website ID in VNPAY System, get from config
     VNPAY_HASH_SECRET_KEY: Optional[str] = None  # Secret key for create checksum,get from config
+    FE_REDIRECT: Optional[str] = None
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:

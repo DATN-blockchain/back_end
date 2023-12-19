@@ -11,6 +11,7 @@ from cloudinary.uploader import upload
 from datetime import date
 
 from ..blockchain_web3.supply_chain_provider import SupplyChainProvider
+from ..core.settings import settings
 from ..model import User
 from ..schemas import ProductType, ProductCreate, ProductUpdate, ProductResponse, TransactionSFCreate, \
     ProductFarmerCreate, TransactionFMCreate, ProductFarmerHistoryResponse, ProductManufacturerCreate, \
@@ -317,7 +318,7 @@ class ProductService:
         result = crud_grow_up.create(db=self.db, obj_in=grow_up_create)
         product_provider = ProductProvider()
         tx_hash = product_provider.update_grow_up_product(product_id=product_id, url_image=entity_url)
-        update_grow_up = dict(tx_hash=tx_hash)
+        update_grow_up = dict(tx_hash=f'{settings.BLOCK_EXPLORER}{tx_hash}')
         result = crud_grow_up.update(self.db, db_obj=result, obj_in=update_grow_up)
         return result
 
@@ -461,7 +462,8 @@ class ProductService:
                                                       trans_id=transaction_id)
         if current_user.system_role in [UserSystemRole.MANUFACTURER, UserSystemRole.FARMER,
                                         UserSystemRole.SEEDLING_COMPANY]:
-            crud_product.update(db=self.db, db_obj=product_create, obj_in=dict(tx_hash=tx_hash))
+            crud_product.update(db=self.db, db_obj=product_create,
+                                obj_in=dict(tx_hash=f'{settings.BLOCK_EXPLORER}{tx_hash}'))
         self.db.refresh(product_create)
         return product_create
 
@@ -592,7 +594,7 @@ class ProductService:
                                                                   quantity=quantity,
                                                                   type_product="",
                                                                   buyer=create_transaction_sf.user_id)
-            create_transaction_sf.tx_hash = tx_hash
+            create_transaction_sf.tx_hash = f'{settings.BLOCK_EXPLORER}{tx_hash}'
             result = crud_transaction_sf.create(db=self.db, obj_in=create_transaction_sf)
         # Purchase for Manufacturer
         elif current_user.system_role == UserSystemRole.MANUFACTURER:
@@ -628,7 +630,7 @@ class ProductService:
                                                                   id_trans=create_transaction_fm.id,
                                                                   quantity=quantity,
                                                                   type_product="", buyer=create_transaction_fm.user_id)
-            create_transaction_fm.tx_hash = tx_hash
+            create_transaction_fm.tx_hash = f'{settings.BLOCK_EXPLORER}{tx_hash}'
             result = crud_transaction_fm.create(db=self.db, obj_in=create_transaction_fm)
         else:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_YOU_ARE_NOT_ALLOWED)

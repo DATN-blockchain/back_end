@@ -6,6 +6,7 @@ from starlette.background import BackgroundTasks
 
 from app.api.depend import oauth2
 from app.constant.template import FinancialTransactionTemplate
+from app.core.settings import settings
 from app.db.database import get_db
 from app.model import User
 from app.model.base import BankCode, LanguageEnum, NotificationType
@@ -39,4 +40,4 @@ async def payments_return(request: Request, background_tasks: BackgroundTasks, d
         message_template=message_template, action="deposit",
         current_user=current_user, owner=current_admin, price=amount
     )
-    return RedirectResponse(url='http://localhost:3000/cms')
+    return RedirectResponse(url=settings)
