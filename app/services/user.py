@@ -160,8 +160,8 @@ class UserService:
         if not current_user:
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
 
-        if current_user.is_active == False:
-            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_INACTIVE_USER)
+        if not current_user.is_active:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_YOUR_ACCOUNT_LOCKED)
 
         if not hash_lib.verify_password(login_request.password, current_user.hashed_password):
             raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_PASSWORD_INVALID)
@@ -215,6 +215,14 @@ class UserService:
                            tx_hash=f'{settings.BLOCK_EXPLORER}{tx_hash}')
         result = crud_user.update(db=self.db, db_obj=current_user, obj_in=user_update)
         return UserResponse.from_orm(result)
+
+    async def update_user_status(self, user_id: str, is_active: bool):
+        current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)
+        if not current_user:
+            raise error_exception_handler(error=Exception(), app_status=AppStatus.ERROR_USER_NOT_FOUND)
+        obj_in = dict(is_active=is_active)
+        result = crud_user.update(self.db, db_obj=current_user, obj_in=obj_in)
+        return result
 
     async def update_user_role(self, user_id: str, user_role: str):
         current_user = crud_user.get_user_by_id(db=self.db, user_id=user_id)

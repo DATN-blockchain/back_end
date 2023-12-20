@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends, UploadFile, File
@@ -176,6 +177,21 @@ async def confirm_user(user_id: str, confirm: ConfirmUser, background_task: Back
     user_response = await user_service.confirm_user(user_id=user_id, confirm=confirm)
 
     logger.info("Endpoints: confirm_user called successfully.")
+    return make_response_object(user_response)
+
+
+@router.put("/users/{user_id}/activate")
+async def update_user_status(
+        is_active: Optional[bool],
+        user_id: str,
+        user: User = Depends(oauth2.admin),
+        db: Session = Depends(get_db)
+):
+    user_service = UserService(db=db)
+
+    logger.info("Endpoints: update_user_status called.")
+    user_response = await user_service.update_user_status(user_id=user_id, is_active=is_active)
+    logger.info("Endpoints: update_user_status called successfully.")
     return make_response_object(user_response)
 
 
